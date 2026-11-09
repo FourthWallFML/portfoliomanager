@@ -1,5 +1,5 @@
 // Service Worker voor BUX Portfolio Manager PWA
-const CACHE_NAME = 'bux-portfolio-v6';
+const CACHE_NAME = 'bux-portfolio-v7';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -22,7 +22,7 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  if (e.request.url.includes('yahoo') || e.request.url.includes('allorigins') || e.request.url.includes('corsproxy') || e.request.url.includes('codetabs') || e.request.url.includes('stooq')) {
+  if (e.request.url.includes('yahoo') || e.request.url.includes('allorigins') || e.request.url.includes('corsproxy') || e.request.url.includes('codetabs')) {
     e.respondWith(fetch(e.request));
     return;
   }

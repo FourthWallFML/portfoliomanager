@@ -589,22 +589,25 @@
     }
 
 
+
     // =========================================================================
-    // MULTI-ENGINE BEURSKOERSEN (JSONP, DIVERSE PROXIES & STOOQ FALLBACK)
+    // SUPERSNELLE PROXY ENGINE MET PROGRESSIEVE LIVE RENDERING
     // =========================================================================
     let customProxyUrl = localStorage.getItem('bux_custom_proxy') || '';
 
-    // 1. JSONP Helper: omzeilt CORS VOLLEDIG in ELKE browser (zelfs file://)
-    function fetchJsonp(targetUrl, timeoutMs = 5000) {
+    // 1. JSONP Helper: omzeilt CORS gegarandeerd in elke browser
+    function fetchJsonp(targetUrl, timeoutMs = 3500) {
       return new Promise((resolve) => {
         const callbackName = 'jsonp_bux_' + Math.round(1000000 * Math.random());
         const script = document.createElement('script');
-        let timedOut = false;
+        let done = false;
 
         const timer = setTimeout(() => {
-          timedOut = true;
-          cleanup();
-          resolve(null);
+          if (!done) {
+            done = true;
+            cleanup();
+            resolve(null);
+          }
         }, timeoutMs);
 
         function cleanup() {
@@ -614,7 +617,8 @@
         }
 
         window[callbackName] = (response) => {
-          if (timedOut) return;
+          if (done) return;
+          done = true;
           cleanup();
           try {
             if (response && response.contents) {
@@ -629,9 +633,11 @@
         };
 
         script.onerror = () => {
-          if (timedOut) return;
-          cleanup();
-          resolve(null);
+          if (!done) {
+            done = true;
+            cleanup();
+            resolve(null);
+          }
         };
 
         script.src = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}&callback=${callbackName}`;
@@ -639,13 +645,12 @@
       });
     }
 
-    // 2. Snelle fetch via HTTP-proxy met timeout
-    async function fetchHttpProxy(proxyUrlBuilder, targetUrl, timeoutMs = 3500) {
+    // 2. HTTP Fetch met strikte timeout (2.5s)
+    async function fetchHttpProxy(url, timeoutMs = 2500) {
       const controller = new AbortController();
       const tid = setTimeout(() => controller.abort(), timeoutMs);
       try {
-        const u = proxyUrlBuilder(targetUrl);
-        const resp = await fetch(u, { signal: controller.signal, cache: 'no-cache' });
+        const resp = await fetch(url, { signal: controller.signal, cache: 'no-cache' });
         clearTimeout(tid);
         if (resp.ok) {
           const text = await resp.text();
@@ -661,63 +666,54 @@
       return null;
     }
 
-    // Universele koersopvrager voor 1 symbool (probeert Yahoo via JSONP, AllOrigins, CodeTabs, CorsProxy en Stooq)
-    async function fetchQuoteForSymbol(symbol) {
-      const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
-      
-      // A. Als de gebruiker een custom proxy heeft ingesteld:
+    // Snelle detectie: welke methode werkt op dit moment het snelst?
+    let preferredMethod = 'jsonp'; // 'custom', 'jsonp', 'corsproxy', 'codetabs'
+
+    async function detectWorkingEngine() {
       if (customProxyUrl) {
-        try {
-          const directData = await fetchHttpProxy((u) => `${customProxyUrl}${encodeURIComponent(u)}`, yahooUrl, 4000);
-          if (directData && directData.chart && directData.chart.result && directData.chart.result[0]) {
-            const m = directData.chart.result[0].meta;
-            const price = m.regularMarketPrice || m.previousClose || m.chartPreviousClose;
-            if (price > 0) return { price, isLive: !!m.regularMarketPrice, source: 'Custom Proxy' };
-          }
-        } catch (e) {}
+        preferredMethod = 'custom';
+        return;
       }
 
-      // B. JSONP via AllOrigins (CORS-vrij en werkt in 99% van de browsers)
+      const testUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/EURUSD=X?interval=1d&range=1d';
+      
+      const pJsonp = fetchJsonp(testUrl, 2500).then(d => d ? 'jsonp' : Promise.reject());
+      const pCors = fetchHttpProxy(`https://corsproxy.io/?url=${encodeURIComponent(testUrl)}`, 2500).then(d => d ? 'corsproxy' : Promise.reject());
+      const pTabs = fetchHttpProxy(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(testUrl)}`, 2500).then(d => d ? 'codetabs' : Promise.reject());
+
       try {
-        const jsonpData = await fetchJsonp(yahooUrl, 4000);
-        if (jsonpData && jsonpData.chart && jsonpData.chart.result && jsonpData.chart.result[0]) {
-          const m = jsonpData.chart.result[0].meta;
-          const price = m.regularMarketPrice || m.previousClose || m.chartPreviousClose;
-          if (price > 0) return { price, isLive: !!m.regularMarketPrice, source: 'AllOrigins JSONP' };
+        preferredMethod = await Promise.any([pJsonp, pCors, pTabs]);
+        console.log(`[Engine] Snelste methode: ${preferredMethod}`);
+      } catch (e) {
+        preferredMethod = 'jsonp'; // veilige fallback
+      }
+    }
+
+    // Enkele snelle quote opvragen via de gekozen methode (max 2.5s)
+    async function fetchSingleQuote(symbol) {
+      const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
+      let data = null;
+
+      try {
+        if (preferredMethod === 'custom' && customProxyUrl) {
+          data = await fetchHttpProxy(`${customProxyUrl}${encodeURIComponent(yahooUrl)}`, 2500);
+        } else if (preferredMethod === 'corsproxy') {
+          data = await fetchHttpProxy(`https://corsproxy.io/?url=${encodeURIComponent(yahooUrl)}`, 2500);
+          if (!data) data = await fetchJsonp(yahooUrl, 2500);
+        } else if (preferredMethod === 'codetabs') {
+          data = await fetchHttpProxy(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(yahooUrl)}`, 2500);
+          if (!data) data = await fetchJsonp(yahooUrl, 2500);
+        } else {
+          // jsonp
+          data = await fetchJsonp(yahooUrl, 2500);
+          if (!data) data = await fetchHttpProxy(`https://corsproxy.io/?url=${encodeURIComponent(yahooUrl)}`, 2000);
         }
-      } catch (e) {}
 
-      // C. HTTP Proxies (corsproxy.io, codetabs, allorigins raw)
-      const proxyList = [
-        (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-        (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
-        (u) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`
-      ];
-
-      for (const pBuilder of proxyList) {
-        try {
-          const data = await fetchHttpProxy(pBuilder, yahooUrl, 3000);
-          if (data && data.chart && data.chart.result && data.chart.result[0]) {
-            const m = data.chart.result[0].meta;
-            const price = m.regularMarketPrice || m.previousClose || m.chartPreviousClose;
-            if (price > 0) return { price, isLive: !!m.regularMarketPrice, source: 'HTTP Proxy' };
-          }
-        } catch (e) {}
-      }
-
-      // D. Stooq Fallback (voor aandelen en wisselkoersen als Yahoo geblokkeerd is)
-      try {
-        const stooqSym = symbol.replace('.BR', '.BE').replace('.PA', '.FR').replace('.AS', '.NL').replace('.DE', '.DE');
-        const stooqUrl = `https://stooq.com/q/l/?s=${encodeURIComponent(stooqSym.toLowerCase())}&f=sd2t2ohlcv&h&e=csv`;
-        const csvText = await fetchHttpProxy((u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`, stooqUrl, 3000);
-        if (typeof csvText === 'string' && csvText.includes(',')) {
-          const lines = csvText.trim().split('\n');
-          if (lines.length > 1) {
-            const cols = lines[1].split(',');
-            const closePrice = parseFloat(cols[cols.length - 2]); // Close column
-            if (!isNaN(closePrice) && closePrice > 0) {
-              return { price: closePrice, isLive: false, source: 'Stooq' };
-            }
+        if (data && data.chart && data.chart.result && data.chart.result[0]) {
+          const m = data.chart.result[0].meta;
+          const price = m.regularMarketPrice || m.previousClose || m.chartPreviousClose;
+          if (price && price > 0) {
+            return { price, isLive: !!m.regularMarketPrice };
           }
         }
       } catch (e) {}
@@ -725,7 +721,7 @@
       return null;
     }
 
-    // SNELLER & WATERDICHT KOERSEN OPHALEN
+    // SNELLER KOERSEN OPHALEN MET PROGRESSIEVE LIVE RENDERING
     async function fetchLivePrices() {
       const portfolio = calculatePortfolio();
       const activeHoldings = portfolio.activeHoldings;
@@ -740,50 +736,58 @@
 
       syncBtn.disabled = true;
       syncIcon.classList.add('animate-spin');
-      syncText.innerText = 'Verbinding opzetten...';
-      showBanner("Verbinding maken via CORS-vrije JSONP / Proxy gateways...", "refresh-cw");
+      syncText.innerText = 'Verbinden...';
+      showBanner("Koersen live ophalen via beursnetwerk...", "refresh-cw");
 
       let successCount = 0;
-      let usedSource = 'Netwerk';
 
       try {
-        // 1. Eerst EUR/USD ophalen
-        const fxRes = await fetchQuoteForSymbol('EURUSD=X');
+        // 1. Snelle detectie (max 2 seconden)
+        await detectWorkingEngine();
+
+        // 2. Haal EUR/USD op
+        const fxRes = await fetchSingleQuote('EURUSD=X');
         if (fxRes && fxRes.price > 0) {
           currentEurUsd = fxRes.price;
-          usedSource = fxRes.source;
+          document.getElementById('fx-rate-badge').innerText = `EUR/USD: ${currentEurUsd.toFixed(4)}`;
         }
 
-        // 2. Parallel per ticker (max 4 gelijktijdig voor stabiliteit)
+        syncText.innerText = 'Koersen ophalen...';
+
+        // 3. Parallel ophalen in batches van 6 gelijktijdig
+        // [CRUCIAAL]: Na ELK voltooid aandeel direct renderen zodat de badges LIVE van "BUX" naar "Live/Slot" springen!
         let done = 0;
-        await mapConcurrent(activeHoldings, 4, async (h) => {
+
+        await mapConcurrent(activeHoldings, 6, async (h) => {
           const meta = getAssetMeta(h.isin, h.name);
           const symbol = meta.symbol || h.isin;
 
-          const res = await fetchQuoteForSymbol(symbol);
+          const res = await fetchSingleQuote(symbol);
           if (res && res.price > 0) {
             currentPrices[h.isin] = res.price;
             priceStatusMap[h.isin] = {
               status: res.isLive ? 'live' : 'close',
-              note: res.isLive ? `Live koers (${res.source})` : `Slotkoers (${res.source})`,
+              note: res.isLive ? 'Live beurskoers' : 'Slotkoers (beurs gesloten)',
               time: new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })
             };
             successCount++;
-            usedSource = res.source;
           } else {
-            // Als ophalen niet lukt: BEHOUD netjes de bestaande prijs of GAK met vriendelijke status
+            // Als niet bereikbaar: behoud netjes vorige prijs met vriendelijke status
             if (!currentPrices[h.isin]) {
               currentPrices[h.isin] = (meta.cur === 'USD' ? (h.gak * currentEurUsd) : h.gak);
             }
             priceStatusMap[h.isin] = {
               status: 'cached',
-              note: 'Behouden op bekende aankoopkoers/GAK (kan handmatig worden aangepast)',
+              note: 'Behouden op aankoopkoers/GAK',
               time: new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })
             };
           }
 
           done++;
           syncText.innerText = `Ophalen (${done}/${activeHoldings.length})...`;
+          
+          // DIRECT LIVE BIJWERKEN ZODAT DE GEBRUIKER ZIET DAT HET WERKT
+          renderApp();
         });
 
         lastPriceUpdate = new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
@@ -791,14 +795,15 @@
         renderApp();
 
         if (successCount > 0) {
-          showBanner(`${successCount}/${activeHoldings.length} koersen succesvol bijgewerkt via ${usedSource}! (EUR/USD: ${currentEurUsd.toFixed(4)})`, "check-circle");
+          showBanner(`${successCount}/${activeHoldings.length} posities direct bijgewerkt! (EUR/USD: ${currentEurUsd.toFixed(4)})`, "check-circle");
         } else {
-          showBanner(`Geen live netwerkrespons ontvangen van Yahoo. Bestaande aankoopkoersen blijven behouden. Je kunt koersen ook handmatig typen in de tabel.`, "alert-triangle");
+          showBanner(`Koersen konden tijdelijk niet live geverifieerd worden; bestaande aankoopkoersen/GAK zijn behouden.`, "alert-triangle");
         }
       } catch (err) {
-        console.error("Fout bij fetchLivePrices:", err);
-        showBanner("Fout bij ophalen. Bestaande koersen zijn behouden.", "alert-triangle");
+        console.error("Fout in fetchLivePrices:", err);
+        showBanner("Ophalen onderbroken; bestaande data blijft behouden.", "alert-triangle");
       } finally {
+        // ALTIJD HERSTELLEN
         syncBtn.disabled = false;
         syncIcon.classList.remove('animate-spin');
         syncText.innerText = 'Live Koersen Ophalen';
