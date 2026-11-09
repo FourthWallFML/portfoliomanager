@@ -37,9 +37,11 @@
                     <p class="text-xs text-slate-400 uppercase tracking-widest font-semibold">Portfolio Analysis Tool</p>
                 </div>
             </div>
-            <div class="flex flex-wrap gap-3">
-                <button @click="resetData()" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-rose-500/20 transition">Reset Gegevens</button>
-                <button @click="exportData()" class="bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-700 transition">Exporteer Backup</button>
+            <div class="flex flex-wrap gap-3 items-center">
+                <span class="text-xs text-slate-400" x-text="syncStatus"></span>
+                <button @click="fetchGoogleSheetData()" class="bg-teal-600/20 text-teal-300 border border-teal-500/30 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-teal-600/30 transition">Sync Google Sheet</button>
+                <button @click="resetData()" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-rose-500/20 transition">Reset</button>
+                <button @click="exportData()" class="bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-700 transition">Backup</button>
             </div>
         </header>
 
@@ -49,7 +51,7 @@
                 <div class="flex items-center">
                     <div class="ml-3">
                         <p class="text-sm text-amber-200 font-medium">
-                            Let op: Er zijn <span x-text="unmappedIsins.length" class="font-bold underline"></span> assets zonder Google Finance ticker gemapt. Configureer ze hiernaast om actuele dagprijzen op te halen.
+                            Let op: Er zijn <span x-text="unmappedIsins.length" class="font-bold underline"></span> assets zonder Google Finance ticker gemapt. Configureer ze in je Google Sheet of hieronder.
                         </p>
                     </div>
                 </div>
@@ -73,7 +75,7 @@
                         file:text-xs file:font-bold
                         file:bg-emerald-500 file:text-slate-950
                         hover:file:bg-emerald-400 cursor-pointer transition"/>
-                    <p class="text-[11px] text-slate-400 mt-2">Upload je transactie CSV. Bestaande posities en transacties worden automatisch bijgewerkt en lokaal bewaard.</p>
+                    <p class="text-[11px] text-slate-400 mt-2">Upload je transactie CSV. Posities worden automatisch berekend en lokaal opgeslagen.</p>
                 </div>
 
                 <!-- Asset Mapping Card -->
@@ -81,10 +83,10 @@
                     <div class="flex justify-between items-center mb-3">
                         <h2 class="text-base font-bold text-slate-200 flex items-center gap-2">
                             <span class="bg-emerald-500/20 text-emerald-400 w-6 h-6 rounded-full inline-flex items-center justify-center text-xs">2</span>
-                            Asset Mapping (Google Sheet / Ticker)
+                            Asset Mapping (Google Sheet)
                         </h2>
                     </div>
-                    <p class="text-[11px] text-slate-400 mb-4">Koppel elke ISIN aan een Google Finance koerssymbool (bijv. <code>AMS:UNA</code> of <code>EPA:MC</code>).</p>
+                    <p class="text-[11px] text-slate-400 mb-4">Gekoppeld aan je Google Sheet backend.</p>
                     
                     <div class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
                         <template x-for="(mapping, isin) in assetMapping" :key="isin">
@@ -93,12 +95,12 @@
                                 <div class="text-[10px] text-slate-400 font-mono mb-2" x-text="isin"></div>
                                 <div class="flex gap-2">
                                     <input type="text" x-model="mapping.ticker" placeholder="Bijv. AMS:ASML" class="text-xs bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 w-full text-slate-200 focus:outline-none focus:border-emerald-500">
-                                    <button @click="saveMapping()" class="bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-emerald-500 transition">Bewaar</button>
+                                    <button @click="saveMappingLocally()" class="bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-emerald-500 transition">Bewaar</button>
                                 </div>
                             </div>
                         </template>
                         <template x-if="Object.keys(assetMapping).length === 0">
-                            <p class="text-xs text-slate-500 italic text-center py-4">Nog geen assets gevonden. Upload een transactiebestand.</p>
+                            <p class="text-xs text-slate-500 italic text-center py-4">Nog geen assets gevonden. Upload een transactiebestand of synchroniseer met Google Sheet.</p>
                         </template>
                     </div>
                 </div>
@@ -125,9 +127,9 @@
                 <!-- Positions Table Card -->
                 <div class="bg-slate-800/80 backdrop-blur rounded-2xl shadow-xl border border-slate-700/60 overflow-hidden">
                     <div class="p-5 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <h2 class="text-base font-bold text-slate-200">Huidige Posities & Laatste Dagprijzen</h2>
+                        <h2 class="text-base font-bold text-slate-200">Huidige Posities & Live Dagprijzen</h2>
                         <div class="flex gap-2">
-                            <button @click="fetchLatestPrices()" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition">Prijzen Vernieuwen</button>
+                            <button @click="fetchGoogleSheetData()" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition">Live Koersen Ophalen</button>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
@@ -138,7 +140,7 @@
                                     <th class="p-4">ISIN / Ticker</th>
                                     <th class="p-4 text-right">Aantal</th>
                                     <th class="p-4 text-right">Gem. Aankoop</th>
-                                    <th class="p-4 text-right">Laatste Prijs</th>
+                                    <th class="p-4 text-right">Laatste Prijs (Sheet)</th>
                                     <th class="p-4 text-right">Huidige Waarde</th>
                                     <th class="p-4 text-right">Rendement</th>
                                 </tr>
@@ -153,12 +155,10 @@
                                         </td>
                                         <td class="p-4 text-right font-mono" x-text="pos.quantity.toFixed(4)"></td>
                                         <td class="p-4 text-right font-mono" x-text="formatCurrency(pos.avgPrice)"></td>
-                                        <td class="p-4 text-right font-mono">
-                                            <input type="number" step="0.01" x-model.number="latestPrices[pos.isin]" @change="savePrices()" class="w-24 text-right bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-emerald-300 font-mono focus:outline-none focus:border-emerald-500">
-                                        </td>
-                                        <td class="p-4 text-right font-bold font-mono text-slate-100" x-text="formatCurrency(pos.quantity * (latestPrices[pos.isin] || pos.avgPrice))"></td>
-                                        <td class="p-4 text-right font-bold font-mono" :class="(pos.quantity * (latestPrices[pos.isin] || pos.avgPrice) - (pos.quantity * pos.avgPrice)) >= 0 ? 'text-emerald-400' : 'text-rose-400'" 
-                                            x-text="formatCurrency((pos.quantity * (latestPrices[pos.isin] || pos.avgPrice)) - (pos.quantity * pos.avgPrice))">
+                                        <td class="p-4 text-right font-mono text-emerald-300 font-bold" x-text="formatCurrency(getAssetPrice(pos.isin))"></td>
+                                        <td class="p-4 text-right font-bold font-mono text-slate-100" x-text="formatCurrency(pos.quantity * getAssetPrice(pos.isin))"></td>
+                                        <td class="p-4 text-right font-bold font-mono" :class="(pos.quantity * getAssetPrice(pos.isin) - (pos.quantity * pos.avgPrice)) >= 0 ? 'text-emerald-400' : 'text-rose-400'" 
+                                            x-text="formatCurrency((pos.quantity * getAssetPrice(pos.isin)) - (pos.quantity * pos.avgPrice))">
                                         </td>
                                     </tr>
                                 </template>
@@ -177,6 +177,8 @@
 
     <!-- Script Application Logic -->
     <script>
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxoKgoRj8emgz-U_wnLqRz76GFLgCzrH9jzxyox6GkD1p6TWr8NMwrq21jlRVvna4T7lw/exec';
+
         let deferredPrompt = null;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -191,6 +193,7 @@
                 assetMapping: {},
                 latestPrices: {},
                 showInstallPrompt: false,
+                syncStatus: 'Niet gesynchroniseerd',
 
                 initApp() {
                     window.addEventListener('pwa-install-ready', () => {
@@ -199,12 +202,10 @@
 
                     // Register Service Worker
                     if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.register('sw.js')
-                            .then(() => console.log('Service Worker geregistreerd.'))
-                            .catch(err => console.log('SW registratie mislukt:', err));
+                        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed:', err));
                     }
 
-                    // Load from localStorage
+                    // Load local storage backup first for instant load
                     const savedTx = localStorage.getItem('pat_transactions');
                     const savedMap = localStorage.getItem('pat_mapping');
                     const savedPrices = localStorage.getItem('pat_prices');
@@ -216,19 +217,57 @@
                     if (this.transactions.length > 0) {
                         this.calculatePositions();
                     }
+
+                    // Automatically fetch latest live prices from Google Sheet backend upon opening
+                    this.fetchGoogleSheetData();
                 },
 
-                installPwa() {
-                    if (deferredPrompt) {
-                        deferredPrompt.prompt();
-                        deferredPrompt.userChoice.then((choiceResult) => {
-                            if (choiceResult.outcome === 'accepted') {
-                                console.log('PWA geïnstalleerd');
+                fetchGoogleSheetData() {
+                    this.syncStatus = 'Bezig met synchroniseren...';
+                    fetch(GOOGLE_SCRIPT_URL)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                // Merge Google Sheet mapping with local mapping (Sheet takes precedence or fills gaps)
+                                if (data.mapping) {
+                                    for (let isin in data.mapping) {
+                                        if (!this.assetMapping[isin]) {
+                                            this.assetMapping[isin] = data.mapping[isin];
+                                        } else if (data.mapping[isin].ticker) {
+                                            this.assetMapping[isin].ticker = data.mapping[isin].ticker;
+                                        }
+                                    }
+                                    localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
+                                }
+
+                                // Update prices fetched via Google Finance from Google Sheet
+                                if (data.prices) {
+                                    this.latestPrices = data.prices;
+                                    localStorage.setItem('pat_prices', JSON.stringify(this.latestPrices));
+                                }
+
+                                this.syncStatus = 'Laatst gesynchroniseerd: ' + new Date().toLocaleTimeString();
+                            } else {
+                                this.syncStatus = 'Sync fout van server';
                             }
-                            deferredPrompt = null;
-                            this.showInstallPrompt = false;
+                        })
+                        .catch(err => {
+                            console.error('Fout bij ophalen Google Sheet data:', err);
+                            this.syncStatus = 'Offline modus (lokaal actief)';
                         });
+                },
+
+                getAssetPrice(isin) {
+                    const ticker = this.assetMapping[isin]?.ticker;
+                    if (ticker && this.latestPrices[ticker] !== undefined) {
+                        return this.latestPrices[ticker];
                     }
+                    // Fallback to direct ISIN price or avg price if ticker price not found
+                    if (this.latestPrices[isin] !== undefined) {
+                        return this.latestPrices[isin];
+                    }
+                    const pos = this.positions.find(p => p.isin === isin);
+                    return pos ? pos.avgPrice : 0;
                 },
 
                 handleFileUpload(event) {
@@ -259,7 +298,7 @@
                             }
                         }
                     });
-                    this.saveMapping();
+                    this.saveMappingLocally();
                     this.calculatePositions();
                 },
 
@@ -301,16 +340,8 @@
                     this.positions = Object.values(posMap).filter(p => p.quantity > 0.0001);
                 },
 
-                saveMapping() {
+                saveMappingLocally() {
                     localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
-                },
-
-                savePrices() {
-                    localStorage.setItem('pat_prices', JSON.stringify(this.latestPrices));
-                },
-
-                fetchLatestPrices() {
-                    alert('Laatste dagprijzen zijn geladen vanuit de lokale cache en gekoppelde sheet.');
                 },
 
                 resetData() {
@@ -344,7 +375,7 @@
 
                 get totalPortfolioValue() {
                     return this.positions.reduce((acc, pos) => {
-                        const price = this.latestPrices[pos.isin] || pos.avgPrice;
+                        const price = this.getAssetPrice(pos.isin);
                         return acc + (pos.quantity * price);
                     }, 0);
                 },
