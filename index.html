@@ -20,7 +20,7 @@
 
     <!-- PWA Install Banner -->
     <div x-show="showInstallPrompt" class="bg-emerald-600 px-4 py-2 text-white text-xs flex justify-between items-center shadow-md">
-        <span>Installeer PAT (Portfolio Analysis Tool) als app op je apparaat voor snelle toegang!</span>
+        <span>Installeer PAT als app op je apparaat voor snelle toegang!</span>
         <div class="flex gap-2">
             <button @click="installPwa()" class="bg-white text-emerald-800 font-bold px-3 py-1 rounded shadow hover:bg-emerald-50">Installeer</button>
             <button @click="showInstallPrompt = false" class="text-emerald-200 hover:text-white px-1">✕</button>
@@ -45,14 +45,60 @@
             </div>
         </header>
 
-        <!-- Unmapped Warning -->
+        <!-- Unmapped Warning Banner -->
         <template x-if="unmappedIsins.length > 0">
-            <div class="bg-amber-950/40 border-l-4 border-amber-400 p-4 mb-6 rounded-r-xl shadow-lg border border-amber-500/20">
-                <div class="flex items-center">
-                    <div class="ml-3">
-                        <p class="text-sm text-amber-200 font-medium">
-                            Let op: Er zijn <span x-text="unmappedIsins.length" class="font-bold underline"></span> assets zonder Google Finance ticker gemapt. Configureer ze in je Google Sheet of hiernaast.
-                        </p>
+            <div class="bg-amber-950/40 border-l-4 border-amber-400 p-4 mb-6 rounded-r-xl shadow-lg border border-amber-500/20 transition-all">
+                <div class="flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            <p class="text-sm text-amber-200 font-medium">
+                                Let op: Er zijn 
+                                <button type="button" 
+                                        @click="showUnmappedDetails = !showUnmappedDetails" 
+                                        class="font-black text-amber-300 bg-amber-900/60 hover:bg-amber-800/80 underline decoration-amber-400 decoration-2 underline-offset-2 px-2 py-0.5 rounded cursor-pointer transition transform hover:scale-105 active:scale-95" 
+                                        title="Klik om de ontbrekende assets te tonen">
+                                    <span x-text="unmappedIsins.length"></span>
+                                </button> 
+                                assets zonder Google Finance ticker gemapt.
+                            </p>
+                        </div>
+                        <button type="button" 
+                                @click="showUnmappedDetails = !showUnmappedDetails"
+                                class="text-xs text-amber-300 hover:text-amber-100 underline decoration-dotted ml-auto shrink-0 transition"
+                                x-text="showUnmappedDetails ? 'Verberg details ▲' : 'Toon assets ▼'">
+                        </button>
+                    </div>
+
+                    <!-- Klikbare details: Uitklapbare lijst van assets zonder ticker -->
+                    <div x-show="showUnmappedDetails" 
+                         x-transition:enter="transition ease-out duration-200" 
+                         x-transition:enter-start="opacity-0 -translate-y-2" 
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         class="mt-3 pt-3 border-t border-amber-500/20 space-y-2">
+                        <p class="text-[11px] text-amber-300/80 mb-2 font-medium">Koppel direct een Google Finance ticker (bijv. <code>EPA:MC</code> of <code>NASDAQ:NVDA</code>) en klik op Bewaar:</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <template x-for="isin in unmappedIsins" :key="isin">
+                                <div class="p-3 bg-slate-900/80 rounded-xl border border-amber-500/30 flex flex-col justify-between gap-2 shadow-inner">
+                                    <div>
+                                        <div class="text-xs font-bold text-amber-200 truncate" x-text="assetMapping[isin]?.name || isin"></div>
+                                        <div class="text-[10px] text-slate-400 font-mono" x-text="isin"></div>
+                                    </div>
+                                    <div class="flex gap-2 items-center">
+                                        <input type="text" 
+                                               x-model="assetMapping[isin].ticker" 
+                                               placeholder="Bijv. AMS:ASML" 
+                                               class="text-xs bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 w-full text-slate-100 focus:outline-none focus:border-amber-400">
+                                        <button @click="saveMappingToSheet(isin)" 
+                                                class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition shrink-0">
+                                            Bewaar
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -75,47 +121,52 @@
                         file:text-xs file:font-bold
                         file:bg-emerald-500 file:text-slate-950
                         hover:file:bg-emerald-400 cursor-pointer transition"/>
-                    <p class="text-[11px] text-slate-400 mt-2">Upload je transactie CSV. Posities worden automatisch berekend en lokaal opgeslagen.</p>
+                    <p class="text-[11px] text-slate-400 mt-2">Upload je transactie CSV. Boekhoudkundige regels worden automatisch ontdubbeld en lokaal bewaard.</p>
                 </div>
 
-                <!-- Asset Mapping Card -->
-                <div class="bg-slate-800/80 backdrop-blur p-6 rounded-2xl shadow-xl border border-slate-700/60">
+                <!-- Asset Mapping Card (Verborgen indien er geen assets zijn zonder mapping issues) -->
+                <div class="bg-slate-800/80 backdrop-blur p-6 rounded-2xl shadow-xl border border-slate-700/60" 
+                     x-show="unmappedIsins.length > 0"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-95">
                     <div class="flex justify-between items-center mb-3">
                         <h2 class="text-base font-bold text-slate-200 flex items-center gap-2">
-                            <span class="bg-emerald-500/20 text-emerald-400 w-6 h-6 rounded-full inline-flex items-center justify-center text-xs">2</span>
-                            Asset Mapping (Google Sheet)
+                            <span class="bg-amber-500/20 text-amber-400 w-6 h-6 rounded-full inline-flex items-center justify-center text-xs">2</span>
+                            Asset Mapping (Ontbrekend)
                         </h2>
+                        <span class="text-[11px] font-bold text-amber-400 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full" x-text="unmappedIsins.length + ' te mappen'"></span>
                     </div>
-                    <p class="text-[11px] text-slate-400 mb-4">Gekoppeld aan je Google Sheet backend.</p>
+                    <p class="text-[11px] text-slate-400 mb-4">Er zijn nog assets die een Google Finance ticker vereisen om live koersen op te halen.</p>
                     
                     <div class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
-                        <template x-for="(mapping, isin) in assetMapping" :key="isin">
+                        <template x-for="isin in unmappedIsins" :key="isin">
                             <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-700">
-                                <div class="text-xs font-bold text-emerald-300 truncate" x-text="mapping.name || isin"></div>
+                                <div class="text-xs font-bold text-amber-300 truncate" x-text="assetMapping[isin]?.name || isin"></div>
                                 <div class="text-[10px] text-slate-400 font-mono mb-2" x-text="isin"></div>
                                 <div class="flex gap-2">
-                                    <input type="text" x-model="mapping.ticker" placeholder="Bijv. AMS:ASML" class="text-xs bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 w-full text-slate-200 focus:outline-none focus:border-emerald-500">
+                                    <input type="text" x-model="assetMapping[isin].ticker" placeholder="Bijv. AMS:ASML of NASDAQ:NVDA" class="text-xs bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 w-full text-slate-200 focus:outline-none focus:border-emerald-500">
                                     <button @click="saveMappingToSheet(isin)" class="bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-emerald-500 transition">Bewaar</button>
                                 </div>
                             </div>
-                        </template>
-                        <template x-if="Object.keys(assetMapping).length === 0">
-                            <p class="text-xs text-slate-500 italic text-center py-4">Nog geen assets gevonden. Upload een transactiebestand of synchroniseer met Google Sheet.</p>
                         </template>
                     </div>
                 </div>
             </div>
 
             <!-- Right Content Area -->
-            <div class="lg:col-span-2 space-y-6">
+            <div class="lg:col-span-2 space-y-6" :class="{'lg:col-span-3': unmappedIsins.length === 0}">
                 <!-- KPI Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl border border-slate-700/60">
-                        <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Totale Portfoliowaarde</p>
+                        <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Totale Portfoliowaarde (EUR)</p>
                         <p class="text-2xl font-black text-emerald-400 mt-1" x-text="formatCurrency(totalPortfolioValue)"></p>
                     </div>
                     <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl border border-slate-700/60">
-                        <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Totaal Geïnvesteerd</p>
+                        <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Totaal Geïnvesteerd (EUR)</p>
                         <p class="text-2xl font-black text-slate-100 mt-1" x-text="formatCurrency(totalInvested)"></p>
                     </div>
                     <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl border border-slate-700/60">
@@ -127,10 +178,11 @@
                 <!-- Positions Table Card -->
                 <div class="bg-slate-800/80 backdrop-blur rounded-2xl shadow-xl border border-slate-700/60 overflow-hidden">
                     <div class="p-5 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <h2 class="text-base font-bold text-slate-200">Huidige Posities & Live Dagprijzen</h2>
-                        <div class="flex gap-2">
-                            <button @click="fetchGoogleSheetData()" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition">Live Koersen Ophalen</button>
+                        <div>
+                            <h2 class="text-base font-bold text-slate-200">Huidige Posities & Live Dagprijzen</h2>
+                            <p class="text-[10px] text-slate-400">Koersen in USD worden automatisch omgezet naar EUR.</p>
                         </div>
+                        <button @click="fetchGoogleSheetData()" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition">Live Koersen Ophalen</button>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
@@ -139,8 +191,8 @@
                                     <th class="p-4">Asset</th>
                                     <th class="p-4">ISIN / Ticker</th>
                                     <th class="p-4 text-right">Aantal</th>
-                                    <th class="p-4 text-right">Gem. Aankoop</th>
-                                    <th class="p-4 text-right">Laatste Prijs (Sheet)</th>
+                                    <th class="p-4 text-right">Gem. Aankoop (EUR)</th>
+                                    <th class="p-4 text-right">Laatste Prijs (EUR)</th>
                                     <th class="p-4 text-right">Huidige Waarde</th>
                                     <th class="p-4 text-right">Rendement</th>
                                 </tr>
@@ -155,10 +207,10 @@
                                         </td>
                                         <td class="p-4 text-right font-mono" x-text="pos.quantity.toFixed(4)"></td>
                                         <td class="p-4 text-right font-mono" x-text="formatCurrency(pos.avgPrice)"></td>
-                                        <td class="p-4 text-right font-mono text-emerald-300 font-bold" x-text="formatCurrency(getAssetPrice(pos.isin))"></td>
-                                        <td class="p-4 text-right font-bold font-mono text-slate-100" x-text="formatCurrency(pos.quantity * getAssetPrice(pos.isin))"></td>
-                                        <td class="p-4 text-right font-bold font-mono" :class="(pos.quantity * getAssetPrice(pos.isin) - (pos.quantity * pos.avgPrice)) >= 0 ? 'text-emerald-400' : 'text-rose-400'" 
-                                            x-text="formatCurrency((pos.quantity * getAssetPrice(pos.isin)) - (pos.quantity * pos.avgPrice))">
+                                        <td class="p-4 text-right font-mono text-emerald-300 font-bold" x-text="formatCurrency(getAssetPriceInEur(pos.isin))"></td>
+                                        <td class="p-4 text-right font-bold font-mono text-slate-100" x-text="formatCurrency(pos.quantity * getAssetPriceInEur(pos.isin))"></td>
+                                        <td class="p-4 text-right font-bold font-mono" :class="(pos.quantity * getAssetPriceInEur(pos.isin) - (pos.quantity * pos.avgPrice)) >= 0 ? 'text-emerald-400' : 'text-rose-400'" 
+                                            x-text="formatCurrency((pos.quantity * getAssetPriceInEur(pos.isin)) - (pos.quantity * pos.avgPrice))">
                                         </td>
                                     </tr>
                                 </template>
@@ -177,7 +229,7 @@
 
     <!-- Script Application Logic -->
     <script>
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKuOorxoe7_mn-6tqbtFQdxiIrRcbzvlqNFaFnYaub198SZRhoxQ-4XVwhaiU2Wz4pTw/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzaqprbcYS-OyDHvXQBw84_B9DpiFjescxWaJS-MGo519WabsAxFbL5AEzC-0O-TZ025w/exec';
 
         let deferredPrompt = null;
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -192,7 +244,9 @@
                 positions: [],
                 assetMapping: {},
                 latestPrices: {},
+                rates: { USDEUR: 0.92 },
                 showInstallPrompt: false,
+                showUnmappedDetails: false,
                 syncStatus: 'Niet gesynchroniseerd',
 
                 initApp() {
@@ -200,25 +254,24 @@
                         this.showInstallPrompt = true;
                     });
 
-                    // Register Service Worker
                     if ('serviceWorker' in navigator) {
                         navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed:', err));
                     }
 
-                    // Load local storage backup first for instant load
                     const savedTx = localStorage.getItem('pat_transactions');
                     const savedMap = localStorage.getItem('pat_mapping');
                     const savedPrices = localStorage.getItem('pat_prices');
+                    const savedRates = localStorage.getItem('pat_rates');
 
                     if (savedTx) this.transactions = JSON.parse(savedTx);
                     if (savedMap) this.assetMapping = JSON.parse(savedMap);
                     if (savedPrices) this.latestPrices = JSON.parse(savedPrices);
+                    if (savedRates) this.rates = JSON.parse(savedRates);
 
                     if (this.transactions.length > 0) {
                         this.calculatePositions();
                     }
 
-                    // Synchronize directly with Google Sheet backend upon opening
                     this.fetchGoogleSheetData();
                 },
 
@@ -228,7 +281,6 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.status === 'success') {
-                                // 1. Integreer Google Sheet mapping naadloos
                                 if (data.mapping) {
                                     for (let isin in data.mapping) {
                                         if (!this.assetMapping[isin]) {
@@ -245,15 +297,19 @@
                                     localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
                                 }
 
-                                // 2. Integreer actuele koersen uit de Sheet
                                 if (data.prices) {
                                     this.latestPrices = data.prices;
                                     localStorage.setItem('pat_prices', JSON.stringify(this.latestPrices));
                                 }
 
+                                if (data.rates) {
+                                    this.rates = data.rates;
+                                    localStorage.setItem('pat_rates', JSON.stringify(this.rates));
+                                }
+
                                 this.syncStatus = 'Gesynchroniseerd om ' + new Date().toLocaleTimeString();
                             } else {
-                                this.syncStatus = 'Sync fout van server';
+                                this.syncStatus = 'Sync fout';
                             }
                         })
                         .catch(err => {
@@ -266,10 +322,8 @@
                     const mappingItem = this.assetMapping[isin];
                     if (!mappingItem) return;
 
-                    // Bewaar lokaal
                     localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
 
-                    // Synchroniseer naar Google Sheet backend (doPost)
                     const payload = {
                         isin: isin,
                         name: mappingItem.name || '',
@@ -284,23 +338,33 @@
                         },
                         body: JSON.stringify(payload)
                     }).then(() => {
-                        this.syncStatus = `Ticker ${mappingItem.ticker} opgeslagen in Google Sheet!`;
+                        this.syncStatus = `Ticker ${mappingItem.ticker} opgeslagen!`;
                     }).catch(err => {
                         console.error('Fout bij verzenden naar Google Sheet:', err);
-                        this.syncStatus = 'Fout bij opslaan in sheet';
                     });
                 },
 
-                getAssetPrice(isin) {
+                getAssetPriceInEur(isin) {
                     const ticker = this.assetMapping[isin]?.ticker;
+                    let rawPrice = 0;
+
                     if (ticker && this.latestPrices[ticker] !== undefined) {
-                        return this.latestPrices[ticker];
+                        rawPrice = this.latestPrices[ticker];
+                    } else if (this.latestPrices[isin] !== undefined) {
+                        rawPrice = this.latestPrices[isin];
+                    } else {
+                        const pos = this.positions.find(p => p.isin === isin);
+                        return pos ? pos.avgPrice : 0;
                     }
-                    if (this.latestPrices[isin] !== undefined) {
-                        return this.latestPrices[isin];
+
+                    // Controleer of de ticker in USD noteert (NASDAQ, NYSE of expliciet .US)
+                    const isUsd = ticker && (ticker.startsWith('NASDAQ:') || ticker.startsWith('NYSE:') || ticker.endsWith('.US'));
+                    if (isUsd) {
+                        const rate = this.rates.USDEUR || 0.92;
+                        return rawPrice * rate;
                     }
-                    const pos = this.positions.find(p => p.isin === isin);
-                    return pos ? pos.avgPrice : 0;
+
+                    return rawPrice;
                 },
 
                 handleFileUpload(event) {
@@ -314,7 +378,7 @@
                             this.transactions = results.data;
                             localStorage.setItem('pat_transactions', JSON.stringify(this.transactions));
                             this.processNewTransactions();
-                            alert('Transactiebestand succesvol geladen en opgeslagen!');
+                            alert('Transacties succesvol verwerkt!');
                         }
                     });
                 },
@@ -335,6 +399,8 @@
                     this.calculatePositions();
                 },
 
+                // Oplossing voor dubbele boekingen in BUX:
+                // Alleen CASH_DEBIT (voor Buy Trade) en CASH_CREDIT (voor Sell Trade) verwerken
                 calculatePositions() {
                     let posMap = {};
                     let sortedTx = [...this.transactions].sort((a, b) => new Date(a['Transaction Time (CET)']) - new Date(b['Transaction Time (CET)']));
@@ -342,20 +408,22 @@
                     sortedTx.forEach(tx => {
                         const category = tx['Transaction Category'];
                         const type = tx['Transaction Type'];
+                        const transferType = tx['Transfer Type'];
                         const isin = tx['Asset Id'];
                         const name = tx['Asset Name'];
                         const qty = parseFloat(tx['Asset Quantity']) || 0;
-                        const price = parseFloat(tx['Asset Price']) || 0;
+                        const eurAmount = Math.abs(parseFloat(tx['Transaction Amount'])) || 0;
 
                         if (category === 'trades' && isin) {
                             if (!posMap[isin]) {
                                 posMap[isin] = { isin: isin, name: name, quantity: 0, totalCost: 0, avgPrice: 0 };
                             }
 
-                            if (type === 'Buy Trade') {
+                            if (type === 'Buy Trade' && transferType === 'CASH_DEBIT') {
                                 posMap[isin].quantity += qty;
-                                posMap[isin].totalCost += (qty * price);
-                            } else if (type === 'Sell Trade') {
+                                posMap[isin].totalCost += eurAmount;
+                            } 
+                            else if (type === 'Sell Trade' && transferType === 'CASH_CREDIT') {
                                 let avg = posMap[isin].quantity > 0 ? posMap[isin].totalCost / posMap[isin].quantity : 0;
                                 posMap[isin].quantity -= qty;
                                 posMap[isin].totalCost -= (qty * avg);
@@ -388,7 +456,8 @@
                     const data = {
                         transactions: this.transactions,
                         mapping: this.assetMapping,
-                        prices: this.latestPrices
+                        prices: this.latestPrices,
+                        rates: this.rates
                     };
                     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'json' });
                     const url = URL.createObjectURL(blob);
@@ -404,8 +473,8 @@
 
                 get totalPortfolioValue() {
                     return this.positions.reduce((acc, pos) => {
-                        const price = this.getAssetPrice(pos.isin);
-                        return acc + (pos.quantity * price);
+                        const priceEur = this.getAssetPriceInEur(pos.isin);
+                        return acc + (pos.quantity * priceEur);
                     }, 0);
                 },
 
