@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans pb-16">
+  <div class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+
+    <!-- Top Header met Actieknoppen -->
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-800/90 backdrop-blur border border-slate-700/80 p-4 sm:p-5 rounded-2xl shadow-lg">
+      <div class="flex items-center gap-3">
+        <div class="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400">
+          <i data-lucide="pie-chart" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-white tracking-tight">Portfolio Manager</h1>
+          <p class="text-xs text-slate-400 flex flex-wrap items-center gap-2">
+            <span>BUX Portefeuille & Live Koersen</span>
+            <span id="price-update-time" class="hidden text-slate-400 bg-slate-700/60 px-2 py-0.5 rounded text-[11px]"></span>
+            <span id="fx-rate-badge" class="text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded text-[11px] font-mono">EUR/USD: 1,0800</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Knoppenbalk: Live Koersen, Import & Reset -->
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Live Koersen Knop -->
+        <button id="btn-fetch-prices" onclick="fetchLivePrices()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition shadow-sm flex items-center gap-2">
+          <i id="sync-icon" data-lucide="refresh-cw" class="w-4 h-4"></i>
+          <span id="sync-text">Live Koersen Ophalen</span>
+        </button>
+
+        <!-- CSV Import Knop -->
+        <input type="file" id="csv-file-input" accept="*/*" class="hidden" onchange="handleFileUpload(event)">
+        <button onclick="document.getElementById('csv-file-input').click()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl transition shadow-sm flex items-center gap-2">
+          <i data-lucide="file-up" class="w-4 h-4"></i>
+          <span>Importeer BUX CSV</span>
+        </button>
+
+        <button onclick="clearData()" title="Wis alle data" class="p-2 bg-slate-700/60 hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 text-xs font-medium rounded-xl border border-slate-600/60 transition">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Subtiele Notificatie / Voortgangsbalk -->
+    <div id="status-banner" class="hidden bg-slate-800 border border-slate-700 text-slate-200 text-xs px-4 py-2.5 rounded-xl flex items-center justify-between shadow-sm transition">
+      <div class="flex items-center gap-2.5">
+        <i id="status-icon" data-lucide="info" class="w-4 h-4 text-emerald-400"></i>
+        <span id="status-banner-text">Bezig met bijwerken...</span>
+      </div>
+      <button onclick="document.getElementById('status-banner').classList.add('hidden')" class="text-slate-400 hover:text-white">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- Tab Navigatie -->
+    <nav class="flex border-b border-slate-700/80 space-x-2">
+      <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="px-4 py-2.5 text-sm font-semibold border-b-2 border-emerald-400 text-emerald-400 flex items-center gap-2 transition">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+        <span>Portfolio Dashboard</span>
+      </button>
+      <button onclick="switchTab('holdings')" id="tab-btn-holdings" class="px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
+        <i data-lucide="layers" class="w-4 h-4"></i>
+        <span>Posities & Koersen</span>
+      </button>
+      <button onclick="switchTab('transactions')" id="tab-btn-transactions" class="px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
+        <i data-lucide="history" class="w-4 h-4"></i>
+        <span>Transactiehistorie</span>
+      </button>
+    </nav>
+
+    <!-- TAB 1: PORTFOLIO DASHBOARD -->
+    <main id="tab-content-dashboard" class="space-y-6">
+
+      <!-- Primaire 4 KPI Kaarten -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- 1. Stortingen -->
+        <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl border border-slate-700/80 shadow-sm relative overflow-hidden">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Stortingen</span>
+            <div class="p-1.5 bg-blue-500/10 text-blue-400 rounded-lg">
+              <i data-lucide="arrow-down-left" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div id="kpi-deposits" class="text-2xl font-bold mt-2 text-white">€0,00</div>
+          <p class="text-xs text-slate-400 mt-1">Totaal gestort kapitaal</p>
+        </div>
+
+        <!-- 2. Opnames -->
+        <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl border border-slate-700/80 shadow-sm relative overflow-hidden">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Opnames</span>
+            <div class="p-1.5 bg-amber-500/10 text-amber-400 rounded-lg">
+              <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div id="kpi-withdrawals" class="text-2xl font-bold mt-2 text-white">€0,00</div>
+          <p class="text-xs text-slate-400 mt-1">Totaal afgehaald kapitaal</p>
+        </div>
+
+        <!-- 3. Huidige Waarde -->
+        <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl border border-slate-700/80 shadow-sm relative overflow-hidden">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Huidige Waarde</span>
+            <div class="p-1.5 bg-indigo-500/10 text-indigo-400 rounded-lg">
+              <i data-lucide="wallet" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div id="kpi-current-val" class="text-2xl font-bold mt-2 text-white">€0,00</div>
+          <p class="text-xs text-slate-400 mt-1">Aandelen: <span id="kpi-stocks-val" class="text-slate-300">€0,00</span> | Cash: <span id="kpi-cash-val" class="text-slate-300">€0,00</span></p>
+        </div>
+
+        <!-- 4. Totale Winst -->
+        <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl border border-slate-700/80 shadow-sm relative overflow-hidden">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Totale Winst</span>
+            <div id="kpi-profit-icon-box" class="p-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg">
+              <i data-lucide="trending-up" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div id="kpi-total-profit" class="text-2xl font-bold mt-2 text-white">€0,00</div>
+          <div class="flex items-center gap-1.5 text-xs font-semibold mt-1">
+            <span id="kpi-profit-pct" class="text-emerald-400">0,00%</span>
+            <span class="text-slate-500 font-normal">(Waarde + Opname - Storting)</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Secundaire Info Bar: Netto Inleg & Dividenden -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60 flex items-center justify-between">
+          <div>
+            <div class="text-xs text-slate-400">Netto Inleg (Stortingen - Opnames)</div>
+            <div id="sub-net-invested" class="text-lg font-semibold text-slate-200 mt-0.5">€0,00</div>
+          </div>
+          <i data-lucide="scale" class="w-5 h-5 text-slate-500"></i>
+        </div>
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60 flex items-center justify-between">
+          <div>
+            <div class="text-xs text-slate-400">Totale Dividenden</div>
+            <div id="sub-dividends" class="text-lg font-semibold text-emerald-400 mt-0.5">€0,00</div>
+          </div>
+          <i data-lucide="coins" class="w-5 h-5 text-emerald-500/60"></i>
+        </div>
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/60 flex items-center justify-between">
+          <div>
+            <div class="text-xs text-slate-400">Gerealiseerde Verkoopwinst</div>
+            <div id="sub-realized" class="text-lg font-semibold text-slate-200 mt-0.5">€0,00</div>
+          </div>
+          <i data-lucide="badge-percent" class="w-5 h-5 text-slate-500"></i>
+        </div>
+      </div>
+
+      <!-- Grafieken Sectie -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700/80 shadow-sm lg:col-span-1">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">Asset Allocatie</h2>
+            <span id="alloc-badge" class="text-xs text-slate-400">0 posities</span>
+          </div>
+          <div class="relative h-64 flex items-center justify-center">
+            <canvas id="allocationChart"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700/80 shadow-sm lg:col-span-2">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">Inleg vs Actuele Waarde per Positie</h2>
+          </div>
+          <div class="relative h-64">
+            <canvas id="performanceChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Posities Tabel op Dashboard -->
+      <div class="bg-slate-800/80 rounded-2xl border border-slate-700/80 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <div>
+            <h3 class="text-sm font-semibold text-white">Actieve Portefeuille Posities</h3>
+            <p class="text-xs text-slate-400">Amerikaanse posities (zoals WPM) tonen en bewerken hun koers in USD ($) en rekenen om naar EUR</p>
+          </div>
+          <button onclick="switchTab('holdings')" class="text-xs text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1">
+            <span>Volledige posities bekijken</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead class="bg-slate-900/60 text-xs text-slate-400 uppercase tracking-wider border-b border-slate-700">
+              <tr>
+                <th class="p-3">Asset</th>
+                <th class="p-3">Ticker / ISIN</th>
+                <th class="p-3 text-right">Aantal</th>
+                <th class="p-3 text-right">GAK (€)</th>
+                <th class="p-3 text-right">Totale Inleg (€)</th>
+                <th class="p-3 text-right">Huidige Marktprijs</th>
+                <th class="p-3 text-right">Huidige Waarde (€)</th>
+                <th class="p-3 text-right">Rendement</th>
+              </tr>
+            </thead>
+            <tbody id="quick-holdings-body" class="divide-y divide-slate-700/60 font-mono text-xs sm:text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- TAB 2: VOLLEDIGE POSITIES & KOERSEN -->
+    <section id="tab-content-holdings" class="hidden space-y-4">
+      <div class="bg-slate-800/80 rounded-2xl border border-slate-700/80 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-700 flex justify-between items-center">
+          <div>
+            <h2 class="text-base font-semibold text-white">Alle Posities & Gemiddelde Aankoopkoers (GAK)</h2>
+            <p class="text-xs text-slate-400">Inclusief verrekende aankoopkosten, beurstaksen (TOB) en valuta</p>
+          </div>
+          <span id="tab2-pos-count" class="text-xs font-semibold bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">0 posities</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead class="bg-slate-900 text-xs text-slate-400 uppercase tracking-wider border-b border-slate-700">
+              <tr>
+                <th class="p-3.5">Asset</th>
+                <th class="p-3.5">Ticker / ISIN</th>
+                <th class="p-3.5 text-right">Aantal</th>
+                <th class="p-3.5 text-right">GAK (€)</th>
+                <th class="p-3.5 text-right">Totale Kostenbasis (€)</th>
+                <th class="p-3.5 text-right">Huidige Marktprijs</th>
+                <th class="p-3.5 text-right">Huidige Waarde (€)</th>
+                <th class="p-3.5 text-right">Ongerealiseerd (€)</th>
+              </tr>
+            </thead>
+            <tbody id="full-holdings-body" class="divide-y divide-slate-700/60 font-mono text-xs sm:text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: TRANSACTIEHISTORIE -->
+    <section id="tab-content-transactions" class="hidden space-y-4">
+      <div class="bg-slate-800/80 rounded-2xl border border-slate-700/80 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-700 flex justify-between items-center">
+          <div>
+            <h2 class="text-base font-semibold text-white">Transactiehistorie</h2>
+            <p class="text-xs text-slate-400">Verwerkte trades, dividenden, stortingen en opnames</p>
+          </div>
+          <span id="tab3-tx-count" class="text-xs font-semibold bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">0 transacties</span>
+        </div>
+        <div class="overflow-x-auto max-h-[550px]">
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead class="bg-slate-900 text-xs text-slate-400 uppercase tracking-wider sticky top-0 border-b border-slate-700">
+              <tr>
+                <th class="p-3">Datum</th>
+                <th class="p-3">Type</th>
+                <th class="p-3">Omschrijving / Asset</th>
+                <th class="p-3 text-right">Aantal</th>
+                <th class="p-3 text-right">Koers</th>
+                <th class="p-3 text-right">Kosten/Tax (€)</th>
+                <th class="p-3 text-right">Bedrag (€)</th>
+              </tr>
+            </thead>
+            <tbody id="full-transactions-body" class="divide-y divide-slate-700/60 font-mono text-xs"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // State opslag
+    let transactions = JSON.parse(localStorage.getItem('bux_transactions') || '[]');
+    let currentPrices = JSON.parse(localStorage.getItem('bux_prices') || '{}');
+    let cashBalance = parseFloat(localStorage.getItem('bux_cash_balance') || '0');
+    let totalDeposits = parseFloat(localStorage.getItem('bux_total_deposits') || '0');
+    let totalWithdrawals = parseFloat(localStorage.getItem('bux_total_withdrawals') || '0');
+    let lastPriceUpdate = localStorage.getItem('bux_last_price_update') || '';
+    let currentEurUsd = parseFloat(localStorage.getItem('bux_eur_usd_rate') || '1.0800');
+
+    // MAPPING: BUX ISIN codes naar Yahoo Finance symbolen & basisvaluta
+    const YAHOO_TICKER_MAP = {
+      // Belgische aandelen (Euronext Brussel .BR)
+      'BE0974259880': { symbol: 'DIE.BR', cur: 'EUR', name: "D'ieteren" },
+      'BE0003717312': { symbol: 'SOF.BR', cur: 'EUR', name: 'Sofina' },
+      'BE0003739530': { symbol: 'UCB.BR', cur: 'EUR', name: 'UCB' },
+      'BE0003816338': { symbol: 'CMBT.BR', cur: 'EUR', name: 'CMB.TECH' },
+      'BE0003593044': { symbol: 'COFB.BR', cur: 'EUR', name: 'Cofinimmo' },
+      'BE0974413453': { symbol: 'DEME.BR', cur: 'EUR', name: 'DEME Group' },
+      'BE0974276082': { symbol: 'ONTEX.BR', cur: 'EUR', name: 'Ontex' },
+      'BE0003470755': { symbol: 'SOLB.BR', cur: 'EUR', name: 'Solvay' },
+      'BE0003764785': { symbol: 'ACKB.BR', cur: 'EUR', name: 'Ackermans & van Haaren' },
+      'BE0974349814': { symbol: 'WDP.BR', cur: 'EUR', name: 'Warehouses De Pauw' },
+
+      // Franse aandelen (Euronext Parijs .PA)
+      'FR0000121014': { symbol: 'MC.PA', cur: 'EUR', name: 'LVMH' },
+      'FR0000121972': { symbol: 'SU.PA', cur: 'EUR', name: 'Schneider Electric' },
+      'FR0000121329': { symbol: 'HO.PA', cur: 'EUR', name: 'Thales' },
+      'FR0014004L86': { symbol: 'AM.PA', cur: 'EUR', name: 'Dassault Aviation' },
+      'FR0000120073': { symbol: 'AI.PA', cur: 'EUR', name: 'Air Liquide' },
+
+      // Nederlandse aandelen (Euronext Amsterdam .AS / Brussel)
+      'NL0010273215': { symbol: 'ASML.AS', cur: 'EUR', name: 'ASML' },
+      'NL0010832176': { symbol: 'ARGX.BR', cur: 'EUR', name: 'Argenx' },
+
+      // Duitse aandelen (XETRA .DE)
+      'DE0006335003': { symbol: 'KRN.DE', cur: 'EUR', name: 'Krones' },
+      'DE0005104400': { symbol: 'AOF.DE', cur: 'EUR', name: 'Atoss Software' },
+
+      // ETF Japan (IE00B4L5YX21) -> SJPA.DE (Xetra in EUR) zodat het direct in EUR klopt!
+      'IE00B4L5YX21': { symbol: 'SJPA.DE', cur: 'EUR', name: 'iShares Core MSCI Japan IMI' },
+
+      // Amerikaanse aandelen (USD) - WPM staat in USD genoteerd op NYSE!
+      'CA9628791027': { symbol: 'WPM', cur: 'USD', name: 'Wheaton Precious metal' },
+      'US67066G1040': { symbol: 'NVDA', cur: 'USD', name: 'NVIDIA' },
+      'US00724F1012': { symbol: 'ADBE', cur: 'USD', name: 'Adobe' },
+      'CA0679011084': { symbol: 'GOLD', cur: 'USD', name: 'Barrick Gold' },
+      'CA06849F1080': { symbol: 'GOLD', cur: 'USD', name: 'Barrick Mining' },
+      'US5949181045': { symbol: 'MSFT', cur: 'USD', name: 'Microsoft' },
+      'US6701002056': { symbol: 'NVO', cur: 'USD', name: 'Novo Nordisk ADR' },
+      'US81762P1021': { symbol: 'NOW', cur: 'USD', name: 'ServiceNow' },
+      'US58733R1023': { symbol: 'MELI', cur: 'USD', name: 'MercadoLibre' },
+      'US02079K1079': { symbol: 'GOOG', cur: 'USD', name: 'Alphabet C' },
+
+      // Overige Europese ETF's (EUR)
+      'IE00B3RBWM25': { symbol: 'VWCE.DE', cur: 'EUR', name: 'Vanguard FTSE All-World' },
+      'IE00B4L5Y983': { symbol: 'IWDA.AS', cur: 'EUR', name: 'iShares Core MSCI World' },
+      'IE00B8GKDB10': { symbol: 'VHYL.AS', cur: 'EUR', name: 'Vanguard FTSE All-World High Dividend Yield' },
+      'IE00BLNMYC90': { symbol: 'XDEW.DE', cur: 'EUR', name: 'Xtrackers S&P 500 Equal Weight' },
+      'IE00BKM4GZ66': { symbol: 'EMIM.AS', cur: 'EUR', name: 'iShares Core MSCI Emerging Markets IMI' },
+      'IE000YYE6WK5': { symbol: 'DFNS.AS', cur: 'EUR', name: 'VanEck Defense' },
+      'IE00BQQP9F84': { symbol: 'G2X.DE', cur: 'EUR', name: 'VanEck Gold Miners' },
+      'IE00BYWQWR46': { symbol: 'ESP0.DE', cur: 'EUR', name: 'VanEck Video Gaming and eSports' },
+      'IE00B1TXK627': { symbol: 'IH2O.AS', cur: 'EUR', name: 'iShares Global Water' },
+      'IE000I8KRLL9': { symbol: 'SEC0.DE', cur: 'EUR', name: 'iShares MSCI Global Semiconductors' },
+      'IE0002PG6CA6': { symbol: 'REMX.DE', cur: 'EUR', name: 'VanEck Rare Earth and Strategic Metals' },
+      'IE00B0M62S72': { symbol: 'IDVY.AS', cur: 'EUR', name: 'iShares Euro Dividend' },
+      'IE00BMW3QX54': { symbol: 'ROBO.DE', cur: 'EUR', name: 'L&G ROBO Global Robotics and Automation' },
+      'IE00BYZK4552': { symbol: '2B76.DE', cur: 'EUR', name: 'iShares Automation & Robotics' },
+      'DE000A0H08M3': { symbol: 'EXH1.DE', cur: 'EUR', name: 'iShares STOXX Europe 600 Oil & Gas' }
+    };
+
+    let allocChart = null;
+    let perfChart = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderApp();
+      lucide.createIcons();
+    });
+
+    function saveState() {
+      localStorage.setItem('bux_transactions', JSON.stringify(transactions));
+      localStorage.setItem('bux_prices', JSON.stringify(currentPrices));
+      localStorage.setItem('bux_cash_balance', cashBalance.toString());
+      localStorage.setItem('bux_total_deposits', totalDeposits.toString());
+      localStorage.setItem('bux_total_withdrawals', totalWithdrawals.toString());
+      localStorage.setItem('bux_last_price_update', lastPriceUpdate);
+      localStorage.setItem('bux_eur_usd_rate', currentEurUsd.toString());
+    }
+
+    function formatEUR(val) {
+      return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val || 0);
+    }
+
+    function formatUSD(val) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val || 0);
+    }
+
+    function getAssetCurrency(isin) {
+      const mapping = YAHOO_TICKER_MAP[isin];
+      return (mapping && mapping.cur) ? mapping.cur : 'EUR';
+    }
+
+    function switchTab(tabId) {
+      ['dashboard', 'holdings', 'transactions'].forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const content = document.getElementById(`tab-content-${t}`);
+        if (t === tabId) {
+          btn.className = "px-4 py-2.5 text-sm font-semibold border-b-2 border-emerald-400 text-emerald-400 flex items-center gap-2 transition";
+          content.classList.remove('hidden');
+        } else {
+          btn.className = "px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition";
+          content.classList.add('hidden');
+        }
+      });
+      lucide.createIcons();
+    }
+
+    // Helper om data op te halen via openbare proxy's
+    async function fetchWithCors(targetUrl) {
+      const proxies = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+        `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`
+      ];
+
+      for (const pUrl of proxies) {
+        try {
+          const resp = await fetch(pUrl, { cache: 'no-cache' });
+          if (resp.ok) {
+            return await resp.json();
+          }
+        } catch (e) {
+          // Probeer volgende proxy
+        }
+      }
+      return null;
+    }
+
+    // LIVE KOERSEN OPHALEN VIA YAHOO FINANCE
+    async function fetchLivePrices() {
+      const portfolio = calculatePortfolio();
+      const isins = portfolio.activeHoldings.map(h => h.isin);
+
+      if (isins.length === 0) {
+        showBanner("Geen actieve posities gevonden om bij te werken.", "alert-circle");
+        return;
+      }
+
+      const syncBtn = document.getElementById('btn-fetch-prices');
+      const syncIcon = document.getElementById('sync-icon');
+      const syncText = document.getElementById('sync-text');
+
+      syncBtn.disabled = true;
+      syncIcon.classList.add('animate-spin');
+      syncText.innerText = 'Koersen ophalen...';
+      showBanner("Actuele beurskoersen ophalen via Yahoo Finance...", "refresh-cw");
+
+      // 1. Haal actuele EUR/USD wisselkoers op
+      try {
+        const fxData = await fetchWithCors('https://query1.finance.yahoo.com/v8/finance/chart/EURUSD=X');
+        if (fxData && fxData.chart && fxData.chart.result && fxData.chart.result[0]) {
+          const fxPrice = fxData.chart.result[0].meta.regularMarketPrice;
+          if (fxPrice && fxPrice > 0) currentEurUsd = fxPrice;
+        }
+      } catch (e) {
+        console.warn("Wisselkoers EURUSD kon niet worden opgehaald, behoud", currentEurUsd);
+      }
+
+      let successCount = 0;
+      let total = isins.length;
+
+      for (let i = 0; i < isins.length; i++) {
+        const isin = isins[i];
+        const mapping = YAHOO_TICKER_MAP[isin];
+        const symbol = mapping ? mapping.symbol : isin;
+
+        syncText.innerText = `Ophalen (${i + 1}/${total})...`;
+
+        try {
+          const yUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
+          const data = await fetchWithCors(yUrl);
+
+          if (data && data.chart && data.chart.result && data.chart.result[0]) {
+            const meta = data.chart.result[0].meta;
+            let price = meta.regularMarketPrice;
+
+            if (price !== undefined && price !== null && price > 0) {
+              // We slaan de prijs op in de EIGEN valuta van het aandeel (USD voor WPM/MSFT/NVDA, EUR voor de rest)
+              currentPrices[isin] = price;
+              successCount++;
+            }
+          }
+        } catch (err) {
+          console.warn(`Kon koers voor ${symbol} niet ophalen:`, err);
+        }
+      }
+
+      lastPriceUpdate = new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+      saveState();
+      renderApp();
+
+      syncBtn.disabled = false;
+      syncIcon.classList.remove('animate-spin');
+      syncText.innerText = 'Live Koersen Ophalen';
+
+      showBanner(`${successCount} van de ${total} posities geüpdatet. WPM in USD, Japan ETF in EUR (EUR/USD: ${currentEurUsd.toFixed(4)})`, "check-circle");
+    }
+
+    function showBanner(text, iconName = 'info') {
+      const banner = document.getElementById('status-banner');
+      const textEl = document.getElementById('status-banner-text');
+      const iconEl = document.getElementById('status-icon');
+      textEl.innerText = text;
+      iconEl.setAttribute('data-lucide', iconName);
+      banner.classList.remove('hidden');
+      lucide.createIcons();
+      setTimeout(() => { banner.classList.add('hidden'); }, 7000);
+    }
+
+    function handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const text = event.target.result;
+        const lines = text.split(/\r?\n/).filter(r => r.trim().length > 0);
+        if (lines.length < 2) return;
+
+        const delim = lines[0].includes(';') ? ';' : ',';
+        const headers = parseCSVLine(lines[0], delim);
+        const colMap = {};
+        headers.forEach((h, i) => colMap[h.trim()] = i);
+
+        const rows = [];
+        for (let i = 1; i < lines.length; i++) {
+          const c = parseCSVLine(lines[i], delim);
+          if (c.length < 5) continue;
+          rows.push({
+            time: c[colMap['Transaction Time (CET)']] || '',
+            category: (c[colMap['Transaction Category']] || '').toLowerCase().trim(),
+            type: c[colMap['Transaction Type']] || '',
+            transferType: c[colMap['Transfer Type']] || '',
+            amount: parseFloat((c[colMap['Transaction Amount']] || '0').replace(',', '.')) || 0,
+            currency: c[colMap['Transaction Currency']] || 'EUR',
+            cashBalance: c[colMap['Cash Balance Amount']] ? parseFloat((c[colMap['Cash Balance Amount']]).replace(',', '.')) : null,
+            assetId: c[colMap['Asset Id']] || '',
+            assetName: c[colMap['Asset Name']] || '',
+            qty: parseFloat((c[colMap['Asset Quantity']] || '0').replace(',', '.')) || 0,
+            price: parseFloat((c[colMap['Asset Price']] || '0').replace(',', '.')) || 0,
+            assetCur: c[colMap['Asset Currency']] || 'EUR',
+            rate: parseFloat((c[colMap['Exchange Rate']] || '1').replace(',', '.')) || 1,
+            netDiv: parseFloat((c[colMap['Dividend Net Amount']] || '0').replace(',', '.')) || 0,
+            grossDiv: parseFloat((c[colMap['Dividend Gross Amount']] || '0').replace(',', '.')) || 0,
+            taxDiv: parseFloat((c[colMap['Dividend Tax Amount']] || '0').replace(',', '.')) || 0,
+            desc: c[colMap['Transaction Description']] || ''
+          });
+        }
+
+        const orderFees = {};
+        const orderCashNet = {};
+        let parsedDeposits = 0;
+        let parsedWithdrawals = 0;
+        let latestCash = 0;
+
+        rows.forEach(r => {
+          const m = r.desc.match(/Order (?:Partial )?Id:\s*([a-f0-9\-]+)/i);
+          const oid = m ? m[1] : null;
+
+          if (oid) {
+            if ((r.category === 'fees' || r.category === 'tax') && r.amount < 0) {
+              orderFees[oid] = (orderFees[oid] || 0) + Math.abs(r.amount);
+            }
+            if (r.category === 'trades' && (r.transferType === 'CASH_DEBIT' || r.transferType === 'CASH_CREDIT')) {
+              orderCashNet[oid] = Math.abs(r.amount);
+            }
+          }
+
+          if (r.category === 'deposits') {
+            parsedDeposits += Math.abs(r.amount);
+          }
+          if (r.category === 'withdrawals') {
+            parsedWithdrawals += Math.abs(r.amount);
+          }
+          if (r.cashBalance !== null && !isNaN(r.cashBalance)) {
+            latestCash = r.cashBalance;
+          }
+        });
+
+        const newTx = [];
+        rows.forEach(r => {
+          const date = r.time ? r.time.split(' ')[0] : '';
+
+          // 1. Trades
+          if (r.category === 'trades' && (r.transferType === 'ASSET_TRADE_BUY' || r.transferType === 'ASSET_TRADE_SELL')) {
+            const isBuy = r.transferType === 'ASSET_TRADE_BUY';
+            const m = r.desc.match(/Order (?:Partial )?Id:\s*([a-f0-9\-]+)/i);
+            const oid = m ? m[1] : null;
+            const fee = oid && orderFees[oid] ? orderFees[oid] : 0;
+            const eurGross = oid && orderCashNet[oid] ? orderCashNet[oid] : (r.assetCur === 'USD' ? (r.qty * r.price) / (r.rate || 1.08) : (r.qty * r.price));
+            const effectiveEurPrice = r.qty > 0 ? (eurGross / r.qty) : r.price;
+            const isin = r.assetId || r.assetName;
+
+            newTx.push({
+              id: Date.now() + Math.random(),
+              date: date,
+              isin: isin,
+              name: r.assetName || isin,
+              type: isBuy ? 'BUY' : 'SELL',
+              qty: Math.abs(r.qty),
+              price: effectiveEurPrice,
+              originalPrice: r.price,
+              currency: r.assetCur || 'EUR',
+              fees: fee,
+              totalAmount: isBuy ? (eurGross + fee) : (eurGross - fee)
+            });
+
+            if (!currentPrices[isin]) {
+              // Voor USD assets (zoals WPM) initialiseren we op de originele USD transactiekoers!
+              const assetCur = getAssetCurrency(isin);
+              currentPrices[isin] = (assetCur === 'USD' && r.price > 0) ? r.price : effectiveEurPrice;
+            }
+          }
+
+          // 2. Dividenden
+          if (r.category === 'dividends' && (r.type.includes('Dividend') || r.netDiv > 0)) {
+            const isin = r.assetId || r.assetName || 'DIV';
+            const netAmount = r.netDiv > 0 ? r.netDiv : Math.abs(r.amount);
+            newTx.push({
+              id: Date.now() + Math.random(),
+              date: date,
+              isin: isin,
+              name: r.assetName || isin,
+              type: 'DIVIDEND',
+              qty: 1,
+              price: netAmount,
+              fees: r.taxDiv || 0,
+              totalAmount: netAmount
+            });
+          }
+
+          // 3. Stortingen & Opnames
+          if (r.category === 'deposits') {
+            newTx.push({
+              id: Date.now() + Math.random(),
+              date: date,
+              isin: 'CASH',
+              name: 'Storting (' + r.type + ')',
+              type: 'DEPOSIT',
+              qty: 1,
+              price: Math.abs(r.amount),
+              fees: 0,
+              totalAmount: Math.abs(r.amount)
+            });
+          }
+          if (r.category === 'withdrawals') {
+            newTx.push({
+              id: Date.now() + Math.random(),
+              date: date,
+              isin: 'CASH',
+              name: 'Opname (' + r.type + ')',
+              type: 'WITHDRAWAL',
+              qty: 1,
+              price: Math.abs(r.amount),
+              fees: 0,
+              totalAmount: Math.abs(r.amount)
+            });
+          }
+        });
+
+        transactions = newTx;
+        totalDeposits = parsedDeposits;
+        totalWithdrawals = parsedWithdrawals;
+        cashBalance = latestCash;
+
+        saveState();
+        renderApp();
+
+        showBanner(`Geïmporteerd: ${newTx.length} records. Klik nu op 'Live Koersen Ophalen' om actuele marktprijzen te laden!`, "check-circle");
+      };
+      reader.readAsText(file);
+    }
+
+    function parseCSVLine(text, delim) {
+      const result = [];
+      let cur = '';
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (c === '"') {
+          inQuotes = !inQuotes;
+        } else if (c === delim && !inQuotes) {
+          result.push(cur.trim().replace(/^["']|["']$/g, ''));
+          cur = '';
+        } else {
+          cur += c;
+        }
+      }
+      result.push(cur.trim().replace(/^["']|["']$/g, ''));
+      return result;
+    }
+
+    function updatePrice(isin, val) {
+      const p = parseFloat(val);
+      if (!isNaN(p) && p >= 0) {
+        currentPrices[isin] = p;
+        saveState();
+        renderApp();
+      }
+    }
+
+    function clearData() {
+      if (confirm("Weet je zeker dat je alle opgeslagen data wilt wissen?")) {
+        transactions = [];
+        currentPrices = {};
+        totalDeposits = 0;
+        totalWithdrawals = 0;
+        cashBalance = 0;
+        lastPriceUpdate = '';
+        saveState();
+        renderApp();
+      }
+    }
+
+    function calculatePortfolio() {
+      const holdings = {};
+      let totalDividends = 0;
+      let realizedPnl = 0;
+
+      const sorted = [...transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      sorted.forEach(t => {
+        if (t.type === 'DEPOSIT' || t.type === 'WITHDRAWAL') return;
+
+        if (!holdings[t.isin]) {
+          holdings[t.isin] = { isin: t.isin, name: t.name, qty: 0, totalCost: 0, gak: 0 };
+        }
+        const h = holdings[t.isin];
+
+        if (t.type === 'BUY') {
+          h.totalCost += (t.qty * t.price) + t.fees;
+          h.qty += t.qty;
+          h.gak = h.qty > 0 ? h.totalCost / h.qty : 0;
+        } else if (t.type === 'SELL') {
+          const costBasisPortion = h.gak * t.qty;
+          const netProceeds = (t.qty * t.price) - t.fees;
+          realizedPnl += (netProceeds - costBasisPortion);
+          h.qty -= t.qty;
+          h.totalCost -= costBasisPortion;
+          if (h.qty <= 0.000001) { h.qty = 0; h.totalCost = 0; h.gak = 0; }
+        } else if (t.type === 'DIVIDEND') {
+          totalDividends += t.price;
+        }
+      });
+
+      let stocksValue = 0;
+      let stocksCostBasis = 0;
+
+      const activeHoldings = Object.values(holdings).filter(h => h.qty > 0.0001).map(h => {
+        const cur = getAssetCurrency(h.isin);
+        const curPrice = currentPrices[h.isin] !== undefined ? currentPrices[h.isin] : (cur === 'USD' ? (h.gak * currentEurUsd) : h.gak);
+
+        // Als het aandeel in USD noteert (zoals WPM), rekenen we de totale waarde om naar EUR via currentEurUsd
+        const curValue = cur === 'USD' ? ((h.qty * curPrice) / currentEurUsd) : (h.qty * curPrice);
+        const unrealized = curValue - h.totalCost;
+        const unrealizedPct = h.totalCost > 0 ? (unrealized / h.totalCost) * 100 : 0;
+
+        stocksValue += curValue;
+        stocksCostBasis += h.totalCost;
+
+        return {
+          ...h,
+          currency: cur,
+          curPrice,
+          curValue,
+          unrealized,
+          unrealizedPct
+        };
+      });
+
+      const totalPortfolioValue = stocksValue + cashBalance;
+      const totalProfit = totalPortfolioValue + totalWithdrawals - totalDeposits;
+      const netInvested = totalDeposits - totalWithdrawals;
+      const profitPct = netInvested > 0 ? (totalProfit / netInvested) * 100 : 0;
+
+      return {
+        activeHoldings,
+        stocksValue,
+        stocksCostBasis,
+        cashBalance,
+        totalPortfolioValue,
+        totalProfit,
+        profitPct,
+        netInvested,
+        realizedPnl,
+        totalDividends
+      };
+    }
+
+    function renderApp() {
+      const data = calculatePortfolio();
+
+      document.getElementById('kpi-deposits').innerText = formatEUR(totalDeposits);
+      document.getElementById('kpi-withdrawals').innerText = formatEUR(totalWithdrawals);
+      document.getElementById('kpi-current-val').innerText = formatEUR(data.totalPortfolioValue);
+      document.getElementById('kpi-stocks-val').innerText = formatEUR(data.stocksValue);
+      document.getElementById('kpi-cash-val').innerText = formatEUR(data.cashBalance);
+
+      const profitEl = document.getElementById('kpi-total-profit');
+      const profitPctEl = document.getElementById('kpi-profit-pct');
+      const profitIconBox = document.getElementById('kpi-profit-icon-box');
+
+      profitEl.innerText = formatEUR(data.totalProfit);
+      profitPctEl.innerText = `${data.totalProfit >= 0 ? '+' : ''}${data.profitPct.toFixed(2)}%`;
+
+      if (data.totalProfit >= 0) {
+        profitEl.className = "text-2xl font-bold mt-2 text-emerald-400";
+        profitPctEl.className = "text-emerald-400 font-semibold";
+        profitIconBox.className = "p-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg";
+      } else {
+        profitEl.className = "text-2xl font-bold mt-2 text-rose-400";
+        profitPctEl.className = "text-rose-400 font-semibold";
+        profitIconBox.className = "p-1.5 bg-rose-500/10 text-rose-400 rounded-lg";
+      }
+
+      document.getElementById('sub-net-invested').innerText = formatEUR(data.netInvested);
+      document.getElementById('sub-dividends').innerText = formatEUR(data.totalDividends);
+      document.getElementById('sub-realized').innerText = formatEUR(data.realizedPnl);
+
+      document.getElementById('alloc-badge').innerText = `${data.activeHoldings.length} posities`;
+      document.getElementById('tab2-pos-count').innerText = `${data.activeHoldings.length} posities`;
+      document.getElementById('tab3-tx-count').innerText = `${transactions.length} transacties`;
+      document.getElementById('fx-rate-badge').innerText = `EUR/USD: ${currentEurUsd.toFixed(4)}`;
+
+      const updateTimeBadge = document.getElementById('price-update-time');
+      if (lastPriceUpdate) {
+        updateTimeBadge.innerText = `Koersen van ${lastPriceUpdate}`;
+        updateTimeBadge.classList.remove('hidden');
+      } else {
+        updateTimeBadge.classList.add('hidden');
+      }
+
+      renderHoldingsTable('quick-holdings-body', data.activeHoldings, true);
+      renderHoldingsTable('full-holdings-body', data.activeHoldings, false);
+      renderTransactionsTable();
+
+      renderCharts(data.activeHoldings, data.cashBalance);
+      lucide.createIcons();
+    }
+
+    function renderHoldingsTable(tbodyId, holdings, isCompact) {
+      const tbody = document.getElementById(tbodyId);
+      tbody.innerHTML = '';
+
+      if (holdings.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-500 font-sans">Geen openstaande posities gevonden. Klik rechtsboven op <strong>Importeer BUX CSV</strong> om te beginnen.</td></tr>`;
+        return;
+      }
+
+      holdings.forEach(h => {
+        const color = h.unrealized >= 0 ? 'text-emerald-400' : 'text-rose-400';
+        const mapping = YAHOO_TICKER_MAP[h.isin];
+        const tickerLabel = mapping ? mapping.symbol : h.isin;
+        const isUSD = h.currency === 'USD';
+        const curSymbol = isUSD ? '$' : '€';
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-700/30 transition';
+        tr.innerHTML = `
+          <td class="p-3.5 font-semibold text-white font-sans flex items-center gap-2">
+            <span>${h.name}</span>
+            ${isUSD ? '<span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1 rounded font-mono font-normal">USD</span>' : ''}
+          </td>
+          <td class="p-3.5 text-slate-400 text-xs">
+            <span class="text-slate-300 font-mono font-medium">${tickerLabel}</span>
+            <span class="block text-[10px] text-slate-500">${h.isin}</span>
+          </td>
+          <td class="p-3.5 text-right font-semibold">${h.qty.toLocaleString('nl-NL', { maximumFractionDigits: 4 })}</td>
+          <td class="p-3.5 text-right">${formatEUR(h.gak)}</td>
+          <td class="p-3.5 text-right">${formatEUR(h.totalCost)}</td>
+          <td class="p-3.5 text-right">
+            <div class="inline-flex items-center gap-1 bg-slate-900 border border-slate-700 hover:border-slate-500 rounded px-2 py-1 transition">
+              <span class="text-xs font-mono text-slate-400">${curSymbol}</span>
+              <input type="number" step="any" value="${h.curPrice.toFixed(2)}" onchange="updatePrice('${h.isin}', this.value)" class="w-20 bg-transparent text-right text-xs text-white focus:outline-none font-mono">
+            </div>
+            ${isUSD ? `<span class="block text-[10px] text-slate-400 mt-0.5 font-mono">≈ ${formatEUR(h.curPrice / currentEurUsd)}</span>` : ''}
+          </td>
+          <td class="p-3.5 text-right font-medium text-white">${formatEUR(h.curValue)}</td>
+          <td class="p-3.5 text-right ${color} font-medium">
+            ${formatEUR(h.unrealized)} <span class="text-xs block">(${h.unrealizedPct >= 0 ? '+' : ''}${h.unrealizedPct.toFixed(2)}%)</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderTransactionsTable() {
+      const tbody = document.getElementById('full-transactions-body');
+      tbody.innerHTML = '';
+
+      if (transactions.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-500 font-sans">Nog geen transacties ingelezen.</td></tr>`;
+        return;
+      }
+
+      const revTx = [...transactions].sort((a,b) => new Date(b.date) - new Date(a.date));
+      revTx.forEach(t => {
+        let badgeClass = 'bg-slate-700 text-slate-300';
+        if (t.type === 'BUY') badgeClass = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+        else if (t.type === 'SELL') badgeClass = 'bg-rose-500/20 text-rose-400 border-rose-500/30';
+        else if (t.type === 'DIVIDEND') badgeClass = 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+        else if (t.type === 'DEPOSIT') badgeClass = 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30';
+        else if (t.type === 'WITHDRAWAL') badgeClass = 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+
+        const isUSD = t.currency === 'USD';
+        const priceDisplay = t.price > 0 && t.type !== 'DEPOSIT' && t.type !== 'WITHDRAWAL' 
+          ? (isUSD ? formatUSD(t.originalPrice || t.price) : formatEUR(t.price)) 
+          : (t.price > 0 ? formatEUR(t.price) : '-');
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-700/30 transition';
+        tr.innerHTML = `
+          <td class="p-3 text-slate-400">${t.date}</td>
+          <td class="p-3 font-sans"><span class="px-2 py-0.5 text-xs font-semibold rounded border ${badgeClass}">${t.type}</span></td>
+          <td class="p-3 font-medium text-white font-sans">${t.name}</td>
+          <td class="p-3 text-right">${t.qty > 0 && t.type !== 'DEPOSIT' && t.type !== 'WITHDRAWAL' && t.type !== 'DIVIDEND' ? t.qty.toLocaleString('nl-NL', { maximumFractionDigits: 4 }) : '-'}</td>
+          <td class="p-3 text-right">${priceDisplay}</td>
+          <td class="p-3 text-right text-slate-400">${t.fees > 0 ? formatEUR(t.fees) : '-'}</td>
+          <td class="p-3 text-right font-medium text-slate-200">${formatEUR(t.totalAmount)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderCharts(holdings, cash) {
+      const labels = holdings.map(h => h.name);
+      const values = holdings.map(h => h.curValue);
+      const costs = holdings.map(h => h.totalCost);
+
+      if (cash > 0.01) {
+        labels.push('Cash Saldo');
+        values.push(cash);
+      }
+
+      if (allocChart) allocChart.destroy();
+      const ctxAlloc = document.getElementById('allocationChart').getContext('2d');
+      allocChart = new Chart(ctxAlloc, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: values,
+            backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#6366f1', '#f97316', '#06b6d4', '#84cc16', '#64748b'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } }
+          }
+        }
+      });
+
+      if (perfChart) perfChart.destroy();
+      const ctxPerf = document.getElementById('performanceChart').getContext('2d');
+      perfChart = new Chart(ctxPerf, {
+        type: 'bar',
+        data: {
+          labels: holdings.map(h => h.name),
+          datasets: [
+            { label: 'Totale Inleg', data: costs, backgroundColor: '#475569' },
+            { label: 'Huidige Waarde', data: holdings.map(h => h.curValue), backgroundColor: '#10b981' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } },
+            y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+          },
+          plugins: {
+            legend: { labels: { color: '#94a3b8' } }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
