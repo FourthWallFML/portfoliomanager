@@ -10,15 +10,22 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
     <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="[https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js](https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js)"></script>
     <!-- PapaParse -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="[https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js](https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js)"></script>
     <!-- Chart.js voor TWR Grafieken -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="[https://cdn.jsdelivr.net/npm/chart.js](https://cdn.jsdelivr.net/npm/chart.js)"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen" x-data="portfolioApp()" x-init="initApp()">
+
+    <!-- Verborgen universele file input -->
+    <input type="file" 
+           x-ref="globalFileInput" 
+           accept=".csv,text/csv,text/plain,application/vnd.ms-excel,*"
+           @change="handleFileUpload($event)" 
+           class="hidden" />
 
     <!-- PWA Install Banner -->
     <div x-show="showInstallPrompt" class="bg-emerald-600 px-4 py-2 text-white text-xs flex justify-between items-center shadow-md">
@@ -39,11 +46,16 @@
                     <p class="text-xs text-slate-400 uppercase tracking-widest font-semibold">Portfolio Analysis & TWR Tool</p>
                 </div>
             </div>
-            <div class="flex flex-wrap gap-3 items-center">
+            <div class="flex flex-wrap gap-2.5 items-center">
                 <span class="text-xs text-slate-400" x-text="syncStatus"></span>
-                <button @click="fetchGoogleSheetData()" class="bg-teal-600/20 text-teal-300 border border-teal-500/30 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-teal-600/30 transition">Sync Google Sheet</button>
-                <button @click="resetData()" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-rose-500/20 transition">Reset</button>
-                <button @click="exportData()" class="bg-slate-800 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-700 transition">Backup</button>
+                <!-- Universele knop die overal de bestandskiezer opent -->
+                <button type="button" @click="$refs.globalFileInput.click()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    <span>Upload CSV</span>
+                </button>
+                <button type="button" @click="fetchGoogleSheetData()" class="bg-teal-600/20 text-teal-300 border border-teal-500/30 px-3.5 py-2 rounded-xl text-xs font-semibold hover:bg-teal-600/30 transition">Sync Sheet</button>
+                <button type="button" @click="resetData()" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-3.5 py-2 rounded-xl text-xs font-semibold hover:bg-rose-500/20 transition">Reset</button>
+                <button type="button" @click="exportData()" class="bg-slate-800 text-slate-300 border border-slate-700 px-3.5 py-2 rounded-xl text-xs font-semibold hover:bg-slate-700 transition">Backup</button>
             </div>
         </header>
 
@@ -83,8 +95,7 @@
                                 Let op: Er zijn 
                                 <button type="button" 
                                         @click="showUnmappedDetails = !showUnmappedDetails" 
-                                        class="font-black text-amber-300 bg-amber-900/60 hover:bg-amber-800/80 underline decoration-amber-400 decoration-2 underline-offset-2 px-2 py-0.5 rounded cursor-pointer transition transform hover:scale-105 active:scale-95" 
-                                        title="Klik om te bekijken">
+                                        class="font-black text-amber-300 bg-amber-900/60 hover:bg-amber-800/80 underline decoration-amber-400 decoration-2 underline-offset-2 px-2 py-0.5 rounded cursor-pointer transition transform hover:scale-105 active:scale-95">
                                     <span x-text="unmappedIsins.length"></span>
                                 </button> 
                                 assets zonder ticker gemapt.
@@ -106,7 +117,7 @@
                                         <div class="text-[10px] text-slate-400 font-mono" x-text="isin"></div>
                                     </div>
                                     <div class="flex gap-2 items-center">
-                                        <input type="text" x-model="assetMapping[isin].ticker" placeholder="Bijv. AMS:ASML of NASDAQ:NVDA" class="text-xs bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 w-full text-slate-100 focus:outline-none focus:border-amber-400">
+                                        <input type="text" x-model="assetMapping[isin].ticker" placeholder="Bijv. AMS:ASML" class="text-xs bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 w-full text-slate-100 focus:outline-none focus:border-amber-400">
                                         <button @click="saveMappingToSheet(isin)" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition shrink-0">Bewaar</button>
                                     </div>
                                 </div>
@@ -122,17 +133,27 @@
         <!-- ============================================== -->
         <div x-show="activeTab === 'dashboard'" class="space-y-6">
             
-            <div class="bg-slate-800/60 backdrop-blur p-6 rounded-2xl border border-slate-700/60 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div>
-                    <h3 class="text-sm font-bold text-slate-200">Transactiebestand Inladen</h3>
-                    <p class="text-xs text-slate-400">Upload een CSV export om alle metrics en posities bij te werken.</p>
+            <!-- Drag & Drop Zone + Klikbare knop -->
+            <div @click="$refs.globalFileInput.click()"
+                 @dragover.prevent="dragOver = true"
+                 @dragleave.prevent="dragOver = false"
+                 @drop.prevent="handleFileDrop($event)"
+                 :class="dragOver ? 'border-emerald-400 bg-emerald-500/10' : 'border-slate-700/80 hover:border-emerald-500/50 bg-slate-800/60'"
+                 class="p-6 rounded-2xl border-2 border-dashed backdrop-blur cursor-pointer transition flex flex-col sm:flex-row justify-between items-center gap-4 group">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20 group-hover:scale-105 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-200 group-hover:text-emerald-300 transition">
+                            <span x-text="loadedFileName ? 'Geladen: ' + loadedFileName : 'Transactiebestand Inladen of Sleep hierheen'"></span>
+                        </h3>
+                        <p class="text-xs text-slate-400" x-text="transactions.length > 0 ? transactions.length + ' transacties geladen • Klik om te updaten' : 'Klik hier of sleep je CSV bestand in dit venster'"></p>
+                    </div>
                 </div>
-                <input type="file" id="csvFileDash" accept=".csv" @change="handleFileUpload($event)" class="text-xs text-slate-400
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-xl file:border-0
-                    file:text-xs file:font-bold
-                    file:bg-emerald-500 file:text-slate-950
-                    hover:file:bg-emerald-400 cursor-pointer transition"/>
+                <button type="button" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs transition shrink-0 pointer-events-none shadow">
+                    Selecteer CSV Bestand
+                </button>
             </div>
 
             <!-- Hoofd KPI Kaarten -->
@@ -179,7 +200,6 @@
 
             <!-- Breakdown & Kosten -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Portefeuille Breakdown Card -->
                 <div class="bg-slate-800/80 backdrop-blur p-6 rounded-2xl shadow-xl border border-slate-700/60 space-y-4">
                     <h3 class="text-base font-bold text-slate-200 border-b border-slate-700 pb-3 flex items-center justify-between">
                         <span>Verdeling Portefeuille</span>
@@ -232,7 +252,6 @@
                     </div>
                 </div>
 
-                <!-- Kostenoverzicht Card -->
                 <div class="bg-slate-800/80 backdrop-blur p-6 rounded-2xl shadow-xl border border-slate-700/60 space-y-4">
                     <div class="border-b border-slate-700 pb-3 flex justify-between items-center">
                         <h3 class="text-base font-bold text-slate-200">Kosten & Compensaties</h3>
@@ -292,7 +311,6 @@
                     </div>
                 </div>
 
-                <!-- TWR Stat Cards voor geselecteerde asset / portfolio -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
                         <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Geselecteerd Rendement (TWR)</span>
@@ -308,7 +326,6 @@
                     </div>
                 </div>
 
-                <!-- Grafiek Container -->
                 <div class="relative h-96 w-full bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
                     <canvas id="twrChartCanvas"></canvas>
                 </div>
@@ -321,7 +338,7 @@
         <div x-show="activeTab === 'posities'" class="space-y-6">
             
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <!-- Asset Mapping Sidebar (alleen zichtbaar als er unmapped ISINs zijn) -->
+                <!-- Asset Mapping Sidebar (alleen als er unmapped ISINs zijn) -->
                 <div class="lg:col-span-1 space-y-6" x-show="unmappedIsins.length > 0">
                     <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl border border-slate-700/60">
                         <div class="flex justify-between items-center mb-3">
@@ -382,19 +399,11 @@
                                         </td>
                                         <td class="p-4 text-right font-mono" x-text="pos.quantity.toFixed(4)"></td>
                                         <td class="p-4 text-right font-mono" x-text="formatCurrency(pos.avgPrice)"></td>
-                                        
-                                        <!-- Originele Koers (bv. USD) -->
                                         <td class="p-4 text-right font-mono text-slate-300">
                                             <span x-text="formatOriginalPrice(pos.isin)"></span>
                                         </td>
-                                        
-                                        <!-- Geconverteerde Euro Koers -->
                                         <td class="p-4 text-right font-mono text-emerald-300 font-bold" x-text="formatCurrency(getAssetPriceInEur(pos.isin))"></td>
-                                        
-                                        <!-- Huidige Waarde -->
                                         <td class="p-4 text-right font-bold font-mono text-slate-100" x-text="formatCurrency(pos.quantity * getAssetPriceInEur(pos.isin))"></td>
-                                        
-                                        <!-- Rendement -->
                                         <td class="p-4 text-right font-bold font-mono" 
                                             :class="(pos.quantity * getAssetPriceInEur(pos.isin) - (pos.quantity * pos.avgPrice)) >= 0 ? 'text-emerald-400' : 'text-rose-400'" 
                                             x-text="formatCurrency((pos.quantity * getAssetPriceInEur(pos.isin)) - (pos.quantity * pos.avgPrice))">
@@ -418,7 +427,7 @@
 
     <!-- Script Application Logic -->
     <script>
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyUSZvAUMZTrLO5qPFwBtDW54ByrxPDV_X0KGFcxRiOVNe6aqiYwG7g3ccNrzwOFjrIFQ/exec';
+        const GOOGLE_SCRIPT_URL = '[https://script.google.com/macros/s/AKfycbyUSZvAUMZTrLO5qPFwBtDW54ByrxPDV_X0KGFcxRiOVNe6aqiYwG7g3ccNrzwOFjrIFQ/exec](https://script.google.com/macros/s/AKfycbyUSZvAUMZTrLO5qPFwBtDW54ByrxPDV_X0KGFcxRiOVNe6aqiYwG7g3ccNrzwOFjrIFQ/exec)';
         const DUMMY_ISINS = ['DE000A3E5DT0', 'DE000TUAG109'];
 
         let deferredPrompt = null;
@@ -431,6 +440,8 @@
         function portfolioApp() {
             return {
                 activeTab: 'dashboard',
+                dragOver: false,
+                loadedFileName: '',
                 transactions: [],
                 positions: [],
                 assetMapping: {},
@@ -458,12 +469,14 @@
                     const savedPrices = localStorage.getItem('pat_prices');
                     const savedRates = localStorage.getItem('pat_rates');
                     const savedHist = localStorage.getItem('pat_history');
+                    const savedName = localStorage.getItem('pat_filename');
 
                     if (savedTx) this.transactions = JSON.parse(savedTx);
                     if (savedMap) this.assetMapping = JSON.parse(savedMap);
                     if (savedPrices) this.latestPrices = JSON.parse(savedPrices);
                     if (savedRates) this.rates = JSON.parse(savedRates);
                     if (savedHist) this.historyData = JSON.parse(savedHist);
+                    if (savedName) this.loadedFileName = savedName;
 
                     DUMMY_ISINS.forEach(d => delete this.assetMapping[d]);
 
@@ -579,9 +592,24 @@
                     return rawPrice;
                 },
 
+                handleFileDrop(event) {
+                    this.dragOver = false;
+                    const files = event.dataTransfer.files;
+                    if (files.length > 0) {
+                        this.processFile(files[0]);
+                    }
+                },
+
                 handleFileUpload(event) {
                     const file = event.target.files[0];
                     if (!file) return;
+                    this.processFile(file);
+                    event.target.value = '';
+                },
+
+                processFile(file) {
+                    this.loadedFileName = file.name;
+                    localStorage.setItem('pat_filename', file.name);
 
                     Papa.parse(file, {
                         header: true,
@@ -590,7 +618,10 @@
                             this.transactions = results.data;
                             localStorage.setItem('pat_transactions', JSON.stringify(this.transactions));
                             this.processNewTransactions();
-                            alert('Transacties succesvol verwerkt!');
+                            alert(`Succesvol ${results.data.length} transacties geladen uit ${file.name}!`);
+                        },
+                        error: (err) => {
+                            alert('Fout bij inlezen van bestand: ' + err.message);
                         }
                     });
                 },
@@ -665,7 +696,6 @@
                     this.positions = Object.values(posMap).filter(p => p.quantity > 0.0001);
                 },
 
-                // --- TWR (TIME-WEIGHTED RETURN) BEREKENING & GRAFIEK LOGICA ---
                 updateTwrView() {
                     const canvas = document.getElementById('twrChartCanvas');
                     if (!canvas) return;
@@ -966,6 +996,7 @@
                         this.assetMapping = {};
                         this.latestPrices = {};
                         this.historyData = { dates: [], tickers: [], prices: {} };
+                        this.loadedFileName = '';
                         window.location.reload();
                     }
                 },
@@ -976,7 +1007,8 @@
                         mapping: this.assetMapping,
                         prices: this.latestPrices,
                         rates: this.rates,
-                        history: this.historyData
+                        history: this.historyData,
+                        filename: this.loadedFileName
                     };
                     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'json' });
                     const url = URL.createObjectURL(blob);
