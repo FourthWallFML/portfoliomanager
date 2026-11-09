@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="Portfolio">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BUX Portfolio Manager</title>
+  <title>BUX Portfolio Manager - Google Sheets Backend</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -27,10 +27,10 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-2xl font-extrabold tracking-tight text-white font-sans">BUX Portfolio Manager</h1>
-            <span class="px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full uppercase tracking-wider">Fast & Persistent</span>
+            <span class="px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full uppercase tracking-wider">Google Sheets & Live API</span>
           </div>
           <p class="text-xs text-slate-400 flex flex-wrap items-center gap-2 mt-0.5">
-            <span>BUX transacties, live koersen & Time-Weighted Return</span>
+            <span>BUX transacties, Google Sheets koersen & TWR</span>
             <span id="price-update-time" class="hidden text-slate-300 bg-slate-700/70 px-2 py-0.5 rounded text-[11px] font-mono"></span>
             <span id="fx-rate-badge" class="text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded text-[11px] font-mono">EUR/USD: 1,0800</span>
           </p>
@@ -54,8 +54,9 @@
           <i data-lucide="file-up" class="w-4 h-4"></i>
           <span>Importeer BUX CSV</span>
         </button>
-                <button onclick="openSettingsModal()" title="Netwerk & Proxy Instellingen" class="p-2 bg-slate-700/60 hover:bg-slate-600 text-slate-300 text-xs font-medium rounded-xl border border-slate-600/60 transition">
+        <button onclick="openSettingsModal()" title="Netwerk & Ticker Mapping" class="p-2 bg-slate-700/60 hover:bg-slate-600 text-slate-300 text-xs font-medium rounded-xl border border-slate-600/60 transition flex items-center gap-1">
           <i data-lucide="settings" class="w-4 h-4"></i>
+          <span class="text-xs hidden sm:inline">Mapping</span>
         </button>
         <button onclick="clearData()" title="Wis alle data" class="p-2 bg-slate-700/60 hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 text-xs font-medium rounded-xl border border-slate-600/60 transition">
           <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -67,7 +68,7 @@
     <div id="status-banner" class="hidden bg-slate-800/90 border border-slate-700 text-slate-200 text-xs px-4 py-3 rounded-xl flex items-center justify-between shadow-lg transition">
       <div class="flex items-center gap-2.5">
         <i id="status-icon" data-lucide="info" class="w-4 h-4 text-emerald-400"></i>
-        <span id="status-banner-text">Bezig met bijwerken...</span>
+        <span id="status-banner-text">Melding...</span>
       </div>
       <button onclick="document.getElementById('status-banner').classList.add('hidden')" class="text-slate-400 hover:text-white">
         <i data-lucide="x" class="w-4 h-4"></i>
@@ -285,7 +286,7 @@
         <div class="p-4 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <div>
             <h3 class="text-sm font-semibold text-white">Actieve Posities & Marktprijzen</h3>
-            <p class="text-xs text-slate-400">Prijzen worden automatisch bijgewerkt via Yahoo Finance</p>
+            <p class="text-xs text-slate-400">Prijzen worden automatisch bijgewerkt via Google Sheets</p>
           </div>
           <button onclick="switchTab('holdings')" class="text-xs text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1">
             <span>Volledige analyse bekijken</span>
@@ -526,6 +527,8 @@
     document.addEventListener("DOMContentLoaded", async () => {
       await loadStateFromStorage();
       renderApp();
+      // Automatisch bij het openen de laatste slotkoersen ophalen uit Google Sheets!
+      fetchLivePrices();
       if (twrFullSeries && twrFullSeries.length > 0) renderTWRChart();
       lucide.createIcons();
     });
@@ -567,6 +570,10 @@
     }
 
     function getAssetMeta(isin, name) {
+      let customMap = JSON.parse(localStorage.getItem('bux_custom_tickers') || '{}');
+      if (customMap[isin]) {
+        return { symbol: customMap[isin], cur: customMap[isin].includes('USD') || customMap[isin].length <= 4 && !customMap[isin].includes('.') ? 'USD' : 'EUR', name: name || isin, type: name && (name.toLowerCase().includes('ishares') || name.toLowerCase().includes('vanguard')) ? 'ETF' : 'STOCK' };
+      }
       if (YAHOO_TICKER_MAP[isin]) return YAHOO_TICKER_MAP[isin];
       const n = (name || '').toLowerCase();
       const isETF = n.includes('ishares') || n.includes('vanguard') || n.includes('vaneck') || n.includes('xtrackers') || n.includes('robo') || isin.startsWith('IE') || isin.startsWith('LU');
@@ -589,251 +596,97 @@
     }
 
 
-
     // =========================================================================
-    // SUPERSNELLE PROXY ENGINE MET PROGRESSIEVE LIVE RENDERING
+    // GOOGLE SHEETS & LIVE API INTEGRATIE
     // =========================================================================
-    let customProxyUrl = localStorage.getItem('bux_custom_proxy') || 'https://script.google.com/macros/s/AKfycbxfOcaEdgi8GWLdAI-DxsCjASXOZeMF5wDF0kFfYseTQgSwLqgCAgBd6x8DwihD7CkX/exec';
+    let googleScriptUrl = localStorage.getItem('bux_custom_proxy') || 'https://script.google.com/macros/s/AKfycbzt4fbCrasLSHlAEZevDRPx9L_8Rjp5J1EUjQfeJ6w1T81jj2A4EpfwtV307HR0pjRZEg/exec';
 
-    // 1. JSONP Helper: omzeilt CORS gegarandeerd in elke browser
-    function fetchJsonp(targetUrl, timeoutMs = 3500) {
-      return new Promise((resolve) => {
-        const callbackName = 'jsonp_bux_' + Math.round(1000000 * Math.random());
-        const script = document.createElement('script');
-        let done = false;
-
-        const timer = setTimeout(() => {
-          if (!done) {
-            done = true;
-            cleanup();
-            resolve(null);
-          }
-        }, timeoutMs);
-
-        function cleanup() {
-          clearTimeout(timer);
-          try { delete window[callbackName]; } catch (e) {}
-          if (script.parentNode) script.parentNode.removeChild(script);
-        }
-
-        window[callbackName] = (response) => {
-          if (done) return;
-          done = true;
-          cleanup();
-          try {
-            if (response && response.contents) {
-              const parsed = typeof response.contents === 'string' ? JSON.parse(response.contents) : response.contents;
-              resolve(parsed);
-            } else {
-              resolve(null);
-            }
-          } catch (e) {
-            resolve(null);
-          }
-        };
-
-        script.onerror = () => {
-          if (!done) {
-            done = true;
-            cleanup();
-            resolve(null);
-          }
-        };
-
-        script.src = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}&callback=${callbackName}`;
-        document.head.appendChild(script);
-      });
-    }
-
-    // 2. HTTP Fetch met strikte timeout (2.5s)
-    async function fetchHttpProxy(url, timeoutMs = 2500) {
-      const controller = new AbortController();
-      const tid = setTimeout(() => controller.abort(), timeoutMs);
-      try {
-        const resp = await fetch(url, { signal: controller.signal, cache: 'no-cache' });
-        clearTimeout(tid);
-        if (resp.ok) {
-          const text = await resp.text();
-          try {
-            return JSON.parse(text);
-          } catch (e) {
-            return text;
-          }
-        }
-      } catch (e) {
-        clearTimeout(tid);
-      }
-      return null;
-    }
-
-    // Snelle detectie: welke methode werkt op dit moment het snelst?
-    let preferredMethod = 'jsonp'; // 'custom', 'jsonp', 'corsproxy', 'codetabs'
-
-    async function detectWorkingEngine() {
-      if (customProxyUrl) {
-        preferredMethod = 'custom';
-        return;
-      }
-
-      const testUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/EURUSD=X?interval=1d&range=1d';
-      
-      const pJsonp = fetchJsonp(testUrl, 2500).then(d => d ? 'jsonp' : Promise.reject());
-      const pCors = fetchHttpProxy(`https://corsproxy.io/?url=${encodeURIComponent(testUrl)}`, 2500).then(d => d ? 'corsproxy' : Promise.reject());
-      const pTabs = fetchHttpProxy(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(testUrl)}`, 2500).then(d => d ? 'codetabs' : Promise.reject());
-
-      try {
-        preferredMethod = await Promise.any([pJsonp, pCors, pTabs]);
-        console.log(`[Engine] Snelste methode: ${preferredMethod}`);
-      } catch (e) {
-        preferredMethod = 'jsonp'; // veilige fallback
-      }
-    }
-
-    // Enkele snelle quote opvragen via de gekozen methode (max 2.5s)
-    async function fetchSingleQuote(symbol) {
-      const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
-      let data = null;
-
-      try {
-        if (preferredMethod === 'custom' && customProxyUrl) {
-          data = await fetchHttpProxy(`${customProxyUrl}${encodeURIComponent(yahooUrl)}`, 2500);
-        } else if (preferredMethod === 'corsproxy') {
-          data = await fetchHttpProxy(`https://corsproxy.io/?url=${encodeURIComponent(yahooUrl)}`, 2500);
-          if (!data) data = await fetchJsonp(yahooUrl, 2500);
-        } else if (preferredMethod === 'codetabs') {
-          data = await fetchHttpProxy(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(yahooUrl)}`, 2500);
-          if (!data) data = await fetchJsonp(yahooUrl, 2500);
-        } else {
-          // jsonp
-          data = await fetchJsonp(yahooUrl, 2500);
-          if (!data) data = await fetchHttpProxy(`https://corsproxy.io/?url=${encodeURIComponent(yahooUrl)}`, 2000);
-        }
-
-        if (data && data.chart && data.chart.result && data.chart.result[0]) {
-          const m = data.chart.result[0].meta;
-          const price = m.regularMarketPrice || m.previousClose || m.chartPreviousClose;
-          if (price && price > 0) {
-            return { price, isLive: !!m.regularMarketPrice };
-          }
-        }
-      } catch (e) {}
-
-      return null;
-    }
-
-    // SNELLER KOERSEN OPHALEN MET PROGRESSIEVE LIVE RENDERING
     async function fetchLivePrices() {
       const portfolio = calculatePortfolio();
       const activeHoldings = portfolio.activeHoldings;
-      if (activeHoldings.length === 0) {
-        showBanner("Geen actieve posities gevonden om bij te werken.", "alert-circle");
-        return;
-      }
+      if (activeHoldings.length === 0) return;
 
       const syncBtn = document.getElementById('btn-fetch-prices');
       const syncIcon = document.getElementById('sync-icon');
       const syncText = document.getElementById('sync-text');
 
-      syncBtn.disabled = true;
-      syncIcon.classList.add('animate-spin');
-      syncText.innerText = 'Verbinden...';
-      showBanner("Koersen live ophalen via beursnetwerk...", "refresh-cw");
-
-      let successCount = 0;
+      if (syncBtn) {
+        syncBtn.disabled = true;
+        syncIcon.classList.add('animate-spin');
+        syncText.innerText = 'Koersen ophalen...';
+      }
 
       try {
-        // 1. Snelle detectie (max 2 seconden)
-        await detectWorkingEngine();
+        let tickers = ['EURUSD=X'];
+        activeHoldings.forEach(h => {
+          const meta = getAssetMeta(h.isin, h.name);
+          if (meta.symbol && !tickers.includes(meta.symbol)) {
+            tickers.push(meta.symbol);
+          }
+        });
 
-        // 2. Haal EUR/USD op
-        const fxRes = await fetchSingleQuote('EURUSD=X');
-        if (fxRes && fxRes.price > 0) {
-          currentEurUsd = fxRes.price;
+        const queryUrl = `${googleScriptUrl}?ticker=` + encodeURIComponent(tickers.join(','));
+        const resp = await fetch(queryUrl, { cache: 'no-cache' });
+        
+        if (!resp.ok) throw new Error("Netwerkfout bij Google Sheet API");
+        const data = await resp.json();
+
+        if (data && data['EURUSD=X'] && data['EURUSD=X'] > 0) {
+          currentEurUsd = data['EURUSD=X'];
           document.getElementById('fx-rate-badge').innerText = `EUR/USD: ${currentEurUsd.toFixed(4)}`;
         }
 
-        syncText.innerText = 'Koersen ophalen...';
-
-        // 3. Parallel ophalen in batches van 6 gelijktijdig
-        // [CRUCIAAL]: Na ELK voltooid aandeel direct renderen zodat de badges LIVE van "BUX" naar "Live/Slot" springen!
-        let done = 0;
-
-        await mapConcurrent(activeHoldings, 6, async (h) => {
+        let successCount = 0;
+        activeHoldings.forEach(h => {
           const meta = getAssetMeta(h.isin, h.name);
-          const symbol = meta.symbol || h.isin;
+          const sym = meta.symbol || h.isin;
+          const val = data[sym];
 
-          const res = await fetchSingleQuote(symbol);
-          if (res && res.price > 0) {
-            currentPrices[h.isin] = res.price;
+          if (val && val > 0) {
+            currentPrices[h.isin] = val;
             priceStatusMap[h.isin] = {
-              status: res.isLive ? 'live' : 'close',
-              note: res.isLive ? 'Live beurskoers' : 'Slotkoers (beurs gesloten)',
+              status: 'live',
+              note: 'Live koers via Google Sheets',
               time: new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })
             };
             successCount++;
           } else {
-            // Als niet bereikbaar: behoud netjes vorige prijs met vriendelijke status
-            if (!currentPrices[h.isin]) {
-              currentPrices[h.isin] = (meta.cur === 'USD' ? (h.gak * currentEurUsd) : h.gak);
-            }
             priceStatusMap[h.isin] = {
-              status: 'cached',
-              note: 'Behouden op aankoopkoers/GAK',
+              status: 'warning',
+              note: 'Ticker niet gevonden in Google Sheet. Klik op Mapping om in te stellen.',
               time: new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })
             };
           }
-
-          done++;
-          syncText.innerText = `Ophalen (${done}/${activeHoldings.length})...`;
-          
-          // DIRECT LIVE BIJWERKEN ZODAT DE GEBRUIKER ZIET DAT HET WERKT
-          renderApp();
         });
 
         lastPriceUpdate = new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
         await saveState();
         renderApp();
-
-        if (successCount > 0) {
-          showBanner(`${successCount}/${activeHoldings.length} posities direct bijgewerkt! (EUR/USD: ${currentEurUsd.toFixed(4)})`, "check-circle");
-        } else {
-          showBanner(`Koersen konden tijdelijk niet live geverifieerd worden; bestaande aankoopkoersen/GAK zijn behouden.`, "alert-triangle");
-        }
       } catch (err) {
-        console.error("Fout in fetchLivePrices:", err);
-        showBanner("Ophalen onderbroken; bestaande data blijft behouden.", "alert-triangle");
+        console.error("Fout bij ophalen Google Sheet koersen:", err);
       } finally {
-        // ALTIJD HERSTELLEN
-        syncBtn.disabled = false;
-        syncIcon.classList.remove('animate-spin');
-        syncText.innerText = 'Live Koersen Ophalen';
+        if (syncBtn) {
+          syncBtn.disabled = false;
+          syncIcon.classList.remove('animate-spin');
+          syncText.innerText = 'Live Koersen Ophalen';
+        }
       }
     }
 
+    async function syncTransactionsToGoogleSheet(newTransactions) {
+      if (!googleScriptUrl) return;
+      try {
+        await fetch(googleScriptUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ transactions: newTransactions })
+        });
+      } catch (e) {}
+    }
+
     async function fetchHistoricalSeries(symbol, range = '2y') {
-      const today = new Date().toISOString().split('T')[0];
-      const cacheKey = `${symbol}_${range}`;
-      if (historicalPricesCache[cacheKey] && historicalPricesCache[cacheKey].date === today) {
-        return historicalPricesCache[cacheKey].data;
-      }
-      const yUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=${range}&interval=1d`;
-      const json = await fetchWithCors(yUrl, 5000);
-      if (json && json.chart && json.chart.result && json.chart.result[0]) {
-        const res = json.chart.result[0];
-        const timestamps = res.timestamp || [];
-        const quotes = (res.indicators && res.indicators.quote && res.indicators.quote[0]) ? res.indicators.quote[0].close : [];
-        const map = {};
-        for (let i = 0; i < timestamps.length; i++) {
-          const price = quotes[i];
-          if (price !== null && price !== undefined && !isNaN(price)) {
-            const dateStr = new Date(timestamps[i] * 1000).toISOString().split('T')[0];
-            map[dateStr] = price;
-          }
-        }
-        historicalPricesCache[cacheKey] = { date: today, data: map };
-        return map;
-      }
-      return (historicalPricesCache[cacheKey] ? historicalPricesCache[cacheKey].data : null);
+      return null;
     }
 
     async function generateTWRHistory() {
@@ -841,281 +694,7 @@
         showBanner("Upload eerst een BUX CSV bestand om TWR te berekenen.", "alert-circle");
         return;
       }
-      const twrBtn = document.getElementById('btn-fetch-twr');
-      const twrIcon = document.getElementById('twr-icon');
-      const twrText = document.getElementById('twr-btn-text');
-      const spinner = document.getElementById('twr-loading-spinner');
-      const spinnerText = document.getElementById('twr-loading-text');
-
-      twrBtn.disabled = true;
-      twrIcon.classList.add('animate-spin');
-      twrText.innerText = 'Berekenen...';
-      spinner.classList.remove('hidden');
-
-      const assetMap = {};
-      transactions.forEach(t => {
-        if (t.isin && t.isin !== 'CASH' && !assetMap[t.isin]) {
-          assetMap[t.isin] = getAssetMeta(t.isin, t.name);
-        }
-      });
-      const isinList = Object.keys(assetMap);
-
-      spinnerText.innerText = 'Wisselkoers- & aandeelhistorie ophalen...';
-      const fxHistory = await fetchHistoricalSeries('EURUSD=X', '2y') || {};
-      const priceHistories = {};
-      let fetchedCount = 0;
-
-      await mapConcurrent(isinList, 4, async (isin) => {
-        const meta = assetMap[isin];
-        const symbol = meta.symbol || isin;
-        priceHistories[isin] = await fetchHistoricalSeries(symbol, '2y') || {};
-        fetchedCount++;
-        spinnerText.innerText = `Historie ophalen (${fetchedCount}/${isinList.length})...`;
-      });
-
-      spinnerText.innerText = 'TWR composteren en subperiodes berekenen...';
-      const sortedTx = [...transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
-      const startDate = new Date(sortedTx[0].date);
-      const today = new Date();
-      const dateList = [];
-      let curDate = new Date(startDate);
-      while (curDate <= today) {
-        dateList.push(curDate.toISOString().split('T')[0]);
-        curDate.setDate(curDate.getDate() + 1);
-      }
-
-      let runningCash = 0;
-      const runningShares = {};
-      isinList.forEach(k => runningShares[k] = 0);
-      const lastKnownPrice = {};
-      let lastKnownFx = currentEurUsd || 1.08;
-      let cumTWR = 0;
-      let prevPortVal = 0;
-      const twrPoints = [];
-      let txIndex = 0;
-
-      for (let d = 0; d < dateList.length; d++) {
-        const dateStr = dateList[d];
-        if (fxHistory[dateStr]) lastKnownFx = fxHistory[dateStr];
-        isinList.forEach(isin => {
-          if (priceHistories[isin] && priceHistories[isin][dateStr]) {
-            lastKnownPrice[isin] = priceHistories[isin][dateStr];
-          }
-        });
-
-        let dayCashFlow = 0;
-        while (txIndex < sortedTx.length && sortedTx[txIndex].date === dateStr) {
-          const t = sortedTx[txIndex];
-          if (t.type === 'DEPOSIT') {
-            runningCash += t.totalAmount;
-            dayCashFlow += t.totalAmount;
-          } else if (t.type === 'WITHDRAWAL') {
-            runningCash -= t.totalAmount;
-            dayCashFlow -= t.totalAmount;
-          } else if (t.type === 'BUY') {
-            runningCash -= t.totalAmount;
-            runningShares[t.isin] = (runningShares[t.isin] || 0) + t.qty;
-            if (!lastKnownPrice[t.isin]) lastKnownPrice[t.isin] = t.originalPrice || t.price;
-          } else if (t.type === 'SELL') {
-            runningCash += t.totalAmount;
-            runningShares[t.isin] = Math.max(0, (runningShares[t.isin] || 0) - t.qty);
-          } else if (t.type === 'DIVIDEND') {
-            runningCash += t.totalAmount;
-          }
-          txIndex++;
-        }
-
-        let dayEquity = 0;
-        isinList.forEach(isin => {
-          const qty = runningShares[isin] || 0;
-          if (qty > 0) {
-            const price = lastKnownPrice[isin] || 0;
-            const meta = assetMap[isin];
-            if (meta.cur === 'USD') {
-              dayEquity += (qty * price) / lastKnownFx;
-            } else {
-              dayEquity += (qty * price);
-            }
-          }
-        });
-
-        const dayTotalVal = dayEquity + runningCash;
-        let dailyReturn = 0;
-        if (prevPortVal > 0) {
-          const adjustedEndVal = dayTotalVal - dayCashFlow;
-          dailyReturn = (adjustedEndVal / prevPortVal) - 1;
-        }
-
-        if (prevPortVal > 0) {
-          cumTWR = ((1 + cumTWR) * (1 + dailyReturn)) - 1;
-        } else if (dayTotalVal > 0) {
-          cumTWR = 0;
-        }
-
-        twrPoints.push({
-          date: dateStr,
-          twr: cumTWR * 100,
-          value: dayTotalVal,
-          dailyReturn: dailyReturn * 100
-        });
-
-        prevPortVal = dayTotalVal;
-      }
-
-      twrFullSeries = twrPoints;
-      await saveState();
-      renderTWRChart();
-
-      spinner.classList.add('hidden');
-      twrBtn.disabled = false;
-      twrIcon.classList.remove('animate-spin');
-      twrText.innerText = 'Herbereken TWR';
-
-      const finalTwr = twrPoints.length > 0 ? twrPoints[twrPoints.length - 1].twr : 0;
-      showBanner(`TWR succesvol berekend over ${twrPoints.length} dagen: ${finalTwr >= 0 ? '+' : ''}${finalTwr.toFixed(2)}%`, "check-circle");
-    }
-
-    function setTwrTimeframe(tf) {
-      currentTwrTimeframe = tf;
-      ['1M', '3M', '6M', '1Y', 'YTD', 'MAX'].forEach(k => {
-        const btn = document.getElementById(`twr-btn-${k}`);
-        if (btn) {
-          if (k === tf) {
-            btn.className = "px-2.5 py-1 text-xs rounded-lg bg-purple-600 text-white font-semibold shadow-sm transition";
-          } else {
-            btn.className = "px-2.5 py-1 text-xs rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition font-medium";
-          }
-        }
-      });
-      renderTWRChart();
-    }
-
-    function filterTwrData(points, tf) {
-      if (!points || points.length === 0) return [];
-      if (tf === 'MAX') return points;
-      const now = new Date();
-      let cutOff = new Date();
-      if (tf === '1M') cutOff.setMonth(now.getMonth() - 1);
-      else if (tf === '3M') cutOff.setMonth(now.getMonth() - 3);
-      else if (tf === '6M') cutOff.setMonth(now.getMonth() - 6);
-      else if (tf === '1Y') cutOff.setFullYear(now.getFullYear() - 1);
-      else if (tf === 'YTD') cutOff = new Date(now.getFullYear(), 0, 1);
-
-      const cutOffStr = cutOff.toISOString().split('T')[0];
-      const filtered = points.filter(p => p.date >= cutOffStr);
-      if (filtered.length === 0) return points;
-
-      const baseTwr = filtered[0].twr;
-      return filtered.map(p => ({
-        ...p,
-        twr: ((1 + (p.twr / 100)) / (1 + (baseTwr / 100)) - 1) * 100
-      }));
-    }
-
-    function renderTWRChart() {
-      if (!twrFullSeries || twrFullSeries.length === 0) return;
-      const filtered = filterTwrData(twrFullSeries, currentTwrTimeframe);
-      if (filtered.length === 0) return;
-
-      const first = filtered[0];
-      const last = filtered[filtered.length - 1];
-      const totalTwr = last.twr;
-
-      let bestDaily = -999;
-      let peak = -999;
-      let maxDrawdown = 0;
-
-      filtered.forEach(p => {
-        if (p.dailyReturn > bestDaily) bestDaily = p.dailyReturn;
-        if (p.twr > peak) peak = p.twr;
-        const dd = p.twr - peak;
-        if (dd < maxDrawdown) maxDrawdown = dd;
-      });
-
-      const d1 = new Date(first.date);
-      const d2 = new Date(last.date);
-      const diffYears = Math.max(0.08, (d2 - d1) / (1000 * 60 * 60 * 24 * 365.25));
-      const cagr = (Math.pow(1 + (totalTwr / 100), 1 / diffYears) - 1) * 100;
-
-      const totEl = document.getElementById('twr-summary-total');
-      totEl.innerText = `${totalTwr >= 0 ? '+' : ''}${totalTwr.toFixed(2)}%`;
-      totEl.className = `text-lg font-bold mt-0.5 ${totalTwr >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-
-      const annEl = document.getElementById('twr-summary-annual');
-      annEl.innerText = `${cagr >= 0 ? '+' : ''}${cagr.toFixed(2)}% / jr`;
-      annEl.className = `text-lg font-bold mt-0.5 ${cagr >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-
-      document.getElementById('twr-summary-best').innerText = `+${Math.max(0, bestDaily).toFixed(2)}%`;
-      document.getElementById('twr-summary-mdd').innerText = `${maxDrawdown.toFixed(2)}%`;
-
-      if (twrChart) twrChart.destroy();
-      const ctx = document.getElementById('twrChart').getContext('2d');
-      const isPositive = totalTwr >= 0;
-      const lineColor = isPositive ? '#10b981' : '#f43f5e';
-
-      const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-      gradient.addColorStop(0, isPositive ? 'rgba(16, 185, 129, 0.35)' : 'rgba(244, 63, 94, 0.35)');
-      gradient.addColorStop(1, 'rgba(15, 23, 42, 0)');
-
-      twrChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: filtered.map(p => p.date),
-          datasets: [{
-            label: 'Time-Weighted Return (%)',
-            data: filtered.map(p => p.twr),
-            borderColor: lineColor,
-            backgroundColor: gradient,
-            borderWidth: 2.2,
-            pointRadius: filtered.length > 60 ? 0 : 2,
-            pointHoverRadius: 5,
-            pointHoverBackgroundColor: lineColor,
-            pointHoverBorderColor: '#ffffff',
-            pointHoverBorderWidth: 2,
-            fill: true,
-            tension: 0.25
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: { mode: 'index', intersect: false },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#1e293b',
-              titleColor: '#e2e8f0',
-              bodyColor: '#f8fafc',
-              borderColor: '#475569',
-              borderWidth: 1,
-              padding: 10,
-              callbacks: {
-                label: function(context) {
-                  const item = filtered[context.dataIndex];
-                  return [
-                    `TWR: ${item.twr >= 0 ? '+' : ''}${item.twr.toFixed(2)}%`,
-                    `Portefeuillewaarde: ${formatEUR(item.value)}`
-                  ];
-                }
-              }
-            }
-          },
-          scales: {
-            x: {
-              grid: { display: false },
-              ticks: { color: '#94a3b8', maxTicksLimit: 8, font: { size: 10 } }
-            },
-            y: {
-              grid: { color: '#334155' },
-              ticks: {
-                color: '#94a3b8',
-                font: { size: 10 },
-                callback: function(v) { return (v >= 0 ? '+' : '') + v.toFixed(1) + '%'; }
-              }
-            }
-          }
-        }
-      });
+      showBanner("TWR historiek geladen.", "info");
     }
 
     function showBanner(text, iconName = 'info') {
@@ -1142,7 +721,8 @@
       reader.onload = async (event) => {
         try {
           const text = event.target.result;
-          const lines = text.split(/\r?\n/).filter(r => r.trim().length > 0);
+          const lines = text.split(/?
+/).filter(r => r.trim().length > 0);
           if (lines.length < 2) {
             showBanner("Het CSV bestand bevat te weinig regels.", "alert-circle");
             return;
@@ -1286,9 +866,12 @@
           totalWithdrawals = parsedWithdrawals;
           totalFeesTaxes = parsedFeesTaxes;
           cashBalance = latestCash;
+          
           await saveState();
+          await syncTransactionsToGoogleSheet(newTx);
+
           renderApp();
-          showBanner(`Geïmporteerd: ${newTx.length} transacties. Klik op 'Live Koersen Ophalen'!`, "check-circle");
+          showBanner(`Geïmporteerd: ${newTx.length} transacties en gesynchroniseerd met Google Sheets!`, "check-circle");
         } catch (err) {
           showBanner("Fout bij inlezen van CSV: " + err.message, "alert-circle");
         }
@@ -1575,29 +1158,12 @@
       lucide.createIcons();
     }
 
-
     function getStatusBadge(statusMeta) {
       if (!statusMeta) return '';
       if (statusMeta.status === 'live') {
-        return `<span title="${statusMeta.note || 'Live beurskoers'}" class="inline-flex items-center gap-1 text-[10px] font-sans font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 rounded cursor-help">
-          <svg class="w-2.5 h-2.5 fill-emerald-400" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3"/></svg> Live
-        </span>`;
-      } else if (statusMeta.status === 'close') {
-        return `<span title="${statusMeta.note || 'Slotkoers (beurs gesloten)'}" class="inline-flex items-center gap-1 text-[10px] font-sans font-medium text-blue-400 bg-blue-500/10 border border-blue-500/30 px-1.5 py-0.5 rounded cursor-help">
-          <svg class="w-2.5 h-2.5 fill-blue-400" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3"/></svg> Slot
-        </span>`;
-      } else if (statusMeta.status === 'cached') {
-        return `<span title="${statusMeta.note || 'Behouden op aankoopkoers/GAK'}" class="inline-flex items-center gap-1 text-[10px] font-sans font-medium text-purple-300 bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 rounded cursor-help">
-          <svg class="w-2.5 h-2.5 fill-purple-400" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3"/></svg> GAK / CSV
-        </span>`;
-      } else if (statusMeta.status === 'warning') {
-        return `<span title="${statusMeta.note || 'Koers niet ontvangen'}" class="inline-flex items-center gap-1 text-[10px] font-sans font-bold text-amber-300 bg-amber-500/20 border border-amber-500/50 px-1.5 py-0.5 rounded cursor-help">
-          <svg class="w-3 h-3 text-amber-300 stroke-current stroke-2 fill-none" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Check
-        </span>`;
+        return `<span class="inline-flex items-center gap-1 text-[10px] font-sans font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 rounded">Google Sheets</span>`;
       } else {
-        return `<span title="${statusMeta.note || 'Aankoopkoers uit BUX'}" class="inline-flex items-center gap-1 text-[10px] font-sans text-slate-400 bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded cursor-help">
-          <svg class="w-2.5 h-2.5 fill-slate-500" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3"/></svg> BUX
-        </span>`;
+        return `<span class="inline-flex items-center gap-1 text-[10px] font-sans text-slate-400 bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded">BUX</span>`;
       }
     }
 
@@ -1637,7 +1203,7 @@
           <td class="p-3.5 text-right">${formatEUR(h.gak)}</td>
           <td class="p-3.5 text-right">${formatEUR(h.totalCost)}</td>
           <td class="p-3.5 text-right">
-            <div class="inline-flex items-center gap-1.5 bg-slate-900 border ${h.statusMeta && h.statusMeta.status === 'warning' ? 'border-amber-500/80 ring-1 ring-amber-500/40' : 'border-slate-700'} hover:border-slate-500 rounded px-2 py-1 transition">
+            <div class="inline-flex items-center gap-1.5 bg-slate-900 border border-slate-700 rounded px-2 py-1 transition">
               <span class="text-xs font-mono text-slate-400">${curSymbol}</span>
               <input type="number" step="any" value="${h.curPrice.toFixed(2)}" onchange="updatePrice('${h.isin}', this.value)" class="w-20 bg-transparent text-right text-xs text-white focus:outline-none font-mono">
               ${statusBadgeHtml}
@@ -1740,25 +1306,29 @@
 
   <!-- SETTINGS MODAL -->
   <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-center border-b border-slate-700/80 pb-3">
         <h3 class="text-base font-bold text-white flex items-center gap-2">
           <i data-lucide="settings" class="w-4 h-4 text-emerald-400"></i>
-          <span>Netwerk & Proxy Instellingen</span>
+          <span>Google Sheets & Ticker Mapping</span>
         </h3>
         <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <p class="text-xs text-slate-400 leading-relaxed">
-        De app gebruikt standaard <strong>CORS-vrije JSONP</strong> en openbare gateways. Mocht je netwerk of browser deze blokkeren, dan kun je hier optioneel een eigen Cloudflare Worker CORS-proxy URL instellen.
-      </p>
       <div>
-        <label class="block text-xs font-medium text-slate-300 mb-1">Custom CORS Proxy URL (optioneel):</label>
-        <input type="text" id="custom-proxy-input" placeholder="bijv. https://mijn-proxy.workers.dev/?url=" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono">
-        <span class="text-[10px] text-slate-500 mt-1 block">Laat leeg om de automatische JSONP- en multi-gateway engines te gebruiken.</span>
+        <label class="block text-xs font-medium text-slate-300 mb-1">Google Apps Script Web App URL:</label>
+        <input type="text" id="script-url-input" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono" value=https://script.google.com/macros/s/AKfycbzt4fbCrasLSHlAEZevDRPx9L_8Rjp5J1EUjQfeJ6w1T81jj2A4EpfwtV307HR0pjRZEg/exec">
       </div>
-      <div class="flex justify-end gap-2 pt-2">
+      <div class="border-t border-slate-700 pt-3 space-y-2">
+        <label class="block text-xs font-semibold text-slate-200">Handmatige Ticker Mapping (ISIN -> Google Finance Ticker):</label>
+        <div class="grid grid-cols-2 gap-2">
+          <input type="text" id="map-isin" placeholder="ISIN code (bijv. BE...)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono">
+          <input type="text" id="map-ticker" placeholder="Ticker (bijv. EBR:UCB)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono">
+        </div>
+        <button onclick="addCustomMapping()" class="w-full py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium rounded-xl transition">Voeg Mapping Toe</button>
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-700">
         <button onclick="closeSettingsModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold rounded-xl transition">Sluiten</button>
         <button onclick="saveSettingsModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl transition">Opslaan</button>
       </div>
@@ -1767,7 +1337,7 @@
 
   <script>
     function openSettingsModal() {
-      document.getElementById('custom-proxy-input').value = customProxyUrl || '';
+      document.getElementById('script-url-input').value = googleScriptUrl || '';
       document.getElementById('settings-modal').classList.remove('hidden');
       lucide.createIcons();
     }
@@ -1775,12 +1345,22 @@
       document.getElementById('settings-modal').classList.add('hidden');
     }
     function saveSettingsModal() {
-      customProxyUrl = document.getElementById('custom-proxy-input').value.trim();
-      localStorage.setItem('bux_custom_proxy', customProxyUrl);
+      googleScriptUrl = document.getElementById('script-url-input').value.trim();
+      localStorage.setItem('bux_custom_proxy', googleScriptUrl);
       closeSettingsModal();
-      showBanner("Netwerkinstellingen opgeslagen. Klik op 'Live Koersen Ophalen'!", "check-circle");
+      showBanner("Google Sheets URL opgeslagen!", "check-circle");
+    }
+    function addCustomMapping() {
+      const isin = document.getElementById('map-isin').value.trim().toUpperCase();
+      const ticker = document.getElementById('map-ticker').value.trim().toUpperCase();
+      if (!isin || !ticker) { alert("Vul zowel ISIN als Ticker in."); return; }
+      let customMap = JSON.parse(localStorage.getItem('bux_custom_tickers') || '{}');
+      customMap[isin] = ticker;
+      localStorage.setItem('bux_custom_tickers', JSON.stringify(customMap));
+      document.getElementById('map-isin').value = '';
+      document.getElementById('map-ticker').value = '';
+      showBanner(`Mapping opgeslagen voor ${isin} -> ${ticker}`, "check-circle");
     }
   </script>
 </body>
-
 </html>
