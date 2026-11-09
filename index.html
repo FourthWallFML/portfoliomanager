@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Portfolio">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portfolio Manager</title>
@@ -29,6 +35,13 @@
 
       <!-- Knoppenbalk: Live Koersen, Import & Reset -->
       <div class="flex flex-wrap items-center gap-2">
+        
+        <!-- PWA Installatie Knop (zichtbaar wanneer de browser installatie toestaat) -->
+        <button id="pwa-install-btn" class="hidden px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold rounded-xl transition shadow-sm flex items-center gap-1.5">
+          <i data-lucide="smartphone" class="w-4 h-4"></i>
+          <span>Installeer als App</span>
+        </button>
+
         <!-- Live Koersen Knop -->
         <button id="btn-fetch-prices" onclick="fetchLivePrices()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition shadow-sm flex items-center gap-2">
           <i id="sync-icon" data-lucide="refresh-cw" class="w-4 h-4"></i>
@@ -349,6 +362,38 @@
 
     let allocChart = null;
     let perfChart = null;
+
+    
+    // Registratie van de PWA Service Worker voor app-installatie
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('[PWA] Service Worker geregistreerd:', reg.scope))
+          .catch((err) => console.warn('[PWA] Service Worker registratie mislukt:', err));
+      });
+    }
+
+    
+    // Prompt voor PWA installatieknop
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installBtn = document.getElementById('pwa-install-btn');
+      if (installBtn) {
+        installBtn.classList.remove('hidden');
+        installBtn.addEventListener('click', () => {
+          installBtn.classList.add('hidden');
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choice) => {
+            if (choice.outcome === 'accepted') {
+              console.log('Gebruiker heeft de app geïnstalleerd');
+            }
+            deferredPrompt = null;
+          });
+        });
+      }
+    });
 
     document.addEventListener("DOMContentLoaded", () => {
       renderApp();
