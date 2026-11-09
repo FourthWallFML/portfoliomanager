@@ -1,5 +1,5 @@
 // Service Worker voor BUX Portfolio Manager PWA
-const CACHE_NAME = 'bux-portfolio-v8';
+const CACHE_NAME = 'bux-portfolio-v10';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
