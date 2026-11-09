@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAT - Portfolio Analysis Tool</title>
+    <title>PAT - Portfolio Analysis & TWR Tool</title>
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#10b981">
@@ -15,6 +15,8 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- Chart.js voor TWR Grafieken -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen" x-data="portfolioApp()" x-init="initApp()">
 
@@ -34,7 +36,7 @@
                 <img src="icon-192.png" alt="PAT Logo" class="w-12 h-12 rounded-xl shadow border border-emerald-500/30 object-cover">
                 <div>
                     <h1 class="text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">PAT</h1>
-                    <p class="text-xs text-slate-400 uppercase tracking-widest font-semibold">Portfolio Analysis Tool</p>
+                    <p class="text-xs text-slate-400 uppercase tracking-widest font-semibold">Portfolio Analysis & TWR Tool</p>
                 </div>
             </div>
             <div class="flex flex-wrap gap-3 items-center">
@@ -52,6 +54,12 @@
                     class="px-5 py-2.5 rounded-t-xl text-sm transition flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
                 Dashboard
+            </button>
+            <button @click="activeTab = 'twr'; $nextTick(() => updateTwrView())" 
+                    :class="activeTab === 'twr' ? 'bg-emerald-500/20 text-emerald-300 border-b-2 border-emerald-400 font-bold' : 'text-slate-400 hover:text-slate-200'" 
+                    class="px-5 py-2.5 rounded-t-xl text-sm transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                TWR Grafiek
             </button>
             <button @click="activeTab = 'posities'" 
                     :class="activeTab === 'posities' ? 'bg-emerald-500/20 text-emerald-300 border-b-2 border-emerald-400 font-bold' : 'text-slate-400 hover:text-slate-200'" 
@@ -83,8 +91,8 @@
                             </p>
                         </div>
                         <button type="button" 
-                                @click="showUnmappedDetails = !showUnmappedDetails"
-                                class="text-xs text-amber-300 hover:text-amber-100 underline ml-auto shrink-0 transition"
+                                @click="showUnmappedDetails = !showUnmappedDetails" 
+                                class="text-xs text-amber-300 hover:text-amber-100 underline ml-auto shrink-0 transition" 
                                 x-text="showUnmappedDetails ? 'Verberg details ▲' : 'Toon assets ▼'">
                         </button>
                     </div>
@@ -110,11 +118,10 @@
         </template>
 
         <!-- ============================================== -->
-        <!-- PAGINA 1: DASHBOARD                            -->
+        <!-- TAB 1: DASHBOARD                               -->
         <!-- ============================================== -->
         <div x-show="activeTab === 'dashboard'" class="space-y-6">
             
-            <!-- Upload Box indien nog geen data -->
             <div class="bg-slate-800/60 backdrop-blur p-6 rounded-2xl border border-slate-700/60 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div>
                     <h3 class="text-sm font-bold text-slate-200">Transactiebestand Inladen</h3>
@@ -170,9 +177,8 @@
                 </div>
             </div>
 
-            <!-- Grid: Portefeuille Breakdown & Kostenoverzicht -->
+            <!-- Breakdown & Kosten -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
                 <!-- Portefeuille Breakdown Card -->
                 <div class="bg-slate-800/80 backdrop-blur p-6 rounded-2xl shadow-xl border border-slate-700/60 space-y-4">
                     <h3 class="text-base font-bold text-slate-200 border-b border-slate-700 pb-3 flex items-center justify-between">
@@ -180,7 +186,6 @@
                         <span class="text-xs text-slate-400 font-normal">Vermogensallocatie</span>
                     </h3>
 
-                    <!-- Shares -->
                     <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-700 flex justify-between items-center">
                         <div>
                             <div class="text-sm font-bold text-slate-100 flex items-center gap-2">
@@ -196,7 +201,6 @@
                         </div>
                     </div>
 
-                    <!-- ETFs -->
                     <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-700 flex justify-between items-center">
                         <div>
                             <div class="text-sm font-bold text-slate-100 flex items-center gap-2">
@@ -212,7 +216,6 @@
                         </div>
                     </div>
 
-                    <!-- Cash -->
                     <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-700 flex justify-between items-center">
                         <div>
                             <div class="text-sm font-bold text-slate-100 flex items-center gap-2">
@@ -234,7 +237,7 @@
                     <div class="border-b border-slate-700 pb-3 flex justify-between items-center">
                         <h3 class="text-base font-bold text-slate-200">Kosten & Compensaties</h3>
                         <div class="text-right">
-                            <span class="text-xs text-rose-400 font-bold" x-text="'Netto kosten: ' + formatCurrency(costs.netCosts)"></span>
+                            <span class="text-xs text-rose-400 font-bold" x-text="'Netto: ' + formatCurrency(costs.netCosts)"></span>
                             <span class="text-xs text-slate-400" x-text="' (' + costs.costPercentage.toFixed(2) + '%)'"></span>
                         </div>
                     </div>
@@ -263,21 +266,69 @@
                         <span class="font-mono text-slate-200 font-bold" x-text="formatCurrency(costs.grossCosts)"></span>
                     </div>
                 </div>
-
             </div>
         </div>
 
         <!-- ============================================== -->
-        <!-- PAGINA 2: POSITIES & KOERSEN                   -->
+        <!-- TAB 2: TWR & RENDEMENTSGRAFIEK                 -->
+        <!-- ============================================== -->
+        <div x-show="activeTab === 'twr'" class="space-y-6">
+            <div class="bg-slate-800/80 backdrop-blur p-6 rounded-2xl shadow-xl border border-slate-700/60 space-y-5">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-200">Time-Weighted Return (TWR) Performance</h3>
+                        <p class="text-xs text-slate-400">Meet het zuivere rendement zonder vertekening van cashflows. Gecachet via Google Sheets.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs text-slate-400">Selecteer Weergave:</label>
+                        <select x-model="selectedTwrAsset" @change="updateTwrView()" class="bg-slate-900 border border-slate-700 text-xs rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-emerald-500 font-medium">
+                            <option value="portfolio">Totale Portefeuille (TWR)</option>
+                            <optgroup label="Individuele Aandelen & ETFs">
+                                <template x-for="pos in positions" :key="pos.isin">
+                                    <option :value="pos.isin" x-text="pos.name"></option>
+                                </template>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- TWR Stat Cards voor geselecteerde asset / portfolio -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Geselecteerd Rendement (TWR)</span>
+                        <div class="text-2xl font-black mt-1" :class="currentTwrMetrics.returnPct >= 0 ? 'text-emerald-400' : 'text-rose-400'" x-text="(currentTwrMetrics.returnPct >= 0 ? '+' : '') + currentTwrMetrics.returnPct.toFixed(2) + '%'"></div>
+                    </div>
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Startdatum / Eerste Aankoop</span>
+                        <div class="text-lg font-bold text-slate-200 mt-1" x-text="currentTwrMetrics.startDate || '-'"></div>
+                    </div>
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Hoogste Punt (All-Time High TWR)</span>
+                        <div class="text-lg font-bold text-emerald-400 mt-1" x-text="'+' + currentTwrMetrics.athPct.toFixed(2) + '%'"></div>
+                    </div>
+                </div>
+
+                <!-- Grafiek Container -->
+                <div class="relative h-96 w-full bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                    <canvas id="twrChartCanvas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- TAB 3: POSITIES & KOERSEN                   -->
         <!-- ============================================== -->
         <div x-show="activeTab === 'posities'" class="space-y-6">
             
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <!-- Asset Mapping Sidebar (alleen als er unmapped ISINs zijn) -->
+                <!-- Asset Mapping Sidebar (alleen zichtbaar als er unmapped ISINs zijn) -->
                 <div class="lg:col-span-1 space-y-6" x-show="unmappedIsins.length > 0">
                     <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl border border-slate-700/60">
-                        <h3 class="text-sm font-bold text-amber-300 mb-2">Ontbrekende Mappings</h3>
-                        <p class="text-[11px] text-slate-400 mb-3">Vul de ticker in om live koersen op te halen.</p>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-sm font-bold text-amber-300">Ontbrekende Mappings</h3>
+                            <span class="text-[10px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded-full border border-amber-800" x-text="unmappedIsins.length"></span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mb-3">Koppel een Google Finance ticker om koersen op te halen.</p>
                         <div class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
                             <template x-for="isin in unmappedIsins" :key="isin">
                                 <div class="p-2.5 bg-slate-900 rounded-xl border border-slate-700">
@@ -300,9 +351,7 @@
                             <h2 class="text-base font-bold text-slate-200">Openstaande Posities</h2>
                             <p class="text-[11px] text-slate-400">Originele valuta en actuele euro-conversie.</p>
                         </div>
-                        <div class="flex gap-2">
-                            <button @click="fetchGoogleSheetData()" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition">Koersen Vernieuwen</button>
-                        </div>
+                        <button @click="fetchGoogleSheetData()" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition">Koersen Vernieuwen</button>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
@@ -369,7 +418,7 @@
 
     <!-- Script Application Logic -->
     <script>
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzaqprbcYS-OyDHvXQBw84_B9DpiFjescxWaJS-MGo519WabsAxFbL5AEzC-0O-TZ025w/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyUSZvAUMZTrLO5qPFwBtDW54ByrxPDV_X0KGFcxRiOVNe6aqiYwG7g3ccNrzwOFjrIFQ/exec';
         const DUMMY_ISINS = ['DE000A3E5DT0', 'DE000TUAG109'];
 
         let deferredPrompt = null;
@@ -387,9 +436,13 @@
                 assetMapping: {},
                 latestPrices: {},
                 rates: { USDEUR: 0.92 },
+                historyData: { dates: [], tickers: [], prices: {} },
                 showInstallPrompt: false,
                 showUnmappedDetails: false,
                 syncStatus: 'Niet gesynchroniseerd',
+                selectedTwrAsset: 'portfolio',
+                chartInstance: null,
+                currentTwrMetrics: { returnPct: 0, startDate: '', athPct: 0 },
 
                 initApp() {
                     window.addEventListener('pwa-install-ready', () => {
@@ -404,13 +457,14 @@
                     const savedMap = localStorage.getItem('pat_mapping');
                     const savedPrices = localStorage.getItem('pat_prices');
                     const savedRates = localStorage.getItem('pat_rates');
+                    const savedHist = localStorage.getItem('pat_history');
 
                     if (savedTx) this.transactions = JSON.parse(savedTx);
                     if (savedMap) this.assetMapping = JSON.parse(savedMap);
                     if (savedPrices) this.latestPrices = JSON.parse(savedPrices);
                     if (savedRates) this.rates = JSON.parse(savedRates);
+                    if (savedHist) this.historyData = JSON.parse(savedHist);
 
-                    // Ruim eventuele dummy ISINs op
                     DUMMY_ISINS.forEach(d => delete this.assetMapping[d]);
 
                     if (this.transactions.length > 0) {
@@ -421,7 +475,7 @@
                 },
 
                 fetchGoogleSheetData() {
-                    this.syncStatus = 'Synchroniseren...';
+                    this.syncStatus = 'Bezig met synchroniseren...';
                     fetch(GOOGLE_SCRIPT_URL)
                         .then(response => response.json())
                         .then(data => {
@@ -432,12 +486,8 @@
                                         if (!this.assetMapping[isin]) {
                                             this.assetMapping[isin] = data.mapping[isin];
                                         } else {
-                                            if (data.mapping[isin].ticker) {
-                                                this.assetMapping[isin].ticker = data.mapping[isin].ticker;
-                                            }
-                                            if (data.mapping[isin].name && !this.assetMapping[isin].name) {
-                                                this.assetMapping[isin].name = data.mapping[isin].name;
-                                            }
+                                            if (data.mapping[isin].ticker) this.assetMapping[isin].ticker = data.mapping[isin].ticker;
+                                            if (data.mapping[isin].name && !this.assetMapping[isin].name) this.assetMapping[isin].name = data.mapping[isin].name;
                                         }
                                     }
                                     localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
@@ -453,14 +503,22 @@
                                     localStorage.setItem('pat_rates', JSON.stringify(this.rates));
                                 }
 
+                                if (data.history && data.history.dates && data.history.dates.length > 0) {
+                                    this.historyData = data.history;
+                                    localStorage.setItem('pat_history', JSON.stringify(this.historyData));
+                                }
+
                                 this.syncStatus = 'Gesynchroniseerd om ' + new Date().toLocaleTimeString();
+                                if (this.activeTab === 'twr') {
+                                    this.updateTwrView();
+                                }
                             } else {
-                                this.syncStatus = 'Sync fout';
+                                this.syncStatus = 'Sync fout van server';
                             }
                         })
                         .catch(err => {
                             console.error('Fout bij synchroniseren:', err);
-                            this.syncStatus = 'Offline modus';
+                            this.syncStatus = 'Offline modus (lokale cache actief)';
                         });
                 },
 
@@ -470,17 +528,11 @@
 
                     localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
 
-                    const payload = {
-                        isin: isin,
-                        name: mappingItem.name || '',
-                        ticker: mappingItem.ticker || ''
-                    };
-
                     fetch(GOOGLE_SCRIPT_URL, {
                         method: 'POST',
                         mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify({ isin: isin, name: mappingItem.name || '', ticker: mappingItem.ticker || '' })
                     }).then(() => {
                         this.syncStatus = `Ticker ${mappingItem.ticker} opgeslagen!`;
                     }).catch(err => console.error(err));
@@ -613,7 +665,183 @@
                     this.positions = Object.values(posMap).filter(p => p.quantity > 0.0001);
                 },
 
-                // --- DASHBOARD METRICS BEREKENINGEN ---
+                // --- TWR (TIME-WEIGHTED RETURN) BEREKENING & GRAFIEK LOGICA ---
+                updateTwrView() {
+                    const canvas = document.getElementById('twrChartCanvas');
+                    if (!canvas) return;
+
+                    let labels = [];
+                    let dataPoints = [];
+                    let assetName = "Totale Portefeuille";
+
+                    // 1. Individueel Aandeel TWR
+                    if (this.selectedTwrAsset !== 'portfolio') {
+                        const pos = this.positions.find(p => p.isin === this.selectedTwrAsset);
+                        const isin = this.selectedTwrAsset;
+                        assetName = pos ? pos.name : isin;
+                        const ticker = this.assetMapping[isin]?.ticker;
+                        const isUsd = this.isUsdAsset(isin);
+
+                        const buyTrades = this.transactions.filter(t => t['Asset Id'] === isin && t['Transaction Type'] === 'Buy Trade')
+                            .sort((a,b) => new Date(a['Transaction Time (CET)']) - new Date(b['Transaction Time (CET)']));
+                        const startDate = buyTrades.length > 0 ? buyTrades[0]['Transaction Time (CET)'].split(' ')[0] : '2024-01-01';
+
+                        if (this.historyData.dates && this.historyData.dates.length > 0 && ticker && this.historyData.prices[ticker]) {
+                            const allDates = this.historyData.dates;
+                            const allPrices = this.historyData.prices[ticker];
+                            const usdRates = this.historyData.prices['CURRENCY:USDEUR'] || [];
+
+                            let basePriceEur = null;
+
+                            for (let i = 0; i < allDates.length; i++) {
+                                if (allDates[i] >= startDate && allPrices[i] > 0) {
+                                    let priceEur = allPrices[i];
+                                    if (isUsd && usdRates[i]) priceEur = priceEur * usdRates[i];
+
+                                    if (basePriceEur === null) basePriceEur = priceEur;
+
+                                    const twr = ((priceEur / basePriceEur) - 1) * 100;
+                                    labels.push(allDates[i]);
+                                    dataPoints.push(parseFloat(twr.toFixed(2)));
+                                }
+                            }
+                        }
+
+                        if (dataPoints.length === 0 && pos) {
+                            const curPrice = this.getAssetPriceInEur(isin);
+                            const twr = pos.avgPrice > 0 ? ((curPrice - pos.avgPrice) / pos.avgPrice) * 100 : 0;
+                            labels = [startDate, 'Huidig'];
+                            dataPoints = [0, parseFloat(twr.toFixed(2))];
+                        }
+
+                        const currentTwr = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1] : 0;
+                        const ath = dataPoints.length > 0 ? Math.max(...dataPoints) : 0;
+                        this.currentTwrMetrics = { returnPct: currentTwr, startDate: startDate, athPct: ath };
+
+                    } else {
+                        // 2. Totale Portefeuille TWR
+                        assetName = "Totale Portefeuille";
+                        const firstTx = this.transactions.filter(t => t['Transaction Category'] === 'deposits')
+                            .sort((a,b) => new Date(a['Transaction Time (CET)']) - new Date(b['Transaction Time (CET)']));
+                        const startDate = firstTx.length > 0 ? firstTx[0]['Transaction Time (CET)'].split(' ')[0] : '2023-12-27';
+
+                        if (this.historyData.dates && this.historyData.dates.length > 0) {
+                            let cumulativeTwrFactor = 1.0;
+                            let prevVal = null;
+                            const dates = this.historyData.dates;
+
+                            dates.forEach((d) => {
+                                const val = this.calculateHistoricalPortfolioValue(d);
+                                const cf = this.getCashFlowOnDate(d);
+
+                                if (prevVal !== null && prevVal > 0) {
+                                    const subReturn = (val - cf - prevVal) / prevVal;
+                                    cumulativeTwrFactor *= (1 + subReturn);
+                                }
+                                prevVal = val;
+
+                                labels.push(d);
+                                dataPoints.push(parseFloat(((cumulativeTwrFactor - 1) * 100).toFixed(2)));
+                            });
+                        }
+
+                        if (dataPoints.length === 0) {
+                            const totalReturn = this.totalInvested > 0 ? ((this.totalPortfolioValue - this.totalInvested) / this.totalInvested) * 100 : 0;
+                            labels = [startDate, 'Huidig'];
+                            dataPoints = [0, parseFloat(totalReturn.toFixed(2))];
+                        }
+
+                        const currentTwr = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1] : 0;
+                        const ath = dataPoints.length > 0 ? Math.max(...dataPoints) : 0;
+                        this.currentTwrMetrics = { returnPct: currentTwr, startDate: startDate, athPct: ath };
+                    }
+
+                    // Render Chart.js
+                    if (this.chartInstance) {
+                        this.chartInstance.destroy();
+                    }
+
+                    const isPositive = this.currentTwrMetrics.returnPct >= 0;
+                    const strokeColor = isPositive ? '#10b981' : '#f43f5e';
+                    const fillColor = isPositive ? 'rgba(16, 185, 129, 0.12)' : 'rgba(244, 63, 94, 0.12)';
+
+                    this.chartInstance = new Chart(canvas.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: assetName + ' TWR (%)',
+                                data: dataPoints,
+                                borderColor: strokeColor,
+                                backgroundColor: fillColor,
+                                borderWidth: 2.5,
+                                fill: true,
+                                tension: 0.25,
+                                pointRadius: dataPoints.length > 50 ? 0 : 3,
+                                pointHoverRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: 'index', intersect: false },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: (context) => ` ${context.parsed.y >= 0 ? '+' : ''}${context.parsed.y.toFixed(2)}%`
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: { ticks: { color: '#94a3b8', maxTicksLimit: 12 }, grid: { color: 'rgba(51, 65, 85, 0.4)' } },
+                                y: { 
+                                    ticks: { 
+                                        color: '#94a3b8',
+                                        callback: (val) => val + '%'
+                                    }, 
+                                    grid: { color: 'rgba(51, 65, 85, 0.4)' } 
+                                }
+                            }
+                        }
+                    });
+                },
+
+                getCashFlowOnDate(dateStr) {
+                    let cf = 0;
+                    this.transactions.forEach(tx => {
+                        const txDate = tx['Transaction Time (CET)'].split(' ')[0];
+                        if (txDate === dateStr) {
+                            const cat = tx['Transaction Category'];
+                            const amt = parseFloat(tx['Transaction Amount']) || 0;
+                            if (cat === 'deposits') cf += amt;
+                            if (cat === 'withdrawals') cf -= Math.abs(amt);
+                        }
+                    });
+                    return cf;
+                },
+
+                calculateHistoricalPortfolioValue(dateStr) {
+                    let val = 0;
+                    this.positions.forEach(pos => {
+                        const ticker = this.assetMapping[pos.isin]?.ticker;
+                        let price = 0;
+                        if (this.historyData.dates && ticker && this.historyData.prices[ticker]) {
+                            const idx = this.historyData.dates.indexOf(dateStr);
+                            if (idx !== -1) {
+                                price = this.historyData.prices[ticker][idx];
+                                if (this.isUsdAsset(pos.isin) && this.historyData.prices['CURRENCY:USDEUR']) {
+                                    price *= this.historyData.prices['CURRENCY:USDEUR'][idx];
+                                }
+                            }
+                        }
+                        if (price === 0) price = this.getAssetPriceInEur(pos.isin);
+                        val += (pos.quantity * price);
+                    });
+                    return val;
+                },
+
+                // --- DASHBOARD METRICS ---
                 get totals() {
                     let dep = 0, withdr = 0, realized = 0;
                     this.transactions.forEach(tx => {
@@ -633,7 +861,6 @@
                 },
 
                 get cashBalance() {
-                    // Start van deposits - withdrawals
                     let cash = this.totals.deposits - this.totals.withdrawals;
                     this.transactions.forEach(tx => {
                         const cat = tx['Transaction Category'];
@@ -710,9 +937,9 @@
                             if (type === 'Trading Fee') tradingFees += amt;
                             else subscriptionFees += amt;
                         }
-                        if (cat === 'others') compensations += amt; // Promo & Lending
+                        if (cat === 'others') compensations += amt;
                         if (cat === 'corporate_actions' && tx['Asset Id'] === 'DE000A3E5DT0') {
-                            compensations += amt; // Trading fee reimbursement
+                            compensations += amt;
                         }
                     });
 
@@ -738,6 +965,7 @@
                         this.positions = [];
                         this.assetMapping = {};
                         this.latestPrices = {};
+                        this.historyData = { dates: [], tickers: [], prices: {} };
                         window.location.reload();
                     }
                 },
@@ -747,7 +975,8 @@
                         transactions: this.transactions,
                         mapping: this.assetMapping,
                         prices: this.latestPrices,
-                        rates: this.rates
+                        rates: this.rates,
+                        history: this.historyData
                     };
                     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'json' });
                     const url = URL.createObjectURL(blob);
