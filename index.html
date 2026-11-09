@@ -721,7 +721,8 @@
       reader.onload = async (event) => {
         try {
           const text = event.target.result;
-          const lines = text.split(/?
+          const lines = text.split(/
+?
 /).filter(r => r.trim().length > 0);
           if (lines.length < 2) {
             showBanner("Het CSV bestand bevat te weinig regels.", "alert-circle");
@@ -1362,5 +1363,17 @@
       showBanner(`Mapping opgeslagen voor ${isin} -> ${ticker}`, "check-circle");
     }
   </script>
+
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister().then(() => {
+          console.log('Oude Service Worker succesvol verwijderd.');
+        });
+      }
+    });
+  }
+</script>
 </body>
 </html>
