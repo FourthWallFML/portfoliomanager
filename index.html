@@ -51,7 +51,7 @@
                 <div class="flex items-center">
                     <div class="ml-3">
                         <p class="text-sm text-amber-200 font-medium">
-                            Let op: Er zijn <span x-text="unmappedIsins.length" class="font-bold underline"></span> assets zonder Google Finance ticker gemapt. Configureer ze in je Google Sheet of hieronder.
+                            Let op: Er zijn <span x-text="unmappedIsins.length" class="font-bold underline"></span> assets zonder Google Finance ticker gemapt. Configureer ze in je Google Sheet of hiernaast.
                         </p>
                     </div>
                 </div>
@@ -95,7 +95,7 @@
                                 <div class="text-[10px] text-slate-400 font-mono mb-2" x-text="isin"></div>
                                 <div class="flex gap-2">
                                     <input type="text" x-model="mapping.ticker" placeholder="Bijv. AMS:ASML" class="text-xs bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 w-full text-slate-200 focus:outline-none focus:border-emerald-500">
-                                    <button @click="saveMappingLocally()" class="bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-emerald-500 transition">Bewaar</button>
+                                    <button @click="saveMappingToSheet(isin)" class="bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-emerald-500 transition">Bewaar</button>
                                 </div>
                             </div>
                         </template>
@@ -177,7 +177,7 @@
 
     <!-- Script Application Logic -->
     <script>
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxoKgoRj8emgz-U_wnLqRz76GFLgCzrH9jzxyox6GkD1p6TWr8NMwrq21jlRVvna4T7lw/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKuOorxoe7_mn-6tqbtFQdxiIrRcbzvlqNFaFnYaub198SZRhoxQ-4XVwhaiU2Wz4pTw/exec';
 
         let deferredPrompt = null;
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -218,7 +218,7 @@
                         this.calculatePositions();
                     }
 
-                    // Automatically fetch latest live prices from Google Sheet backend upon opening
+                    // Synchronize directly with Google Sheet backend upon opening
                     this.fetchGoogleSheetData();
                 },
 
@@ -228,33 +228,67 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.status === 'success') {
-                                // Merge Google Sheet mapping with local mapping (Sheet takes precedence or fills gaps)
+                                // 1. Integreer Google Sheet mapping naadloos
                                 if (data.mapping) {
                                     for (let isin in data.mapping) {
                                         if (!this.assetMapping[isin]) {
                                             this.assetMapping[isin] = data.mapping[isin];
-                                        } else if (data.mapping[isin].ticker) {
-                                            this.assetMapping[isin].ticker = data.mapping[isin].ticker;
+                                        } else {
+                                            if (data.mapping[isin].ticker) {
+                                                this.assetMapping[isin].ticker = data.mapping[isin].ticker;
+                                            }
+                                            if (data.mapping[isin].name && !this.assetMapping[isin].name) {
+                                                this.assetMapping[isin].name = data.mapping[isin].name;
+                                            }
                                         }
                                     }
                                     localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
                                 }
 
-                                // Update prices fetched via Google Finance from Google Sheet
+                                // 2. Integreer actuele koersen uit de Sheet
                                 if (data.prices) {
                                     this.latestPrices = data.prices;
                                     localStorage.setItem('pat_prices', JSON.stringify(this.latestPrices));
                                 }
 
-                                this.syncStatus = 'Laatst gesynchroniseerd: ' + new Date().toLocaleTimeString();
+                                this.syncStatus = 'Gesynchroniseerd om ' + new Date().toLocaleTimeString();
                             } else {
                                 this.syncStatus = 'Sync fout van server';
                             }
                         })
                         .catch(err => {
-                            console.error('Fout bij ophalen Google Sheet data:', err);
-                            this.syncStatus = 'Offline modus (lokaal actief)';
+                            console.error('Fout bij synchroniseren:', err);
+                            this.syncStatus = 'Offline modus (lokale cache actief)';
                         });
+                },
+
+                saveMappingToSheet(isin) {
+                    const mappingItem = this.assetMapping[isin];
+                    if (!mappingItem) return;
+
+                    // Bewaar lokaal
+                    localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
+
+                    // Synchroniseer naar Google Sheet backend (doPost)
+                    const payload = {
+                        isin: isin,
+                        name: mappingItem.name || '',
+                        ticker: mappingItem.ticker || ''
+                    };
+
+                    fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    }).then(() => {
+                        this.syncStatus = `Ticker ${mappingItem.ticker} opgeslagen in Google Sheet!`;
+                    }).catch(err => {
+                        console.error('Fout bij verzenden naar Google Sheet:', err);
+                        this.syncStatus = 'Fout bij opslaan in sheet';
+                    });
                 },
 
                 getAssetPrice(isin) {
@@ -262,7 +296,6 @@
                     if (ticker && this.latestPrices[ticker] !== undefined) {
                         return this.latestPrices[ticker];
                     }
-                    // Fallback to direct ISIN price or avg price if ticker price not found
                     if (this.latestPrices[isin] !== undefined) {
                         return this.latestPrices[isin];
                     }
@@ -298,7 +331,7 @@
                             }
                         }
                     });
-                    this.saveMappingLocally();
+                    localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
                     this.calculatePositions();
                 },
 
@@ -338,10 +371,6 @@
                     });
 
                     this.positions = Object.values(posMap).filter(p => p.quantity > 0.0001);
-                },
-
-                saveMappingLocally() {
-                    localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
                 },
 
                 resetData() {
