@@ -29,7 +29,7 @@
 
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Header -->
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-slate-800 pb-6 gap-4">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-slate-800 pb-6 gap-4">
             <div class="flex items-center gap-4">
                 <img src="icon-192.png" alt="PAT Logo" class="w-12 h-12 rounded-xl shadow border border-emerald-500/30 object-cover">
                 <div>
@@ -45,9 +45,26 @@
             </div>
         </header>
 
+        <!-- Tab Navigatie -->
+        <nav class="flex space-x-2 border-b border-slate-800 mb-6 pb-2">
+            <button @click="activeTab = 'dashboard'" 
+                    :class="activeTab === 'dashboard' ? 'bg-emerald-500/20 text-emerald-300 border-b-2 border-emerald-400 font-bold' : 'text-slate-400 hover:text-slate-200'" 
+                    class="px-5 py-2.5 rounded-t-xl text-sm transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                Dashboard
+            </button>
+            <button @click="activeTab = 'posities'" 
+                    :class="activeTab === 'posities' ? 'bg-emerald-500/20 text-emerald-300 border-b-2 border-emerald-400 font-bold' : 'text-slate-400 hover:text-slate-200'" 
+                    class="px-5 py-2.5 rounded-t-xl text-sm transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                Posities & Koersen
+                <span class="bg-slate-800 text-[10px] px-2 py-0.5 rounded-full border border-slate-700" x-text="positions.length"></span>
+            </button>
+        </nav>
+
         <!-- Unmapped Warning Banner -->
         <template x-if="unmappedIsins.length > 0">
-            <div class="bg-amber-950/40 border-l-4 border-amber-400 p-4 mb-6 rounded-r-xl shadow-lg border border-amber-500/20 transition-all">
+            <div class="bg-amber-950/40 border-l-4 border-amber-400 p-4 mb-6 rounded-r-xl shadow-lg border border-amber-500/20">
                 <div class="flex flex-col gap-2">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
@@ -59,42 +76,30 @@
                                 <button type="button" 
                                         @click="showUnmappedDetails = !showUnmappedDetails" 
                                         class="font-black text-amber-300 bg-amber-900/60 hover:bg-amber-800/80 underline decoration-amber-400 decoration-2 underline-offset-2 px-2 py-0.5 rounded cursor-pointer transition transform hover:scale-105 active:scale-95" 
-                                        title="Klik om de ontbrekende assets te tonen">
+                                        title="Klik om te bekijken">
                                     <span x-text="unmappedIsins.length"></span>
                                 </button> 
-                                assets zonder Google Finance ticker gemapt.
+                                assets zonder ticker gemapt.
                             </p>
                         </div>
                         <button type="button" 
                                 @click="showUnmappedDetails = !showUnmappedDetails"
-                                class="text-xs text-amber-300 hover:text-amber-100 underline decoration-dotted ml-auto shrink-0 transition"
+                                class="text-xs text-amber-300 hover:text-amber-100 underline ml-auto shrink-0 transition"
                                 x-text="showUnmappedDetails ? 'Verberg details ▲' : 'Toon assets ▼'">
                         </button>
                     </div>
 
-                    <!-- Klikbare details: Uitklapbare lijst van assets zonder ticker -->
-                    <div x-show="showUnmappedDetails" 
-                         x-transition:enter="transition ease-out duration-200" 
-                         x-transition:enter-start="opacity-0 -translate-y-2" 
-                         x-transition:enter-end="opacity-100 translate-y-0"
-                         class="mt-3 pt-3 border-t border-amber-500/20 space-y-2">
-                        <p class="text-[11px] text-amber-300/80 mb-2 font-medium">Koppel direct een Google Finance ticker (bijv. <code>EPA:MC</code> of <code>NASDAQ:NVDA</code>) en klik op Bewaar:</p>
+                    <div x-show="showUnmappedDetails" class="mt-3 pt-3 border-t border-amber-500/20 space-y-2">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <template x-for="isin in unmappedIsins" :key="isin">
-                                <div class="p-3 bg-slate-900/80 rounded-xl border border-amber-500/30 flex flex-col justify-between gap-2 shadow-inner">
+                                <div class="p-3 bg-slate-900/80 rounded-xl border border-amber-500/30 flex flex-col justify-between gap-2">
                                     <div>
                                         <div class="text-xs font-bold text-amber-200 truncate" x-text="assetMapping[isin]?.name || isin"></div>
                                         <div class="text-[10px] text-slate-400 font-mono" x-text="isin"></div>
                                     </div>
                                     <div class="flex gap-2 items-center">
-                                        <input type="text" 
-                                               x-model="assetMapping[isin].ticker" 
-                                               placeholder="Bijv. AMS:ASML" 
-                                               class="text-xs bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 w-full text-slate-100 focus:outline-none focus:border-amber-400">
-                                        <button @click="saveMappingToSheet(isin)" 
-                                                class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition shrink-0">
-                                            Bewaar
-                                        </button>
+                                        <input type="text" x-model="assetMapping[isin].ticker" placeholder="Bijv. AMS:ASML of NASDAQ:NVDA" class="text-xs bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 w-full text-slate-100 focus:outline-none focus:border-amber-400">
+                                        <button @click="saveMappingToSheet(isin)" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition shrink-0">Bewaar</button>
                                     </div>
                                 </div>
                             </template>
@@ -104,95 +109,211 @@
             </div>
         </template>
 
-        <!-- Main Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- ============================================== -->
+        <!-- PAGINA 1: DASHBOARD                            -->
+        <!-- ============================================== -->
+        <div x-show="activeTab === 'dashboard'" class="space-y-6">
             
-            <!-- Left Sidebar -->
-            <div class="space-y-6">
-                <!-- Upload Card -->
-                <div class="bg-slate-800/80 backdrop-blur p-6 rounded-2xl shadow-xl border border-slate-700/60">
-                    <h2 class="text-base font-bold mb-3 text-slate-200 flex items-center gap-2">
-                        <span class="bg-emerald-500/20 text-emerald-400 w-6 h-6 rounded-full inline-flex items-center justify-center text-xs">1</span>
-                        Transactie Bestand Uploaden
-                    </h2>
-                    <input type="file" id="csvFile" accept=".csv" @change="handleFileUpload($event)" class="block w-full text-xs text-slate-400
-                        file:mr-4 file:py-2.5 file:px-4
-                        file:rounded-xl file:border-0
-                        file:text-xs file:font-bold
-                        file:bg-emerald-500 file:text-slate-950
-                        hover:file:bg-emerald-400 cursor-pointer transition"/>
-                    <p class="text-[11px] text-slate-400 mt-2">Upload je transactie CSV. Boekhoudkundige regels worden automatisch ontdubbeld en lokaal bewaard.</p>
+            <!-- Upload Box indien nog geen data -->
+            <div class="bg-slate-800/60 backdrop-blur p-6 rounded-2xl border border-slate-700/60 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-200">Transactiebestand Inladen</h3>
+                    <p class="text-xs text-slate-400">Upload een CSV export om alle metrics en posities bij te werken.</p>
                 </div>
+                <input type="file" id="csvFileDash" accept=".csv" @change="handleFileUpload($event)" class="text-xs text-slate-400
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-xl file:border-0
+                    file:text-xs file:font-bold
+                    file:bg-emerald-500 file:text-slate-950
+                    hover:file:bg-emerald-400 cursor-pointer transition"/>
+            </div>
 
-                <!-- Asset Mapping Card (Verborgen indien er geen assets zijn zonder mapping issues) -->
-                <div class="bg-slate-800/80 backdrop-blur p-6 rounded-2xl shadow-xl border border-slate-700/60" 
-                     x-show="unmappedIsins.length > 0"
-                     x-transition:enter="transition ease-out duration-300"
-                     x-transition:enter-start="opacity-0 scale-95"
-                     x-transition:enter-end="opacity-100 scale-100"
-                     x-transition:leave="transition ease-in duration-200"
-                     x-transition:leave-start="opacity-100 scale-100"
-                     x-transition:leave-end="opacity-0 scale-95">
-                    <div class="flex justify-between items-center mb-3">
-                        <h2 class="text-base font-bold text-slate-200 flex items-center gap-2">
-                            <span class="bg-amber-500/20 text-amber-400 w-6 h-6 rounded-full inline-flex items-center justify-center text-xs">2</span>
-                            Asset Mapping (Ontbrekend)
-                        </h2>
-                        <span class="text-[11px] font-bold text-amber-400 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-full" x-text="unmappedIsins.length + ' te mappen'"></span>
-                    </div>
-                    <p class="text-[11px] text-slate-400 mb-4">Er zijn nog assets die een Google Finance ticker vereisen om live koersen op te halen.</p>
-                    
-                    <div class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
-                        <template x-for="isin in unmappedIsins" :key="isin">
-                            <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-700">
-                                <div class="text-xs font-bold text-amber-300 truncate" x-text="assetMapping[isin]?.name || isin"></div>
-                                <div class="text-[10px] text-slate-400 font-mono mb-2" x-text="isin"></div>
-                                <div class="flex gap-2">
-                                    <input type="text" x-model="assetMapping[isin].ticker" placeholder="Bijv. AMS:ASML of NASDAQ:NVDA" class="text-xs bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 w-full text-slate-200 focus:outline-none focus:border-emerald-500">
-                                    <button @click="saveMappingToSheet(isin)" class="bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-emerald-500 transition">Bewaar</button>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
+            <!-- Hoofd KPI Kaarten -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl border border-slate-700/60">
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Waarde Portefeuille</p>
+                    <p class="text-2xl font-black text-emerald-400 mt-1" x-text="formatCurrency(totalPortfolioValue)"></p>
+                    <p class="text-[11px] text-slate-400 mt-1">Inclusief cash saldo</p>
+                </div>
+                <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl border border-slate-700/60">
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Totale Deposits</p>
+                    <p class="text-2xl font-black text-cyan-400 mt-1" x-text="formatCurrency(totals.deposits)"></p>
+                    <p class="text-[11px] text-slate-400 mt-1">Totale stortingen</p>
+                </div>
+                <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl border border-slate-700/60">
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Totale Withdrawals</p>
+                    <p class="text-2xl font-black text-slate-300 mt-1" x-text="formatCurrency(totals.withdrawals)"></p>
+                    <p class="text-[11px] text-slate-400 mt-1">Totale afhalingen</p>
+                </div>
+                <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl border border-slate-700/60">
+                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Totale Winst / Verlies</p>
+                    <p class="text-2xl font-black mt-1" :class="totalProfitLoss >= 0 ? 'text-emerald-400' : 'text-rose-400'" x-text="formatCurrency(totalProfitLoss)"></p>
+                    <p class="text-[11px] text-slate-400 mt-1">Gerealiseerd + Ongerealiseerd</p>
                 </div>
             </div>
 
-            <!-- Right Content Area -->
-            <div class="lg:col-span-2 space-y-6" :class="{'lg:col-span-3': unmappedIsins.length === 0}">
-                <!-- KPI Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl border border-slate-700/60">
-                        <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Totale Portfoliowaarde (EUR)</p>
-                        <p class="text-2xl font-black text-emerald-400 mt-1" x-text="formatCurrency(totalPortfolioValue)"></p>
+            <!-- Winst Verdieping Kaarten -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-slate-800/60 p-5 rounded-2xl border border-slate-700/60 flex justify-between items-center">
+                    <div>
+                        <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Gerealiseerde Winst</span>
+                        <div class="text-xl font-bold mt-1" :class="totals.realizedPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'" x-text="formatCurrency(totals.realizedPnL)"></div>
                     </div>
-                    <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl border border-slate-700/60">
-                        <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Totaal Geïnvesteerd (EUR)</p>
-                        <p class="text-2xl font-black text-slate-100 mt-1" x-text="formatCurrency(totalInvested)"></p>
+                    <span class="text-xs bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 font-mono">Gesloten trades</span>
+                </div>
+                <div class="bg-slate-800/60 p-5 rounded-2xl border border-slate-700/60 flex justify-between items-center">
+                    <div>
+                        <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Ongerealiseerde Winst</span>
+                        <div class="text-xl font-bold mt-1" :class="unrealizedPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'" x-text="formatCurrency(unrealizedPnL)"></div>
                     </div>
-                    <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl border border-slate-700/60">
-                        <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Ongerealiseerd Resultaat</p>
-                        <p class="text-2xl font-black mt-1" :class="totalProfitLoss >= 0 ? 'text-emerald-400' : 'text-rose-400'" x-text="formatCurrency(totalProfitLoss)"></p>
+                    <span class="text-xs bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 font-mono">Open posities</span>
+                </div>
+            </div>
+
+            <!-- Grid: Portefeuille Breakdown & Kostenoverzicht -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- Portefeuille Breakdown Card -->
+                <div class="bg-slate-800/80 backdrop-blur p-6 rounded-2xl shadow-xl border border-slate-700/60 space-y-4">
+                    <h3 class="text-base font-bold text-slate-200 border-b border-slate-700 pb-3 flex items-center justify-between">
+                        <span>Verdeling Portefeuille</span>
+                        <span class="text-xs text-slate-400 font-normal">Vermogensallocatie</span>
+                    </h3>
+
+                    <!-- Shares -->
+                    <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-700 flex justify-between items-center">
+                        <div>
+                            <div class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-blue-400 inline-block"></span>
+                                Aandelen (Shares)
+                            </div>
+                            <div class="text-xs text-slate-400 mt-0.5">
+                                <span x-text="breakdown.shares.count"></span> posities (<span x-text="breakdown.shares.pct.toFixed(1) + '%'"></span>)
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-base font-black text-slate-100 font-mono" x-text="formatCurrency(breakdown.shares.value)"></div>
+                        </div>
+                    </div>
+
+                    <!-- ETFs -->
+                    <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-700 flex justify-between items-center">
+                        <div>
+                            <div class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
+                                Indexfondsen (ETFs)
+                            </div>
+                            <div class="text-xs text-slate-400 mt-0.5">
+                                <span x-text="breakdown.etfs.count"></span> posities (<span x-text="breakdown.etfs.pct.toFixed(1) + '%'"></span>)
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-base font-black text-slate-100 font-mono" x-text="formatCurrency(breakdown.etfs.value)"></div>
+                        </div>
+                    </div>
+
+                    <!-- Cash -->
+                    <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-700 flex justify-between items-center">
+                        <div>
+                            <div class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>
+                                Cash Gedeelte
+                            </div>
+                            <div class="text-xs text-slate-400 mt-0.5">
+                                Beschikbaar saldo (<span x-text="breakdown.cash.pct.toFixed(1) + '%'"></span>)
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-base font-black text-amber-300 font-mono" x-text="formatCurrency(breakdown.cash.value)"></div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Positions Table Card -->
-                <div class="bg-slate-800/80 backdrop-blur rounded-2xl shadow-xl border border-slate-700/60 overflow-hidden">
+                <!-- Kostenoverzicht Card -->
+                <div class="bg-slate-800/80 backdrop-blur p-6 rounded-2xl shadow-xl border border-slate-700/60 space-y-4">
+                    <div class="border-b border-slate-700 pb-3 flex justify-between items-center">
+                        <h3 class="text-base font-bold text-slate-200">Kosten & Compensaties</h3>
+                        <div class="text-right">
+                            <span class="text-xs text-rose-400 font-bold" x-text="'Netto kosten: ' + formatCurrency(costs.netCosts)"></span>
+                            <span class="text-xs text-slate-400" x-text="' (' + costs.costPercentage.toFixed(2) + '%)'"></span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between p-2 bg-slate-900/40 rounded-lg">
+                            <span class="text-slate-300">Taksen (TOB & Beurstaksen)</span>
+                            <span class="text-rose-400 font-mono" x-text="formatCurrency(costs.taxes)"></span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-slate-900/40 rounded-lg">
+                            <span class="text-slate-300">Transactiekosten (Trading Fees)</span>
+                            <span class="text-rose-400 font-mono" x-text="formatCurrency(costs.tradingFees)"></span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-slate-900/40 rounded-lg">
+                            <span class="text-slate-300">Abonnements- & Servicekosten</span>
+                            <span class="text-rose-400 font-mono" x-text="formatCurrency(costs.subscriptionFees)"></span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-emerald-950/30 border border-emerald-500/20 rounded-lg text-emerald-300">
+                            <span>Compensaties (Promo, Lending & Reimbursements)</span>
+                            <span class="font-mono" x-text="'-' + formatCurrency(costs.compensations)"></span>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-700/50 flex justify-between items-center text-xs">
+                        <span class="text-slate-400">Totaal bruto gemaakte kosten</span>
+                        <span class="font-mono text-slate-200 font-bold" x-text="formatCurrency(costs.grossCosts)"></span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- PAGINA 2: POSITIES & KOERSEN                   -->
+        <!-- ============================================== -->
+        <div x-show="activeTab === 'posities'" class="space-y-6">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Asset Mapping Sidebar (alleen als er unmapped ISINs zijn) -->
+                <div class="lg:col-span-1 space-y-6" x-show="unmappedIsins.length > 0">
+                    <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl border border-slate-700/60">
+                        <h3 class="text-sm font-bold text-amber-300 mb-2">Ontbrekende Mappings</h3>
+                        <p class="text-[11px] text-slate-400 mb-3">Vul de ticker in om live koersen op te halen.</p>
+                        <div class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+                            <template x-for="isin in unmappedIsins" :key="isin">
+                                <div class="p-2.5 bg-slate-900 rounded-xl border border-slate-700">
+                                    <div class="text-xs font-bold text-slate-200 truncate" x-text="assetMapping[isin]?.name || isin"></div>
+                                    <div class="text-[10px] text-slate-400 font-mono mb-1.5" x-text="isin"></div>
+                                    <div class="flex gap-1.5">
+                                        <input type="text" x-model="assetMapping[isin].ticker" placeholder="Bijv. AMS:ASML" class="text-xs bg-slate-800 border border-slate-700 rounded px-2 py-1 w-full text-slate-200">
+                                        <button @click="saveMappingToSheet(isin)" class="bg-emerald-600 text-slate-950 px-2 py-1 rounded text-xs font-bold">OK</button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Posities Tabel -->
+                <div :class="unmappedIsins.length > 0 ? 'lg:col-span-3' : 'lg:col-span-4'" class="bg-slate-800/80 backdrop-blur rounded-2xl shadow-xl border border-slate-700/60 overflow-hidden">
                     <div class="p-5 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div>
-                            <h2 class="text-base font-bold text-slate-200">Huidige Posities & Live Dagprijzen</h2>
-                            <p class="text-[10px] text-slate-400">Koersen in USD worden automatisch omgezet naar EUR.</p>
+                            <h2 class="text-base font-bold text-slate-200">Openstaande Posities</h2>
+                            <p class="text-[11px] text-slate-400">Originele valuta en actuele euro-conversie.</p>
                         </div>
-                        <button @click="fetchGoogleSheetData()" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition">Live Koersen Ophalen</button>
+                        <div class="flex gap-2">
+                            <button @click="fetchGoogleSheetData()" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition">Koersen Vernieuwen</button>
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-slate-900/60 text-slate-400 text-[10px] uppercase tracking-wider font-semibold">
                                     <th class="p-4">Asset</th>
-                                    <th class="p-4">ISIN / Ticker</th>
+                                    <th class="p-4">Type</th>
                                     <th class="p-4 text-right">Aantal</th>
                                     <th class="p-4 text-right">Gem. Aankoop (EUR)</th>
-                                    <th class="p-4 text-right">Laatste Prijs (EUR)</th>
+                                    <th class="p-4 text-right">Laatste Koers (Origineel)</th>
+                                    <th class="p-4 text-right">Laatste Koers (EUR)</th>
                                     <th class="p-4 text-right">Huidige Waarde</th>
                                     <th class="p-4 text-right">Rendement</th>
                                 </tr>
@@ -200,23 +321,40 @@
                             <tbody class="divide-y divide-slate-700/50 text-xs">
                                 <template x-for="pos in positions" :key="pos.isin">
                                     <tr class="hover:bg-slate-700/20 transition">
-                                        <td class="p-4 font-bold text-slate-100" x-text="pos.name"></td>
-                                        <td class="p-4 text-[11px] text-slate-400">
-                                            <div x-text="pos.isin" class="font-mono"></div>
-                                            <div class="text-emerald-400 font-semibold font-mono" x-text="assetMapping[pos.isin]?.ticker || 'Geen ticker'"></div>
+                                        <td class="p-4">
+                                            <div class="font-bold text-slate-100" x-text="pos.name"></div>
+                                            <div class="text-[10px] text-slate-400 font-mono" x-text="pos.isin + ' • ' + (assetMapping[pos.isin]?.ticker || 'Geen ticker')"></div>
+                                        </td>
+                                        <td class="p-4">
+                                            <span class="text-[10px] px-2 py-0.5 rounded font-semibold" 
+                                                  :class="pos.isEtf ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-blue-950 text-blue-400 border border-blue-800'"
+                                                  x-text="pos.isEtf ? 'ETF' : 'Aandeel'">
+                                            </span>
                                         </td>
                                         <td class="p-4 text-right font-mono" x-text="pos.quantity.toFixed(4)"></td>
                                         <td class="p-4 text-right font-mono" x-text="formatCurrency(pos.avgPrice)"></td>
+                                        
+                                        <!-- Originele Koers (bv. USD) -->
+                                        <td class="p-4 text-right font-mono text-slate-300">
+                                            <span x-text="formatOriginalPrice(pos.isin)"></span>
+                                        </td>
+                                        
+                                        <!-- Geconverteerde Euro Koers -->
                                         <td class="p-4 text-right font-mono text-emerald-300 font-bold" x-text="formatCurrency(getAssetPriceInEur(pos.isin))"></td>
+                                        
+                                        <!-- Huidige Waarde -->
                                         <td class="p-4 text-right font-bold font-mono text-slate-100" x-text="formatCurrency(pos.quantity * getAssetPriceInEur(pos.isin))"></td>
-                                        <td class="p-4 text-right font-bold font-mono" :class="(pos.quantity * getAssetPriceInEur(pos.isin) - (pos.quantity * pos.avgPrice)) >= 0 ? 'text-emerald-400' : 'text-rose-400'" 
+                                        
+                                        <!-- Rendement -->
+                                        <td class="p-4 text-right font-bold font-mono" 
+                                            :class="(pos.quantity * getAssetPriceInEur(pos.isin) - (pos.quantity * pos.avgPrice)) >= 0 ? 'text-emerald-400' : 'text-rose-400'" 
                                             x-text="formatCurrency((pos.quantity * getAssetPriceInEur(pos.isin)) - (pos.quantity * pos.avgPrice))">
                                         </td>
                                     </tr>
                                 </template>
                                 <template x-if="positions.length === 0">
                                     <tr>
-                                        <td colspan="7" class="p-12 text-center text-slate-500 italic">Geen actieve posities gevonden. Upload een transactiebestand om te starten.</td>
+                                        <td colspan="8" class="p-12 text-center text-slate-500 italic">Geen actieve posities gevonden.</td>
                                     </tr>
                                 </template>
                             </tbody>
@@ -224,12 +362,15 @@
                     </div>
                 </div>
             </div>
+
         </div>
+
     </div>
 
     <!-- Script Application Logic -->
     <script>
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzaqprbcYS-OyDHvXQBw84_B9DpiFjescxWaJS-MGo519WabsAxFbL5AEzC-0O-TZ025w/exec';
+        const DUMMY_ISINS = ['DE000A3E5DT0', 'DE000TUAG109'];
 
         let deferredPrompt = null;
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -240,6 +381,7 @@
 
         function portfolioApp() {
             return {
+                activeTab: 'dashboard',
                 transactions: [],
                 positions: [],
                 assetMapping: {},
@@ -268,6 +410,9 @@
                     if (savedPrices) this.latestPrices = JSON.parse(savedPrices);
                     if (savedRates) this.rates = JSON.parse(savedRates);
 
+                    // Ruim eventuele dummy ISINs op
+                    DUMMY_ISINS.forEach(d => delete this.assetMapping[d]);
+
                     if (this.transactions.length > 0) {
                         this.calculatePositions();
                     }
@@ -276,13 +421,14 @@
                 },
 
                 fetchGoogleSheetData() {
-                    this.syncStatus = 'Bezig met synchroniseren...';
+                    this.syncStatus = 'Synchroniseren...';
                     fetch(GOOGLE_SCRIPT_URL)
                         .then(response => response.json())
                         .then(data => {
                             if (data.status === 'success') {
                                 if (data.mapping) {
                                     for (let isin in data.mapping) {
+                                        if (DUMMY_ISINS.includes(isin)) continue;
                                         if (!this.assetMapping[isin]) {
                                             this.assetMapping[isin] = data.mapping[isin];
                                         } else {
@@ -314,7 +460,7 @@
                         })
                         .catch(err => {
                             console.error('Fout bij synchroniseren:', err);
-                            this.syncStatus = 'Offline modus (lokale cache actief)';
+                            this.syncStatus = 'Offline modus';
                         });
                 },
 
@@ -333,15 +479,31 @@
                     fetch(GOOGLE_SCRIPT_URL, {
                         method: 'POST',
                         mode: 'no-cors',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     }).then(() => {
                         this.syncStatus = `Ticker ${mappingItem.ticker} opgeslagen!`;
-                    }).catch(err => {
-                        console.error('Fout bij verzenden naar Google Sheet:', err);
-                    });
+                    }).catch(err => console.error(err));
+                },
+
+                isUsdAsset(isin) {
+                    const ticker = this.assetMapping[isin]?.ticker;
+                    return ticker && (ticker.startsWith('NASDAQ:') || ticker.startsWith('NYSE:') || ticker.endsWith('.US'));
+                },
+
+                formatOriginalPrice(isin) {
+                    const ticker = this.assetMapping[isin]?.ticker;
+                    let rawPrice = 0;
+                    if (ticker && this.latestPrices[ticker] !== undefined) {
+                        rawPrice = this.latestPrices[ticker];
+                    } else if (this.latestPrices[isin] !== undefined) {
+                        rawPrice = this.latestPrices[isin];
+                    }
+
+                    if (this.isUsdAsset(isin)) {
+                        return `$ ${rawPrice.toFixed(2)} USD`;
+                    }
+                    return `€ ${rawPrice.toFixed(2)}`;
                 },
 
                 getAssetPriceInEur(isin) {
@@ -357,9 +519,7 @@
                         return pos ? pos.avgPrice : 0;
                     }
 
-                    // Controleer of de ticker in USD noteert (NASDAQ, NYSE of expliciet .US)
-                    const isUsd = ticker && (ticker.startsWith('NASDAQ:') || ticker.startsWith('NYSE:') || ticker.endsWith('.US'));
-                    if (isUsd) {
+                    if (this.isUsdAsset(isin)) {
                         const rate = this.rates.USDEUR || 0.92;
                         return rawPrice * rate;
                     }
@@ -385,22 +545,27 @@
 
                 processNewTransactions() {
                     this.transactions.forEach(tx => {
-                        if (tx['Asset Id'] && tx['Asset Name']) {
-                            const isin = tx['Asset Id'];
+                        const category = tx['Transaction Category'];
+                        const isin = tx['Asset Id'] ? tx['Asset Id'].trim() : null;
+                        const name = tx['Asset Name'];
+
+                        if (category === 'trades' && isin && name && !DUMMY_ISINS.includes(isin)) {
                             if (!this.assetMapping[isin]) {
-                                this.assetMapping[isin] = {
-                                    name: tx['Asset Name'],
-                                    ticker: ''
-                                };
+                                this.assetMapping[isin] = { name: name, ticker: '' };
                             }
                         }
                     });
+                    DUMMY_ISINS.forEach(d => delete this.assetMapping[d]);
                     localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
                     this.calculatePositions();
                 },
 
-                // Oplossing voor dubbele boekingen in BUX:
-                // Alleen CASH_DEBIT (voor Buy Trade) en CASH_CREDIT (voor Sell Trade) verwerken
+                isEtfAsset(name, isin) {
+                    const etfKeywords = ['ishares', 'vanguard', 'vaneck', 'xtrackers', 'l&g', 'etf', 'msci', 'ftse', 'stoxx', 'spdr'];
+                    const n = String(name).toLowerCase();
+                    return etfKeywords.some(kw => n.includes(kw));
+                },
+
                 calculatePositions() {
                     let posMap = {};
                     let sortedTx = [...this.transactions].sort((a, b) => new Date(a['Transaction Time (CET)']) - new Date(b['Transaction Time (CET)']));
@@ -414,9 +579,16 @@
                         const qty = parseFloat(tx['Asset Quantity']) || 0;
                         const eurAmount = Math.abs(parseFloat(tx['Transaction Amount'])) || 0;
 
-                        if (category === 'trades' && isin) {
+                        if (category === 'trades' && isin && !DUMMY_ISINS.includes(isin)) {
                             if (!posMap[isin]) {
-                                posMap[isin] = { isin: isin, name: name, quantity: 0, totalCost: 0, avgPrice: 0 };
+                                posMap[isin] = { 
+                                    isin: isin, 
+                                    name: name, 
+                                    quantity: 0, 
+                                    totalCost: 0, 
+                                    avgPrice: 0,
+                                    isEtf: this.isEtfAsset(name, isin)
+                                };
                             }
 
                             if (type === 'Buy Trade' && transferType === 'CASH_DEBIT') {
@@ -439,6 +611,124 @@
                     });
 
                     this.positions = Object.values(posMap).filter(p => p.quantity > 0.0001);
+                },
+
+                // --- DASHBOARD METRICS BEREKENINGEN ---
+                get totals() {
+                    let dep = 0, withdr = 0, realized = 0;
+                    this.transactions.forEach(tx => {
+                        const cat = tx['Transaction Category'];
+                        const trType = tx['Transfer Type'];
+                        const txType = tx['Transaction Type'];
+                        const amt = parseFloat(tx['Transaction Amount']) || 0;
+                        const pnl = parseFloat(tx['Profit And Loss Amount']) || 0;
+
+                        if (cat === 'deposits') dep += amt;
+                        if (cat === 'withdrawals') withdr += Math.abs(amt);
+                        if (cat === 'trades' && trType === 'CASH_CREDIT' && txType === 'Sell Trade') {
+                            realized += pnl;
+                        }
+                    });
+                    return { deposits: dep, withdrawals: withdr, realizedPnL: realized };
+                },
+
+                get cashBalance() {
+                    // Start van deposits - withdrawals
+                    let cash = this.totals.deposits - this.totals.withdrawals;
+                    this.transactions.forEach(tx => {
+                        const cat = tx['Transaction Category'];
+                        const trType = tx['Transfer Type'];
+                        const amt = parseFloat(tx['Transaction Amount']) || 0;
+
+                        if (cat === 'trades' && (trType === 'CASH_DEBIT' || trType === 'CASH_CREDIT')) {
+                            cash += amt;
+                        } else if (cat === 'fees' || cat === 'tax') {
+                            cash -= Math.abs(amt);
+                        } else if (cat === 'dividends' && (trType === 'CASH_CREDIT' || trType === 'CASH_DEBIT')) {
+                            cash += amt;
+                        } else if (cat === 'interest' || cat === 'others' || (cat === 'corporate_actions' && trType === 'CASH_CREDIT')) {
+                            cash += amt;
+                        }
+                    });
+                    return Math.max(0, cash);
+                },
+
+                get totalInvested() {
+                    return this.positions.reduce((acc, pos) => acc + (pos.quantity * pos.avgPrice), 0);
+                },
+
+                get unrealizedPnL() {
+                    return this.positions.reduce((acc, pos) => {
+                        const curPrice = this.getAssetPriceInEur(pos.isin);
+                        return acc + (pos.quantity * curPrice) - (pos.quantity * pos.avgPrice);
+                    }, 0);
+                },
+
+                get totalProfitLoss() {
+                    return this.totals.realizedPnL + this.unrealizedPnL;
+                },
+
+                get totalPortfolioValue() {
+                    const positionsVal = this.positions.reduce((acc, pos) => {
+                        return acc + (pos.quantity * this.getAssetPriceInEur(pos.isin));
+                    }, 0);
+                    return positionsVal + this.cashBalance;
+                },
+
+                get breakdown() {
+                    let sharesVal = 0, sharesCount = 0;
+                    let etfsVal = 0, etfsCount = 0;
+                    const totalVal = this.totalPortfolioValue || 1;
+
+                    this.positions.forEach(pos => {
+                        const val = pos.quantity * this.getAssetPriceInEur(pos.isin);
+                        if (pos.isEtf) {
+                            etfsVal += val;
+                            etfsCount++;
+                        } else {
+                            sharesVal += val;
+                            sharesCount++;
+                        }
+                    });
+
+                    return {
+                        shares: { value: sharesVal, count: sharesCount, pct: (sharesVal / totalVal) * 100 },
+                        etfs: { value: etfsVal, count: etfsCount, pct: (etfsVal / totalVal) * 100 },
+                        cash: { value: this.cashBalance, pct: (this.cashBalance / totalVal) * 100 }
+                    };
+                },
+
+                get costs() {
+                    let taxes = 0, tradingFees = 0, subscriptionFees = 0, compensations = 0;
+                    this.transactions.forEach(tx => {
+                        const cat = tx['Transaction Category'];
+                        const type = tx['Transaction Type'];
+                        const amt = Math.abs(parseFloat(tx['Transaction Amount']) || 0);
+
+                        if (cat === 'tax') taxes += amt;
+                        if (cat === 'fees') {
+                            if (type === 'Trading Fee') tradingFees += amt;
+                            else subscriptionFees += amt;
+                        }
+                        if (cat === 'others') compensations += amt; // Promo & Lending
+                        if (cat === 'corporate_actions' && tx['Asset Id'] === 'DE000A3E5DT0') {
+                            compensations += amt; // Trading fee reimbursement
+                        }
+                    });
+
+                    const grossCosts = taxes + tradingFees + subscriptionFees;
+                    const netCosts = Math.max(0, grossCosts - compensations);
+                    const costPct = this.totals.deposits > 0 ? (netCosts / this.totals.deposits) * 100 : 0;
+
+                    return {
+                        taxes: taxes,
+                        tradingFees: tradingFees,
+                        subscriptionFees: subscriptionFees,
+                        compensations: compensations,
+                        grossCosts: grossCosts,
+                        netCosts: netCosts,
+                        costPercentage: costPct
+                    };
                 },
 
                 resetData() {
@@ -468,22 +758,10 @@
                 },
 
                 get unmappedIsins() {
-                    return Object.keys(this.assetMapping).filter(isin => !this.assetMapping[isin].ticker || this.assetMapping[isin].ticker.trim() === '');
-                },
-
-                get totalPortfolioValue() {
-                    return this.positions.reduce((acc, pos) => {
-                        const priceEur = this.getAssetPriceInEur(pos.isin);
-                        return acc + (pos.quantity * priceEur);
-                    }, 0);
-                },
-
-                get totalInvested() {
-                    return this.positions.reduce((acc, pos) => acc + (pos.quantity * pos.avgPrice), 0);
-                },
-
-                get totalProfitLoss() {
-                    return this.totalPortfolioValue - this.totalInvested;
+                    return Object.keys(this.assetMapping).filter(isin => {
+                        if (DUMMY_ISINS.includes(isin)) return false;
+                        return !this.assetMapping[isin].ticker || this.assetMapping[isin].ticker.trim() === '';
+                    });
                 },
 
                 formatCurrency(val) {
