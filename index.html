@@ -49,7 +49,7 @@
                 </label>
                 <input type="file" 
                        id="csvFileInputHeader" 
-                       accept=".csv,text/csv,text/plain,application/vnd.ms-excel,text/comma-separated-values" 
+                       accept=".csv,text/csv,text/plain,application/vnd.ms-excel,text/comma-separated-values,*" 
                        @change="handleFileUpload($event)" 
                        class="sr-only" />
 
@@ -95,8 +95,7 @@
                                 Let op: Er zijn 
                                 <button type="button" 
                                         @click="showUnmappedDetails = !showUnmappedDetails" 
-                                        class="font-black text-amber-300 bg-amber-900/60 hover:bg-amber-800/80 underline decoration-amber-400 decoration-2 underline-offset-2 px-2 py-0.5 rounded cursor-pointer transition transform hover:scale-105 active:scale-95" 
-                                        title="Klik om te bekijken">
+                                        class="font-black text-amber-300 bg-amber-900/60 hover:bg-amber-800/80 underline decoration-amber-400 decoration-2 underline-offset-2 px-2 py-0.5 rounded cursor-pointer transition transform hover:scale-105 active:scale-95">
                                     <span x-text="unmappedIsins.length"></span>
                                 </button> 
                                 assets zonder ticker gemapt.
@@ -118,7 +117,7 @@
                                         <div class="text-[10px] text-slate-400 font-mono" x-text="isin"></div>
                                     </div>
                                     <div class="flex gap-2 items-center">
-                                        <input type="text" x-model="assetMapping[isin].ticker" placeholder="Bijv. AMS:ASML of NASDAQ:NVDA" class="text-xs bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 w-full text-slate-100 focus:outline-none focus:border-amber-400">
+                                        <input type="text" x-model="assetMapping[isin].ticker" placeholder="Bijv. AMS:ASML" class="text-xs bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 w-full text-slate-100 focus:outline-none focus:border-amber-400">
                                         <button @click="saveMappingToSheet(isin)" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition shrink-0">Bewaar</button>
                                     </div>
                                 </div>
@@ -134,7 +133,7 @@
         <!-- ============================================== -->
         <div x-show="activeTab === 'dashboard'" class="space-y-6">
             
-            <!-- Volledig klikbare mobiele Upload Box (Label-based) -->
+            <!-- Volledig mobiel klikbare Upload Box -->
             <label for="csvFileInputDash" class="bg-slate-800/60 hover:bg-slate-800/90 hover:border-emerald-500/50 p-6 rounded-2xl border-2 border-dashed border-slate-700/80 backdrop-blur flex flex-col sm:flex-row justify-between items-center gap-4 cursor-pointer transition block group">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20 group-hover:scale-105 transition">
@@ -153,7 +152,7 @@
             </label>
             <input type="file" 
                    id="csvFileInputDash" 
-                   accept=".csv,text/csv,text/plain,application/vnd.ms-excel,text/comma-separated-values" 
+                   accept=".csv,text/csv,text/plain,application/vnd.ms-excel,text/comma-separated-values,*" 
                    @change="handleFileUpload($event)" 
                    class="sr-only" />
 
@@ -201,7 +200,6 @@
 
             <!-- Breakdown & Kosten -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Portefeuille Breakdown Card -->
                 <div class="bg-slate-800/80 backdrop-blur p-6 rounded-2xl shadow-xl border border-slate-700/60 space-y-4">
                     <h3 class="text-base font-bold text-slate-200 border-b border-slate-700 pb-3 flex items-center justify-between">
                         <span>Verdeling Portefeuille</span>
@@ -254,7 +252,6 @@
                     </div>
                 </div>
 
-                <!-- Kostenoverzicht Card -->
                 <div class="bg-slate-800/80 backdrop-blur p-6 rounded-2xl shadow-xl border border-slate-700/60 space-y-4">
                     <div class="border-b border-slate-700 pb-3 flex justify-between items-center">
                         <h3 class="text-base font-bold text-slate-200">Kosten & Compensaties</h3>
@@ -314,7 +311,6 @@
                     </div>
                 </div>
 
-                <!-- TWR Stat Cards voor geselecteerde asset / portfolio -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700">
                         <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Geselecteerd Rendement (TWR)</span>
@@ -330,7 +326,6 @@
                     </div>
                 </div>
 
-                <!-- Grafiek Container -->
                 <div class="relative h-96 w-full bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
                     <canvas id="twrChartCanvas"></canvas>
                 </div>
@@ -343,7 +338,7 @@
         <div x-show="activeTab === 'posities'" class="space-y-6">
             
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <!-- Asset Mapping Sidebar (alleen zichtbaar als er unmapped ISINs zijn) -->
+                <!-- Asset Mapping Sidebar (alleen als er unmapped ISINs zijn) -->
                 <div class="lg:col-span-1 space-y-6" x-show="unmappedIsins.length > 0">
                     <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl border border-slate-700/60">
                         <div class="flex justify-between items-center mb-3">
@@ -371,4 +366,699 @@
                     <div class="p-5 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div>
                             <h2 class="text-base font-bold text-slate-200">Openstaande Posities</h2>
-                            <p class="text-[11
+                            <p class="text-[11px] text-slate-400">Originele valuta en actuele euro-conversie.</p>
+                        </div>
+                        <button @click="fetchGoogleSheetData()" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition">Koersen Vernieuwen</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900/60 text-slate-400 text-[10px] uppercase tracking-wider font-semibold">
+                                    <th class="p-4">Asset</th>
+                                    <th class="p-4">Type</th>
+                                    <th class="p-4 text-right">Aantal</th>
+                                    <th class="p-4 text-right">Gem. Aankoop (EUR)</th>
+                                    <th class="p-4 text-right">Laatste Koers (Origineel)</th>
+                                    <th class="p-4 text-right">Laatste Koers (EUR)</th>
+                                    <th class="p-4 text-right">Huidige Waarde</th>
+                                    <th class="p-4 text-right">Rendement</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700/50 text-xs">
+                                <template x-for="pos in positions" :key="pos.isin">
+                                    <tr class="hover:bg-slate-700/20 transition">
+                                        <td class="p-4">
+                                            <div class="font-bold text-slate-100" x-text="pos.name"></div>
+                                            <div class="text-[10px] text-slate-400 font-mono" x-text="pos.isin + ' • ' + (assetMapping[pos.isin]?.ticker || 'Geen ticker')"></div>
+                                        </td>
+                                        <td class="p-4">
+                                            <span class="text-[10px] px-2 py-0.5 rounded font-semibold" 
+                                                  :class="pos.isEtf ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-blue-950 text-blue-400 border border-blue-800'"
+                                                  x-text="pos.isEtf ? 'ETF' : 'Aandeel'">
+                                            </span>
+                                        </td>
+                                        <td class="p-4 text-right font-mono" x-text="pos.quantity.toFixed(4)"></td>
+                                        <td class="p-4 text-right font-mono" x-text="formatCurrency(pos.avgPrice)"></td>
+                                        
+                                        <!-- Originele Koers (bv. USD) -->
+                                        <td class="p-4 text-right font-mono text-slate-300">
+                                            <span x-text="formatOriginalPrice(pos.isin)"></span>
+                                        </td>
+                                        
+                                        <!-- Geconverteerde Euro Koers -->
+                                        <td class="p-4 text-right font-mono text-emerald-300 font-bold" x-text="formatCurrency(getAssetPriceInEur(pos.isin))"></td>
+                                        
+                                        <!-- Huidige Waarde -->
+                                        <td class="p-4 text-right font-bold font-mono text-slate-100" x-text="formatCurrency(pos.quantity * getAssetPriceInEur(pos.isin))"></td>
+                                        
+                                        <!-- Rendement -->
+                                        <td class="p-4 text-right font-bold font-mono" 
+                                            :class="(pos.quantity * getAssetPriceInEur(pos.isin) - (pos.quantity * pos.avgPrice)) >= 0 ? 'text-emerald-400' : 'text-rose-400'" 
+                                            x-text="formatCurrency((pos.quantity * getAssetPriceInEur(pos.isin)) - (pos.quantity * pos.avgPrice))">
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template x-if="positions.length === 0">
+                                    <tr>
+                                        <td colspan="8" class="p-12 text-center text-slate-500 italic">Geen actieve posities gevonden.</td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Script Application Logic -->
+    <script>
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyUSZvAUMZTrLO5qPFwBtDW54ByrxPDV_X0KGFcxRiOVNe6aqiYwG7g3ccNrzwOFjrIFQ/exec';
+        const DUMMY_ISINS = ['DE000A3E5DT0', 'DE000TUAG109'];
+
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            window.dispatchEvent(new CustomEvent('pwa-install-ready'));
+        });
+
+        function portfolioApp() {
+            return {
+                activeTab: 'dashboard',
+                loadedFileName: '',
+                transactions: [],
+                positions: [],
+                assetMapping: {},
+                latestPrices: {},
+                rates: { USDEUR: 0.92 },
+                historyData: { dates: [], tickers: [], prices: {} },
+                showInstallPrompt: false,
+                showUnmappedDetails: false,
+                syncStatus: 'Niet gesynchroniseerd',
+                selectedTwrAsset: 'portfolio',
+                chartInstance: null,
+                currentTwrMetrics: { returnPct: 0, startDate: '', athPct: 0 },
+
+                initApp() {
+                    window.addEventListener('pwa-install-ready', () => {
+                        this.showInstallPrompt = true;
+                    });
+
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed:', err));
+                    }
+
+                    const savedTx = localStorage.getItem('pat_transactions');
+                    const savedMap = localStorage.getItem('pat_mapping');
+                    const savedPrices = localStorage.getItem('pat_prices');
+                    const savedRates = localStorage.getItem('pat_rates');
+                    const savedHist = localStorage.getItem('pat_history');
+                    const savedName = localStorage.getItem('pat_filename');
+
+                    if (savedTx) this.transactions = JSON.parse(savedTx);
+                    if (savedMap) this.assetMapping = JSON.parse(savedMap);
+                    if (savedPrices) this.latestPrices = JSON.parse(savedPrices);
+                    if (savedRates) this.rates = JSON.parse(savedRates);
+                    if (savedHist) this.historyData = JSON.parse(savedHist);
+                    if (savedName) this.loadedFileName = savedName;
+
+                    DUMMY_ISINS.forEach(d => delete this.assetMapping[d]);
+
+                    if (this.transactions.length > 0) {
+                        this.calculatePositions();
+                    }
+
+                    this.fetchGoogleSheetData();
+                },
+
+                fetchGoogleSheetData() {
+                    this.syncStatus = 'Bezig met synchroniseren...';
+                    fetch(GOOGLE_SCRIPT_URL)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                if (data.mapping) {
+                                    for (let isin in data.mapping) {
+                                        if (DUMMY_ISINS.includes(isin)) continue;
+                                        if (!this.assetMapping[isin]) {
+                                            this.assetMapping[isin] = data.mapping[isin];
+                                        } else {
+                                            if (data.mapping[isin].ticker) this.assetMapping[isin].ticker = data.mapping[isin].ticker;
+                                            if (data.mapping[isin].name && !this.assetMapping[isin].name) this.assetMapping[isin].name = data.mapping[isin].name;
+                                        }
+                                    }
+                                    localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
+                                }
+
+                                if (data.prices) {
+                                    this.latestPrices = data.prices;
+                                    localStorage.setItem('pat_prices', JSON.stringify(this.latestPrices));
+                                }
+
+                                if (data.rates) {
+                                    this.rates = data.rates;
+                                    localStorage.setItem('pat_rates', JSON.stringify(this.rates));
+                                }
+
+                                if (data.history && data.history.dates && data.history.dates.length > 0) {
+                                    this.historyData = data.history;
+                                    localStorage.setItem('pat_history', JSON.stringify(this.historyData));
+                                }
+
+                                this.syncStatus = 'Gesynchroniseerd om ' + new Date().toLocaleTimeString();
+                                if (this.activeTab === 'twr') {
+                                    this.updateTwrView();
+                                }
+                            } else {
+                                this.syncStatus = 'Sync fout van server';
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Fout bij synchroniseren:', err);
+                            this.syncStatus = 'Offline modus (lokale cache actief)';
+                        });
+                },
+
+                saveMappingToSheet(isin) {
+                    const mappingItem = this.assetMapping[isin];
+                    if (!mappingItem) return;
+
+                    localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
+
+                    fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ isin: isin, name: mappingItem.name || '', ticker: mappingItem.ticker || '' })
+                    }).then(() => {
+                        this.syncStatus = `Ticker ${mappingItem.ticker} opgeslagen!`;
+                    }).catch(err => console.error(err));
+                },
+
+                isUsdAsset(isin) {
+                    const ticker = this.assetMapping[isin]?.ticker;
+                    return ticker && (ticker.startsWith('NASDAQ:') || ticker.startsWith('NYSE:') || ticker.endsWith('.US'));
+                },
+
+                formatOriginalPrice(isin) {
+                    const ticker = this.assetMapping[isin]?.ticker;
+                    let rawPrice = 0;
+                    if (ticker && this.latestPrices[ticker] !== undefined) {
+                        rawPrice = this.latestPrices[ticker];
+                    } else if (this.latestPrices[isin] !== undefined) {
+                        rawPrice = this.latestPrices[isin];
+                    }
+
+                    if (this.isUsdAsset(isin)) {
+                        return `$ ${rawPrice.toFixed(2)} USD`;
+                    }
+                    return `€ ${rawPrice.toFixed(2)}`;
+                },
+
+                getAssetPriceInEur(isin) {
+                    const ticker = this.assetMapping[isin]?.ticker;
+                    let rawPrice = 0;
+
+                    if (ticker && this.latestPrices[ticker] !== undefined) {
+                        rawPrice = this.latestPrices[ticker];
+                    } else if (this.latestPrices[isin] !== undefined) {
+                        rawPrice = this.latestPrices[isin];
+                    } else {
+                        const pos = this.positions.find(p => p.isin === isin);
+                        return pos ? pos.avgPrice : 0;
+                    }
+
+                    if (this.isUsdAsset(isin)) {
+                        const rate = this.rates.USDEUR || 0.92;
+                        return rawPrice * rate;
+                    }
+
+                    return rawPrice;
+                },
+
+                // Robuuste mobiele bestandshandler met string-parsing en header-sanitization
+                async handleFileUpload(event) {
+                    const file = event.target.files && event.target.files[0];
+                    if (!file) return;
+
+                    this.loadedFileName = file.name;
+                    localStorage.setItem('pat_filename', file.name);
+
+                    try {
+                        let textData = '';
+                        if (typeof file.text === 'function') {
+                            textData = await file.text();
+                        } else {
+                            textData = await new Promise((resolve, reject) => {
+                                const reader = new FileReader();
+                                reader.onload = () => resolve(reader.result);
+                                reader.onerror = reject;
+                                reader.readAsText(file);
+                            });
+                        }
+
+                        // Verwijder eventuele BOM-karakters (\ufeff) die mobiele downloads toevoegen
+                        textData = textData.replace(/^\ufeff/, '');
+
+                        Papa.parse(textData, {
+                            header: true,
+                            skipEmptyLines: 'greedy',
+                            transformHeader: h => h.trim().replace(/^\ufeff/, ''),
+                            complete: (results) => {
+                                if (!results.data || results.data.length === 0) {
+                                    alert('Geen regels gevonden in CSV.');
+                                    return;
+                                }
+                                this.transactions = results.data;
+                                localStorage.setItem('pat_transactions', JSON.stringify(this.transactions));
+                                this.processNewTransactions();
+                                alert(`Succesvol ${results.data.length} transacties geladen uit ${file.name}!`);
+                            },
+                            error: (err) => {
+                                alert('Fout bij verwerken van CSV: ' + err.message);
+                            }
+                        });
+                    } catch (e) {
+                        alert('Kon het bestand niet openen: ' + e.message);
+                    } finally {
+                        event.target.value = '';
+                    }
+                },
+
+                processNewTransactions() {
+                    this.transactions.forEach(tx => {
+                        const category = tx['Transaction Category'];
+                        const isin = tx['Asset Id'] ? tx['Asset Id'].trim() : null;
+                        const name = tx['Asset Name'];
+
+                        if (category === 'trades' && isin && name && !DUMMY_ISINS.includes(isin)) {
+                            if (!this.assetMapping[isin]) {
+                                this.assetMapping[isin] = { name: name, ticker: '' };
+                            }
+                        }
+                    });
+                    DUMMY_ISINS.forEach(d => delete this.assetMapping[d]);
+                    localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
+                    this.calculatePositions();
+                },
+
+                isEtfAsset(name, isin) {
+                    const etfKeywords = ['ishares', 'vanguard', 'vaneck', 'xtrackers', 'l&g', 'etf', 'msci', 'ftse', 'stoxx', 'spdr'];
+                    const n = String(name).toLowerCase();
+                    return etfKeywords.some(kw => n.includes(kw));
+                },
+
+                calculatePositions() {
+                    let posMap = {};
+                    
+                    // Veilige string-sortering (voorkomt crash op Safari door microseconden)
+                    let sortedTx = [...this.transactions].sort((a, b) => {
+                        const ta = String(a['Transaction Time (CET)'] || '');
+                        const tb = String(b['Transaction Time (CET)'] || '');
+                        return ta.localeCompare(tb);
+                    });
+
+                    sortedTx.forEach(tx => {
+                        const category = tx['Transaction Category'] ? String(tx['Transaction Category']).trim() : '';
+                        const type = tx['Transaction Type'] ? String(tx['Transaction Type']).trim() : '';
+                        const transferType = tx['Transfer Type'] ? String(tx['Transfer Type']).trim() : '';
+                        const isin = tx['Asset Id'] ? String(tx['Asset Id']).trim() : null;
+                        const name = tx['Asset Name'];
+                        const qty = parseFloat(tx['Asset Quantity']) || 0;
+                        const eurAmount = Math.abs(parseFloat(tx['Transaction Amount'])) || 0;
+
+                        if (category === 'trades' && isin && !DUMMY_ISINS.includes(isin)) {
+                            if (!posMap[isin]) {
+                                posMap[isin] = { 
+                                    isin: isin, 
+                                    name: name, 
+                                    quantity: 0, 
+                                    totalCost: 0, 
+                                    avgPrice: 0,
+                                    isEtf: this.isEtfAsset(name, isin)
+                                };
+                            }
+
+                            if (type === 'Buy Trade' && transferType === 'CASH_DEBIT') {
+                                posMap[isin].quantity += qty;
+                                posMap[isin].totalCost += eurAmount;
+                            } 
+                            else if (type === 'Sell Trade' && transferType === 'CASH_CREDIT') {
+                                let avg = posMap[isin].quantity > 0 ? posMap[isin].totalCost / posMap[isin].quantity : 0;
+                                posMap[isin].quantity -= qty;
+                                posMap[isin].totalCost -= (qty * avg);
+                            }
+
+                            if (posMap[isin].quantity > 0) {
+                                posMap[isin].avgPrice = posMap[isin].totalCost / posMap[isin].quantity;
+                            } else {
+                                posMap[isin].avgPrice = 0;
+                                posMap[isin].totalCost = 0;
+                            }
+                        }
+                    });
+
+                    this.positions = Object.values(posMap).filter(p => p.quantity > 0.0001);
+                },
+
+                // --- TWR (TIME-WEIGHTED RETURN) BEREKENING & GRAFIEK LOGICA ---
+                updateTwrView() {
+                    const canvas = document.getElementById('twrChartCanvas');
+                    if (!canvas) return;
+
+                    let labels = [];
+                    let dataPoints = [];
+                    let assetName = "Totale Portefeuille";
+
+                    // 1. Individueel Aandeel TWR
+                    if (this.selectedTwrAsset !== 'portfolio') {
+                        const pos = this.positions.find(p => p.isin === this.selectedTwrAsset);
+                        const isin = this.selectedTwrAsset;
+                        assetName = pos ? pos.name : isin;
+                        const ticker = this.assetMapping[isin]?.ticker;
+                        const isUsd = this.isUsdAsset(isin);
+
+                        const buyTrades = this.transactions.filter(t => t['Asset Id'] === isin && String(t['Transaction Type']).trim() === 'Buy Trade')
+                            .sort((a,b) => String(a['Transaction Time (CET)']).localeCompare(String(b['Transaction Time (CET)'])));
+                        const startDate = buyTrades.length > 0 ? String(buyTrades[0]['Transaction Time (CET)']).split(' ')[0] : '2024-01-01';
+
+                        if (this.historyData.dates && this.historyData.dates.length > 0 && ticker && this.historyData.prices[ticker]) {
+                            const allDates = this.historyData.dates;
+                            const allPrices = this.historyData.prices[ticker];
+                            const usdRates = this.historyData.prices['CURRENCY:USDEUR'] || [];
+
+                            let basePriceEur = null;
+
+                            for (let i = 0; i < allDates.length; i++) {
+                                if (allDates[i] >= startDate && allPrices[i] > 0) {
+                                    let priceEur = allPrices[i];
+                                    if (isUsd && usdRates[i]) priceEur = priceEur * usdRates[i];
+
+                                    if (basePriceEur === null) basePriceEur = priceEur;
+
+                                    const twr = ((priceEur / basePriceEur) - 1) * 100;
+                                    labels.push(allDates[i]);
+                                    dataPoints.push(parseFloat(twr.toFixed(2)));
+                                }
+                            }
+                        }
+
+                        if (dataPoints.length === 0 && pos) {
+                            const curPrice = this.getAssetPriceInEur(isin);
+                            const twr = pos.avgPrice > 0 ? ((curPrice - pos.avgPrice) / pos.avgPrice) * 100 : 0;
+                            labels = [startDate, 'Huidig'];
+                            dataPoints = [0, parseFloat(twr.toFixed(2))];
+                        }
+
+                        const currentTwr = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1] : 0;
+                        const ath = dataPoints.length > 0 ? Math.max(...dataPoints) : 0;
+                        this.currentTwrMetrics = { returnPct: currentTwr, startDate: startDate, athPct: ath };
+
+                    } else {
+                        // 2. Totale Portefeuille TWR
+                        assetName = "Totale Portefeuille";
+                        const firstTx = this.transactions.filter(t => String(t['Transaction Category']).trim() === 'deposits')
+                            .sort((a,b) => String(a['Transaction Time (CET)']).localeCompare(String(b['Transaction Time (CET)'])));
+                        const startDate = firstTx.length > 0 ? String(firstTx[0]['Transaction Time (CET)']).split(' ')[0] : '2023-12-27';
+
+                        if (this.historyData.dates && this.historyData.dates.length > 0) {
+                            let cumulativeTwrFactor = 1.0;
+                            let prevVal = null;
+                            const dates = this.historyData.dates;
+
+                            dates.forEach((d) => {
+                                const val = this.calculateHistoricalPortfolioValue(d);
+                                const cf = this.getCashFlowOnDate(d);
+
+                                if (prevVal !== null && prevVal > 0) {
+                                    const subReturn = (val - cf - prevVal) / prevVal;
+                                    cumulativeTwrFactor *= (1 + subReturn);
+                                }
+                                prevVal = val;
+
+                                labels.push(d);
+                                dataPoints.push(parseFloat(((cumulativeTwrFactor - 1) * 100).toFixed(2)));
+                            });
+                        }
+
+                        if (dataPoints.length === 0) {
+                            const totalReturn = this.totalInvested > 0 ? ((this.totalPortfolioValue - this.totalInvested) / this.totalInvested) * 100 : 0;
+                            labels = [startDate, 'Huidig'];
+                            dataPoints = [0, parseFloat(totalReturn.toFixed(2))];
+                        }
+
+                        const currentTwr = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1] : 0;
+                        const ath = dataPoints.length > 0 ? Math.max(...dataPoints) : 0;
+                        this.currentTwrMetrics = { returnPct: currentTwr, startDate: startDate, athPct: ath };
+                    }
+
+                    // Render Chart.js
+                    if (this.chartInstance) {
+                        this.chartInstance.destroy();
+                    }
+
+                    const isPositive = this.currentTwrMetrics.returnPct >= 0;
+                    const strokeColor = isPositive ? '#10b981' : '#f43f5e';
+                    const fillColor = isPositive ? 'rgba(16, 185, 129, 0.12)' : 'rgba(244, 63, 94, 0.12)';
+
+                    this.chartInstance = new Chart(canvas.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: assetName + ' TWR (%)',
+                                data: dataPoints,
+                                borderColor: strokeColor,
+                                backgroundColor: fillColor,
+                                borderWidth: 2.5,
+                                fill: true,
+                                tension: 0.25,
+                                pointRadius: dataPoints.length > 50 ? 0 : 3,
+                                pointHoverRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: 'index', intersect: false },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: (context) => ` ${context.parsed.y >= 0 ? '+' : ''}${context.parsed.y.toFixed(2)}%`
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: { ticks: { color: '#94a3b8', maxTicksLimit: 12 }, grid: { color: 'rgba(51, 65, 85, 0.4)' } },
+                                y: { 
+                                    ticks: { 
+                                        color: '#94a3b8',
+                                        callback: (val) => val + '%'
+                                    }, 
+                                    grid: { color: 'rgba(51, 65, 85, 0.4)' } 
+                                }
+                            }
+                        }
+                    });
+                },
+
+                getCashFlowOnDate(dateStr) {
+                    let cf = 0;
+                    this.transactions.forEach(tx => {
+                        const txDate = String(tx['Transaction Time (CET)'] || '').split(' ')[0];
+                        if (txDate === dateStr) {
+                            const cat = String(tx['Transaction Category'] || '').trim();
+                            const amt = parseFloat(tx['Transaction Amount']) || 0;
+                            if (cat === 'deposits') cf += amt;
+                            if (cat === 'withdrawals') cf -= Math.abs(amt);
+                        }
+                    });
+                    return cf;
+                },
+
+                calculateHistoricalPortfolioValue(dateStr) {
+                    let val = 0;
+                    this.positions.forEach(pos => {
+                        const ticker = this.assetMapping[pos.isin]?.ticker;
+                        let price = 0;
+                        if (this.historyData.dates && ticker && this.historyData.prices[ticker]) {
+                            const idx = this.historyData.dates.indexOf(dateStr);
+                            if (idx !== -1) {
+                                price = this.historyData.prices[ticker][idx];
+                                if (this.isUsdAsset(pos.isin) && this.historyData.prices['CURRENCY:USDEUR']) {
+                                    price *= this.historyData.prices['CURRENCY:USDEUR'][idx];
+                                }
+                            }
+                        }
+                        if (price === 0) price = this.getAssetPriceInEur(pos.isin);
+                        val += (pos.quantity * price);
+                    });
+                    return val;
+                },
+
+                // --- DASHBOARD METRICS ---
+                get totals() {
+                    let dep = 0, withdr = 0, realized = 0;
+                    this.transactions.forEach(tx => {
+                        const cat = String(tx['Transaction Category'] || '').trim();
+                        const trType = String(tx['Transfer Type'] || '').trim();
+                        const txType = String(tx['Transaction Type'] || '').trim();
+                        const amt = parseFloat(tx['Transaction Amount']) || 0;
+                        const pnl = parseFloat(tx['Profit And Loss Amount']) || 0;
+
+                        if (cat === 'deposits') dep += amt;
+                        if (cat === 'withdrawals') withdr += Math.abs(amt);
+                        if (cat === 'trades' && trType === 'CASH_CREDIT' && txType === 'Sell Trade') {
+                            realized += pnl;
+                        }
+                    });
+                    return { deposits: dep, withdrawals: withdr, realizedPnL: realized };
+                },
+
+                get cashBalance() {
+                    let cash = this.totals.deposits - this.totals.withdrawals;
+                    this.transactions.forEach(tx => {
+                        const cat = String(tx['Transaction Category'] || '').trim();
+                        const trType = String(tx['Transfer Type'] || '').trim();
+                        const amt = parseFloat(tx['Transaction Amount']) || 0;
+
+                        if (cat === 'trades' && (trType === 'CASH_DEBIT' || trType === 'CASH_CREDIT')) {
+                            cash += amt;
+                        } else if (cat === 'fees' || cat === 'tax') {
+                            cash -= Math.abs(amt);
+                        } else if (cat === 'dividends' && (trType === 'CASH_CREDIT' || trType === 'CASH_DEBIT')) {
+                            cash += amt;
+                        } else if (cat === 'interest' || cat === 'others' || (cat === 'corporate_actions' && trType === 'CASH_CREDIT')) {
+                            cash += amt;
+                        }
+                    });
+                    return Math.max(0, cash);
+                },
+
+                get totalInvested() {
+                    return this.positions.reduce((acc, pos) => acc + (pos.quantity * pos.avgPrice), 0);
+                },
+
+                get unrealizedPnL() {
+                    return this.positions.reduce((acc, pos) => {
+                        const curPrice = this.getAssetPriceInEur(pos.isin);
+                        return acc + (pos.quantity * curPrice) - (pos.quantity * pos.avgPrice);
+                    }, 0);
+                },
+
+                get totalProfitLoss() {
+                    return this.totals.realizedPnL + this.unrealizedPnL;
+                },
+
+                get totalPortfolioValue() {
+                    const positionsVal = this.positions.reduce((acc, pos) => {
+                        return acc + (pos.quantity * this.getAssetPriceInEur(pos.isin));
+                    }, 0);
+                    return positionsVal + this.cashBalance;
+                },
+
+                get breakdown() {
+                    let sharesVal = 0, sharesCount = 0;
+                    let etfsVal = 0, etfsCount = 0;
+                    const totalVal = this.totalPortfolioValue || 1;
+
+                    this.positions.forEach(pos => {
+                        const val = pos.quantity * this.getAssetPriceInEur(pos.isin);
+                        if (pos.isEtf) {
+                            etfsVal += val;
+                            etfsCount++;
+                        } else {
+                            sharesVal += val;
+                            sharesCount++;
+                        }
+                    });
+
+                    return {
+                        shares: { value: sharesVal, count: sharesCount, pct: (sharesVal / totalVal) * 100 },
+                        etfs: { value: etfsVal, count: etfsCount, pct: (etfsVal / totalVal) * 100 },
+                        cash: { value: this.cashBalance, pct: (this.cashBalance / totalVal) * 100 }
+                    };
+                },
+
+                get costs() {
+                    let taxes = 0, tradingFees = 0, subscriptionFees = 0, compensations = 0;
+                    this.transactions.forEach(tx => {
+                        const cat = String(tx['Transaction Category'] || '').trim();
+                        const type = String(tx['Transaction Type'] || '').trim();
+                        const amt = Math.abs(parseFloat(tx['Transaction Amount']) || 0);
+
+                        if (cat === 'tax') taxes += amt;
+                        if (cat === 'fees') {
+                            if (type === 'Trading Fee') tradingFees += amt;
+                            else subscriptionFees += amt;
+                        }
+                        if (cat === 'others') compensations += amt;
+                        if (cat === 'corporate_actions' && String(tx['Asset Id'] || '').trim() === 'DE000A3E5DT0') {
+                            compensations += amt;
+                        }
+                    });
+
+                    const grossCosts = taxes + tradingFees + subscriptionFees;
+                    const netCosts = Math.max(0, grossCosts - compensations);
+                    const costPct = this.totals.deposits > 0 ? (netCosts / this.totals.deposits) * 100 : 0;
+
+                    return {
+                        taxes: taxes,
+                        tradingFees: tradingFees,
+                        subscriptionFees: subscriptionFees,
+                        compensations: compensations,
+                        grossCosts: grossCosts,
+                        netCosts: netCosts,
+                        costPercentage: costPct
+                    };
+                },
+
+                resetData() {
+                    if (confirm('Weet je zeker dat je alle opgeslagen data wilt wissen?')) {
+                        localStorage.clear();
+                        this.transactions = [];
+                        this.positions = [];
+                        this.assetMapping = {};
+                        this.latestPrices = {};
+                        this.historyData = { dates: [], tickers: [], prices: {} };
+                        this.loadedFileName = '';
+                        window.location.reload();
+                    }
+                },
+
+                exportData() {
+                    const data = {
+                        transactions: this.transactions,
+                        mapping: this.assetMapping,
+                        prices: this.latestPrices,
+                        rates: this.rates,
+                        history: this.historyData,
+                        filename: this.loadedFileName
+                    };
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'pat_portfolio_backup.json';
+                    a.click();
+                },
+
+                get unmappedIsins() {
+                    return Object.keys(this.assetMapping).filter(isin => {
+                        if (DUMMY_ISINS.includes(isin)) return false;
+                        return !this.assetMapping[isin].ticker || this.assetMapping[isin].ticker.trim() === '';
+                    });
+                },
+
+                formatCurrency(val) {
+                    return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val || 0);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
