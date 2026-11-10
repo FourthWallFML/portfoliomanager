@@ -42,7 +42,7 @@
             <div class="flex flex-wrap gap-2.5 items-center">
                 <span class="text-xs text-slate-400" x-text="syncStatus"></span>
                 
-                <!-- Mobielvriendelijke Upload Knop in Header -->
+                <!-- Altijd actieve mobiele upload knop -->
                 <label for="csvFileInputHeader" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-lg shadow-emerald-500/10 cursor-pointer active:scale-95">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                     <span>Upload CSV</span>
@@ -51,7 +51,7 @@
                        id="csvFileInputHeader" 
                        accept=".csv,text/csv,text/plain,application/vnd.ms-excel,text/comma-separated-values,*" 
                        @change="handleFileUpload($event)" 
-                       class="sr-only" />
+                       style="position: absolute; opacity: 0; width: 1px; height: 1px; z-index: -1;" />
 
                 <button type="button" @click="fetchGoogleSheetData()" class="bg-teal-600/20 text-teal-300 border border-teal-500/30 px-3.5 py-2 rounded-xl text-xs font-semibold hover:bg-teal-600/30 transition">Sync Sheet</button>
                 <button type="button" @click="resetData()" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-3.5 py-2 rounded-xl text-xs font-semibold hover:bg-rose-500/20 transition">Reset</button>
@@ -117,7 +117,7 @@
                                         <div class="text-[10px] text-slate-400 font-mono" x-text="isin"></div>
                                     </div>
                                     <div class="flex gap-2 items-center">
-                                        <input type="text" x-model="assetMapping[isin].ticker" placeholder="Bijv. AMS:ASML" class="text-xs bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 w-full text-slate-100 focus:outline-none focus:border-amber-400">
+                                        <input type="text" x-model="assetMapping[isin].ticker" placeholder="Bijv. AMS:ASML of NASDAQ:NVDA" class="text-xs bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 w-full text-slate-100 focus:outline-none focus:border-amber-400">
                                         <button @click="saveMappingToSheet(isin)" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition shrink-0">Bewaar</button>
                                     </div>
                                 </div>
@@ -133,7 +133,7 @@
         <!-- ============================================== -->
         <div x-show="activeTab === 'dashboard'" class="space-y-6">
             
-            <!-- Volledig mobiel klikbare Upload Box -->
+            <!-- Volledig klikbare Upload Box -->
             <label for="csvFileInputDash" class="bg-slate-800/60 hover:bg-slate-800/90 hover:border-emerald-500/50 p-6 rounded-2xl border-2 border-dashed border-slate-700/80 backdrop-blur flex flex-col sm:flex-row justify-between items-center gap-4 cursor-pointer transition block group">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20 group-hover:scale-105 transition">
@@ -141,9 +141,9 @@
                     </div>
                     <div>
                         <h3 class="text-sm font-bold text-slate-200 group-hover:text-emerald-300 transition">
-                            <span x-text="loadedFileName ? 'Geladen: ' + loadedFileName : 'Transactiebestand Inladen'"></span>
+                            <span x-text="loadedFileName ? 'Geladen bestand: ' + loadedFileName : 'Transactiebestand Inladen'"></span>
                         </h3>
-                        <p class="text-xs text-slate-400" x-text="transactions.length > 0 ? transactions.length + ' transacties geladen • Tik om nieuw bestand te kiezen' : 'Tik hier om een CSV-bestand te selecteren'"></p>
+                        <p class="text-xs text-slate-400" x-text="transactions.length > 0 ? transactions.length + ' transacties actief • Tik om nieuw bestand te kiezen' : 'Tik hier om je CSV-bestand te selecteren'"></p>
                     </div>
                 </div>
                 <div class="bg-emerald-500 group-hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs transition shrink-0 shadow">
@@ -154,7 +154,7 @@
                    id="csvFileInputDash" 
                    accept=".csv,text/csv,text/plain,application/vnd.ms-excel,text/comma-separated-values,*" 
                    @change="handleFileUpload($event)" 
-                   class="sr-only" />
+                   style="position: absolute; opacity: 0; width: 1px; height: 1px; z-index: -1;" />
 
             <!-- Hoofd KPI Kaarten -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -338,7 +338,7 @@
         <div x-show="activeTab === 'posities'" class="space-y-6">
             
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <!-- Asset Mapping Sidebar (alleen als er unmapped ISINs zijn) -->
+                <!-- Asset Mapping Sidebar (alleen zichtbaar als er unmapped ISINs zijn) -->
                 <div class="lg:col-span-1 space-y-6" x-show="unmappedIsins.length > 0">
                     <div class="bg-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl border border-slate-700/60">
                         <div class="flex justify-between items-center mb-3">
@@ -599,60 +599,92 @@
                     return rawPrice;
                 },
 
-                // Robuuste mobiele bestandshandler met string-parsing en header-sanitization
-                async handleFileUpload(event) {
+                // Veilig getallen parsen ongeacht komma of punt
+                parseNum(val) {
+                    if (val === null || val === undefined || val === '') return 0;
+                    if (typeof val === 'number') return val;
+                    let s = String(val).trim().replace(/['" ]/g, '');
+                    if (s.includes('.') && s.includes(',')) {
+                        s = s.replace(/\./g, '').replace(',', '.');
+                    } else if (s.includes(',')) {
+                        s = s.replace(',', '.');
+                    }
+                    let n = parseFloat(s);
+                    return isNaN(n) ? 0 : n;
+                },
+
+                // Veldwaarde opvragen ongeacht spaties of hoofdletters in de header
+                getVal(row, ...keys) {
+                    if (!row) return '';
+                    for (let k of keys) {
+                        if (row[k] !== undefined && row[k] !== null && String(row[k]).trim() !== '') {
+                            return String(row[k]).trim();
+                        }
+                    }
+                    let lowerMap = {};
+                    for (let realKey in row) {
+                        let norm = realKey.toLowerCase().replace(/[\s_\-\.\ufeff]+/g, '');
+                        lowerMap[norm] = row[realKey];
+                    }
+                    for (let k of keys) {
+                        let normK = k.toLowerCase().replace(/[\s_\-\.\ufeff]+/g, '');
+                        if (lowerMap[normK] !== undefined && lowerMap[normK] !== null && String(lowerMap[normK]).trim() !== '') {
+                            return String(lowerMap[normK]).trim();
+                        }
+                    }
+                    return '';
+                },
+
+                // 100% zekere FileReader voor elk mobiel besturingssysteem
+                handleFileUpload(event) {
                     const file = event.target.files && event.target.files[0];
                     if (!file) return;
 
                     this.loadedFileName = file.name;
                     localStorage.setItem('pat_filename', file.name);
 
-                    try {
-                        let textData = '';
-                        if (typeof file.text === 'function') {
-                            textData = await file.text();
-                        } else {
-                            textData = await new Promise((resolve, reject) => {
-                                const reader = new FileReader();
-                                reader.onload = () => resolve(reader.result);
-                                reader.onerror = reject;
-                                reader.readAsText(file);
-                            });
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        let textData = e.target.result || '';
+                        textData = textData.replace(/^\ufeff/, ''); // Verwijder BOM-teken
+
+                        // Automatische scheidingsteken-detectie (, of ;)
+                        const firstLine = textData.split(/\r\n|\n|\r/)[0] || '';
+                        const delimiter = (firstLine.includes(';') && !firstLine.includes(',')) ? ';' : ',';
+
+                        const parsed = Papa.parse(textData, {
+                            header: true,
+                            delimiter: delimiter,
+                            skipEmptyLines: 'greedy'
+                        });
+
+                        if (!parsed || !parsed.data || parsed.data.length === 0) {
+                            alert('Geen gegevens gevonden in het bestand.');
+                            return;
                         }
 
-                        // Verwijder eventuele BOM-karakters (\ufeff) die mobiele downloads toevoegen
-                        textData = textData.replace(/^\ufeff/, '');
+                        // Schoon rijen op
+                        const cleanRows = parsed.data.filter(r => Object.keys(r).length > 1);
+                        this.transactions = cleanRows;
+                        localStorage.setItem('pat_transactions', JSON.stringify(this.transactions));
+                        
+                        this.processNewTransactions();
+                        alert(`Succesvol ${cleanRows.length} transacties geladen en verwerkt!`);
+                    };
 
-                        Papa.parse(textData, {
-                            header: true,
-                            skipEmptyLines: 'greedy',
-                            transformHeader: h => h.trim().replace(/^\ufeff/, ''),
-                            complete: (results) => {
-                                if (!results.data || results.data.length === 0) {
-                                    alert('Geen regels gevonden in CSV.');
-                                    return;
-                                }
-                                this.transactions = results.data;
-                                localStorage.setItem('pat_transactions', JSON.stringify(this.transactions));
-                                this.processNewTransactions();
-                                alert(`Succesvol ${results.data.length} transacties geladen uit ${file.name}!`);
-                            },
-                            error: (err) => {
-                                alert('Fout bij verwerken van CSV: ' + err.message);
-                            }
-                        });
-                    } catch (e) {
-                        alert('Kon het bestand niet openen: ' + e.message);
-                    } finally {
-                        event.target.value = '';
-                    }
+                    reader.onerror = (err) => {
+                        alert('Fout bij het lezen van het bestand: ' + (err.message || 'Onbekende fout'));
+                    };
+
+                    reader.readAsText(file, 'utf-8');
+                    event.target.value = ''; // Reset input
                 },
 
                 processNewTransactions() {
                     this.transactions.forEach(tx => {
-                        const category = tx['Transaction Category'];
-                        const isin = tx['Asset Id'] ? tx['Asset Id'].trim() : null;
-                        const name = tx['Asset Name'];
+                        const category = this.getVal(tx, 'Transaction Category');
+                        const isin = this.getVal(tx, 'Asset Id', 'ISIN');
+                        const name = this.getVal(tx, 'Asset Name', 'Name');
 
                         if (category === 'trades' && isin && name && !DUMMY_ISINS.includes(isin)) {
                             if (!this.assetMapping[isin]) {
@@ -667,28 +699,28 @@
 
                 isEtfAsset(name, isin) {
                     const etfKeywords = ['ishares', 'vanguard', 'vaneck', 'xtrackers', 'l&g', 'etf', 'msci', 'ftse', 'stoxx', 'spdr'];
-                    const n = String(name).toLowerCase();
+                    const n = String(name || '').toLowerCase();
                     return etfKeywords.some(kw => n.includes(kw));
                 },
 
                 calculatePositions() {
                     let posMap = {};
                     
-                    // Veilige string-sortering (voorkomt crash op Safari door microseconden)
+                    // Sorteer veilig alfabetisch op datumtekst
                     let sortedTx = [...this.transactions].sort((a, b) => {
-                        const ta = String(a['Transaction Time (CET)'] || '');
-                        const tb = String(b['Transaction Time (CET)'] || '');
+                        const ta = this.getVal(a, 'Transaction Time (CET)', 'Date', 'Time');
+                        const tb = this.getVal(b, 'Transaction Time (CET)', 'Date', 'Time');
                         return ta.localeCompare(tb);
                     });
 
                     sortedTx.forEach(tx => {
-                        const category = tx['Transaction Category'] ? String(tx['Transaction Category']).trim() : '';
-                        const type = tx['Transaction Type'] ? String(tx['Transaction Type']).trim() : '';
-                        const transferType = tx['Transfer Type'] ? String(tx['Transfer Type']).trim() : '';
-                        const isin = tx['Asset Id'] ? String(tx['Asset Id']).trim() : null;
-                        const name = tx['Asset Name'];
-                        const qty = parseFloat(tx['Asset Quantity']) || 0;
-                        const eurAmount = Math.abs(parseFloat(tx['Transaction Amount'])) || 0;
+                        const category = this.getVal(tx, 'Transaction Category');
+                        const type = this.getVal(tx, 'Transaction Type');
+                        const transferType = this.getVal(tx, 'Transfer Type');
+                        const isin = this.getVal(tx, 'Asset Id', 'ISIN');
+                        const name = this.getVal(tx, 'Asset Name', 'Name');
+                        const qty = this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity'));
+                        const eurAmount = Math.abs(this.parseNum(this.getVal(tx, 'Transaction Amount', 'Amount')));
 
                         if (category === 'trades' && isin && !DUMMY_ISINS.includes(isin)) {
                             if (!posMap[isin]) {
@@ -702,11 +734,13 @@
                                 };
                             }
 
-                            if (type === 'Buy Trade' && transferType === 'CASH_DEBIT') {
+                            // Alleen CASH_DEBIT voor Buy (ontdubbeld)
+                            if (type === 'Buy Trade' && (transferType === 'CASH_DEBIT' || transferType === '')) {
                                 posMap[isin].quantity += qty;
                                 posMap[isin].totalCost += eurAmount;
                             } 
-                            else if (type === 'Sell Trade' && transferType === 'CASH_CREDIT') {
+                            // Alleen CASH_CREDIT voor Sell (ontdubbeld)
+                            else if (type === 'Sell Trade' && (transferType === 'CASH_CREDIT' || transferType === '')) {
                                 let avg = posMap[isin].quantity > 0 ? posMap[isin].totalCost / posMap[isin].quantity : 0;
                                 posMap[isin].quantity -= qty;
                                 posMap[isin].totalCost -= (qty * avg);
@@ -741,9 +775,9 @@
                         const ticker = this.assetMapping[isin]?.ticker;
                         const isUsd = this.isUsdAsset(isin);
 
-                        const buyTrades = this.transactions.filter(t => t['Asset Id'] === isin && String(t['Transaction Type']).trim() === 'Buy Trade')
-                            .sort((a,b) => String(a['Transaction Time (CET)']).localeCompare(String(b['Transaction Time (CET)'])));
-                        const startDate = buyTrades.length > 0 ? String(buyTrades[0]['Transaction Time (CET)']).split(' ')[0] : '2024-01-01';
+                        const buyTrades = this.transactions.filter(t => this.getVal(t, 'Asset Id') === isin && this.getVal(t, 'Transaction Type') === 'Buy Trade')
+                            .sort((a,b) => this.getVal(a, 'Transaction Time (CET)').localeCompare(this.getVal(b, 'Transaction Time (CET)')));
+                        const startDate = buyTrades.length > 0 ? this.getVal(buyTrades[0], 'Transaction Time (CET)').split(' ')[0] : '2024-01-01';
 
                         if (this.historyData.dates && this.historyData.dates.length > 0 && ticker && this.historyData.prices[ticker]) {
                             const allDates = this.historyData.dates;
@@ -780,9 +814,9 @@
                     } else {
                         // 2. Totale Portefeuille TWR
                         assetName = "Totale Portefeuille";
-                        const firstTx = this.transactions.filter(t => String(t['Transaction Category']).trim() === 'deposits')
-                            .sort((a,b) => String(a['Transaction Time (CET)']).localeCompare(String(b['Transaction Time (CET)'])));
-                        const startDate = firstTx.length > 0 ? String(firstTx[0]['Transaction Time (CET)']).split(' ')[0] : '2023-12-27';
+                        const firstTx = this.transactions.filter(t => this.getVal(t, 'Transaction Category') === 'deposits')
+                            .sort((a,b) => this.getVal(a, 'Transaction Time (CET)').localeCompare(this.getVal(b, 'Transaction Time (CET)')));
+                        const startDate = firstTx.length > 0 ? this.getVal(firstTx[0], 'Transaction Time (CET)').split(' ')[0] : '2023-12-27';
 
                         if (this.historyData.dates && this.historyData.dates.length > 0) {
                             let cumulativeTwrFactor = 1.0;
@@ -869,10 +903,10 @@
                 getCashFlowOnDate(dateStr) {
                     let cf = 0;
                     this.transactions.forEach(tx => {
-                        const txDate = String(tx['Transaction Time (CET)'] || '').split(' ')[0];
+                        const txDate = this.getVal(tx, 'Transaction Time (CET)').split(' ')[0];
                         if (txDate === dateStr) {
-                            const cat = String(tx['Transaction Category'] || '').trim();
-                            const amt = parseFloat(tx['Transaction Amount']) || 0;
+                            const cat = this.getVal(tx, 'Transaction Category');
+                            const amt = this.parseNum(this.getVal(tx, 'Transaction Amount'));
                             if (cat === 'deposits') cf += amt;
                             if (cat === 'withdrawals') cf -= Math.abs(amt);
                         }
@@ -904,11 +938,11 @@
                 get totals() {
                     let dep = 0, withdr = 0, realized = 0;
                     this.transactions.forEach(tx => {
-                        const cat = String(tx['Transaction Category'] || '').trim();
-                        const trType = String(tx['Transfer Type'] || '').trim();
-                        const txType = String(tx['Transaction Type'] || '').trim();
-                        const amt = parseFloat(tx['Transaction Amount']) || 0;
-                        const pnl = parseFloat(tx['Profit And Loss Amount']) || 0;
+                        const cat = this.getVal(tx, 'Transaction Category');
+                        const trType = this.getVal(tx, 'Transfer Type');
+                        const txType = this.getVal(tx, 'Transaction Type');
+                        const amt = this.parseNum(this.getVal(tx, 'Transaction Amount'));
+                        const pnl = this.parseNum(this.getVal(tx, 'Profit And Loss Amount'));
 
                         if (cat === 'deposits') dep += amt;
                         if (cat === 'withdrawals') withdr += Math.abs(amt);
@@ -922,9 +956,9 @@
                 get cashBalance() {
                     let cash = this.totals.deposits - this.totals.withdrawals;
                     this.transactions.forEach(tx => {
-                        const cat = String(tx['Transaction Category'] || '').trim();
-                        const trType = String(tx['Transfer Type'] || '').trim();
-                        const amt = parseFloat(tx['Transaction Amount']) || 0;
+                        const cat = this.getVal(tx, 'Transaction Category');
+                        const trType = this.getVal(tx, 'Transfer Type');
+                        const amt = this.parseNum(this.getVal(tx, 'Transaction Amount'));
 
                         if (cat === 'trades' && (trType === 'CASH_DEBIT' || trType === 'CASH_CREDIT')) {
                             cash += amt;
@@ -987,9 +1021,10 @@
                 get costs() {
                     let taxes = 0, tradingFees = 0, subscriptionFees = 0, compensations = 0;
                     this.transactions.forEach(tx => {
-                        const cat = String(tx['Transaction Category'] || '').trim();
-                        const type = String(tx['Transaction Type'] || '').trim();
-                        const amt = Math.abs(parseFloat(tx['Transaction Amount']) || 0);
+                        const cat = this.getVal(tx, 'Transaction Category');
+                        const type = this.getVal(tx, 'Transaction Type');
+                        const isin = this.getVal(tx, 'Asset Id');
+                        const amt = Math.abs(this.parseNum(this.getVal(tx, 'Transaction Amount')));
 
                         if (cat === 'tax') taxes += amt;
                         if (cat === 'fees') {
@@ -997,7 +1032,7 @@
                             else subscriptionFees += amt;
                         }
                         if (cat === 'others') compensations += amt;
-                        if (cat === 'corporate_actions' && String(tx['Asset Id'] || '').trim() === 'DE000A3E5DT0') {
+                        if (cat === 'corporate_actions' && isin === 'DE000A3E5DT0') {
                             compensations += amt;
                         }
                     });
