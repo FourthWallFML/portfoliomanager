@@ -15,7 +15,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <!-- Chart.js voor TWR Grafieken -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-[#070d1e] text-slate-100 font-sans min-h-screen" x-data="portfolioApp()" x-init="initApp()">
@@ -24,267 +24,293 @@
     <div x-show="showInstallPrompt" class="bg-[#121e3d] border-b border-[#1b2b52] px-4 py-2.5 text-slate-200 text-xs flex justify-between items-center shadow-md">
         <span>Installeer Key Analysis als app op je apparaat voor snelle toegang.</span>
         <div class="flex gap-2">
-            <button @click="installPwa()" class="bg-[#7d9d43] hover:bg-[#6c8b37] text-white font-bold px-3 py-1 rounded-lg shadow">Installeer</button>
+            <button @click="installPwa()" class="bg-[#10b981] hover:bg-[#059669] text-white font-bold px-3 py-1 rounded-lg shadow">Installeer</button>
             <button @click="showInstallPrompt = false" class="text-slate-400 hover:text-white px-1">✕</button>
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 py-6 sm:py-8">
+    <div class="max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-5">
         
-        <!-- Key Analysis Header Banner -->
-        <div class="relative w-full rounded-2xl overflow-hidden shadow-2xl border border-[#1b2b52] mb-6 bg-[#091124]">
-            <img src="banner.jpg" alt="Key Analysis - Portfolio Insights" class="w-full h-auto object-cover max-h-48 sm:max-h-56 md:max-h-64" />
-        </div>
-
-        <!-- Subtiele Bovenbalk met Status & Snelle Acties -->
-        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b border-[#182649] pb-4 gap-3">
-            <div class="flex items-center gap-3">
-                <span class="inline-block w-2.5 h-2.5 rounded-full bg-[#7d9d43] shadow-[0_0_8px_#7d9d43]"></span>
-                <span class="text-xs text-slate-400 font-medium" x-text="syncStatus"></span>
+        <!-- Header: Compactere Banner Links & Functioneel Menu Rechts -->
+        <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-3 sm:p-4 shadow-xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+            
+            <!-- Compactere Banner Links -->
+            <div class="flex items-center gap-4">
+                <img src="banner.jpg" alt="Key Analysis" class="h-14 sm:h-16 w-auto max-w-[240px] sm:max-w-xs object-cover rounded-xl border border-[#1e3260] shadow" />
+                <div>
+                    <span class="inline-flex items-center gap-1.5 text-[11px] text-[#34d399] font-medium bg-[#10b981]/10 px-2.5 py-0.5 rounded-full border border-[#10b981]/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
+                        <span x-text="syncStatus"></span>
+                    </span>
+                    <p class="text-[11px] text-slate-400 mt-1 truncate max-w-[200px] sm:max-w-xs" x-text="loadedFileName ? 'Bestand: ' + loadedFileName : 'Geen bestand actief'"></p>
+                </div>
             </div>
-            <div class="flex flex-wrap gap-2 items-center">
-                <button type="button" @click="fetchGoogleSheetData()" class="bg-[#0f1a36] hover:bg-[#15244a] text-[#82a4d4] border border-[#1e3260] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5 text-[#82a4d4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+
+            <!-- Functioneel Menu Rechts van Banner -->
+            <div class="flex flex-wrap items-center gap-2 justify-end pt-2 md:pt-0 border-t md:border-t-0 border-[#1b2b52]/60">
+                <!-- Directe Upload Knop -->
+                <label for="csvFileInputMain" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow cursor-pointer active:scale-95">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    <span>Upload CSV</span>
+                </label>
+                <input type="file" 
+                       id="csvFileInputMain" 
+                       accept=".csv,text/csv,text/plain,application/vnd.ms-excel,*/*" 
+                       @change="handleFileUpload($event)" 
+                       class="sr-only" />
+
+                <button type="button" @click="fetchGoogleSheetData()" class="bg-[#132247] hover:bg-[#182b59] text-slate-200 border border-[#1e3260] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-[#38bdf8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                     <span>Sync Sheet</span>
                 </button>
-                <button type="button" @click="exportData()" class="bg-[#0f1a36] hover:bg-[#15244a] text-slate-300 border border-[#1e3260] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition">
+                <button type="button" @click="exportData()" class="bg-[#132247] hover:bg-[#182b59] text-slate-300 border border-[#1e3260] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition">
                     Backup
                 </button>
-                <button type="button" @click="resetData()" class="bg-[#800020]/15 hover:bg-[#800020]/30 text-[#d65a6b] border border-[#800020]/30 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition">
+                <button type="button" @click="resetData()" class="bg-[#800020]/20 hover:bg-[#800020]/40 text-[#f87171] border border-[#800020]/40 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition">
                     Reset
                 </button>
             </div>
-        </header>
+        </div>
 
         <!-- Status Notificatie bij inladen -->
         <div x-show="uploadMessage" 
              x-transition 
-             class="mb-6 p-4 rounded-xl bg-[#556b2f]/20 border border-[#7d9d43]/40 text-[#9db862] text-xs font-medium flex justify-between items-center shadow-lg">
+             class="p-3.5 rounded-xl bg-[#10b981]/15 border border-[#10b981]/30 text-[#34d399] text-xs font-medium flex justify-between items-center shadow-lg">
             <span x-text="uploadMessage"></span>
-            <button @click="uploadMessage = ''" class="text-[#9db862] hover:text-white ml-3 font-bold">✕</button>
+            <button @click="uploadMessage = ''" class="text-white hover:text-slate-300 ml-3 font-bold">✕</button>
         </div>
 
         <!-- Tab Navigatie -->
-        <nav class="flex space-x-2 border-b border-[#182649] mb-6 pb-2">
-            <button @click="activeTab = 'dashboard'" 
-                    :class="activeTab === 'dashboard' ? 'bg-[#132247] text-[#9db862] border-b-2 border-[#7d9d43] font-bold' : 'text-slate-400 hover:text-slate-200 hover:bg-[#0f1a36]/50'" 
-                    class="px-5 py-2.5 rounded-t-xl text-sm transition flex items-center gap-2">
+        <nav class="flex space-x-2 border-b border-[#182649] pb-2">
+            <button @click="activeTab = 'dashboard'; $nextTick(() => renderDonutCharts())" 
+                    :class="activeTab === 'dashboard' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'" 
+                    class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
                 Dashboard
             </button>
             <button @click="activeTab = 'twr'; $nextTick(() => updateTwrView())" 
-                    :class="activeTab === 'twr' ? 'bg-[#132247] text-[#9db862] border-b-2 border-[#7d9d43] font-bold' : 'text-slate-400 hover:text-slate-200 hover:bg-[#0f1a36]/50'" 
-                    class="px-5 py-2.5 rounded-t-xl text-sm transition flex items-center gap-2">
+                    :class="activeTab === 'twr' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'" 
+                    class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
                 TWR Rendement
             </button>
             <button @click="activeTab = 'posities'" 
-                    :class="activeTab === 'posities' ? 'bg-[#132247] text-[#9db862] border-b-2 border-[#7d9d43] font-bold' : 'text-slate-400 hover:text-slate-200 hover:bg-[#0f1a36]/50'" 
-                    class="px-5 py-2.5 rounded-t-xl text-sm transition flex items-center gap-2">
+                    :class="activeTab === 'posities' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'" 
+                    class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                 Posities & Koersen
-                <span class="bg-[#132247] text-[10px] px-2 py-0.5 rounded-full border border-[#1e3260] text-slate-300" x-text="positions.length"></span>
+                <span class="bg-[#080e22] text-[10px] px-2 py-0.5 rounded-full border border-[#1e3260] text-slate-300 font-mono" x-text="positions.length"></span>
             </button>
         </nav>
 
         <!-- Unmapped Warning Banner -->
         <template x-if="unmappedIsins.length > 0">
-            <div class="bg-[#800020]/20 border-l-4 border-[#b83344] p-4 mb-6 rounded-r-xl shadow-lg border border-[#800020]/40">
-                <div class="flex flex-col gap-2">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-[#d65a6b] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                            </svg>
-                            <p class="text-sm text-slate-200 font-medium">
-                                Let op: Er zijn 
-                                <button type="button" 
-                                        @click="showUnmappedDetails = !showUnmappedDetails" 
-                                        class="font-black text-[#d65a6b] bg-[#800020]/40 hover:bg-[#800020]/60 underline decoration-[#d65a6b] decoration-2 underline-offset-2 px-2 py-0.5 rounded cursor-pointer transition transform hover:scale-105 active:scale-95">
-                                    <span x-text="unmappedIsins.length"></span>
-                                </button> 
-                                assets zonder ticker gemapt.
-                            </p>
+            <div class="bg-[#800020]/20 border-l-4 border-[#b83344] p-3.5 rounded-r-xl border border-[#800020]/40">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs text-slate-200">
+                        Let op: Er zijn 
+                        <button type="button" @click="showUnmappedDetails = !showUnmappedDetails" class="font-black text-[#f87171] underline cursor-pointer">
+                            <span x-text="unmappedIsins.length"></span>
+                        </button> 
+                        assets zonder ticker gemapt.
+                    </p>
+                    <button type="button" @click="showUnmappedDetails = !showUnmappedDetails" class="text-xs text-[#f87171] hover:text-white underline" x-text="showUnmappedDetails ? 'Verberg ▲' : 'Toon ▼'"></button>
+                </div>
+                <div x-show="showUnmappedDetails" class="mt-3 pt-3 border-t border-[#800020]/30 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <template x-for="isin in unmappedIsins" :key="isin">
+                        <div class="p-2.5 bg-[#080e22] rounded-xl border border-[#1e3260] flex items-center justify-between gap-2">
+                            <div class="truncate">
+                                <div class="text-xs font-bold text-slate-200 truncate" x-text="assetMapping[isin]?.name || isin"></div>
+                                <div class="text-[10px] text-slate-400 font-mono" x-text="isin"></div>
+                            </div>
+                            <div class="flex gap-1 shrink-0">
+                                <input type="text" x-model="assetMapping[isin].ticker" placeholder="Ticker" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-2 py-1 w-24 text-slate-100">
+                                <button @click="saveMappingToSheet(isin)" class="bg-[#10b981] text-slate-950 font-bold px-2 py-1 rounded text-xs">OK</button>
+                            </div>
                         </div>
-                        <button type="button" 
-                                @click="showUnmappedDetails = !showUnmappedDetails" 
-                                class="text-xs text-[#d65a6b] hover:text-white underline ml-auto shrink-0 transition" 
-                                x-text="showUnmappedDetails ? 'Verberg details ▲' : 'Toon assets ▼'">
-                        </button>
-                    </div>
-
-                    <div x-show="showUnmappedDetails" class="mt-3 pt-3 border-t border-[#800020]/30 space-y-2">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            <template x-for="isin in unmappedIsins" :key="isin">
-                                <div class="p-3 bg-[#0a1126] rounded-xl border border-[#1e3260] flex flex-col justify-between gap-2">
-                                    <div>
-                                        <div class="text-xs font-bold text-slate-200 truncate" x-text="assetMapping[isin]?.name || isin"></div>
-                                        <div class="text-[10px] text-slate-400 font-mono" x-text="isin"></div>
-                                    </div>
-                                    <div class="flex gap-2 items-center">
-                                        <input type="text" x-model="assetMapping[isin].ticker" placeholder="Bijv. AMS:ASML" class="text-xs bg-[#132247] border border-[#1e3260] rounded-lg px-2.5 py-1.5 w-full text-slate-100 focus:outline-none focus:border-[#7d9d43]">
-                                        <button @click="saveMappingToSheet(isin)" class="bg-[#5d772f] hover:bg-[#6c8b37] text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shrink-0">Bewaar</button>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
+                    </template>
                 </div>
             </div>
         </template>
 
         <!-- ============================================== -->
-        <!-- TAB 1: DASHBOARD                               -->
+        <!-- TAB 1: DASHBOARD (COMPACT & MET DONUTS)        -->
         <!-- ============================================== -->
-        <div x-show="activeTab === 'dashboard'" class="space-y-6">
+        <div x-show="activeTab === 'dashboard'" class="space-y-5">
 
-            <!-- Hoofd KPI Kaarten -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-[#0f1a36]/90 backdrop-blur p-5 rounded-2xl shadow-xl border border-[#1b2b52]">
-                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Waarde Portefeuille</p>
-                    <p class="text-2xl font-black text-[#9db862] mt-1" x-text="formatCurrency(totalPortfolioValue)"></p>
-                    <p class="text-[11px] text-slate-400 mt-1">Inclusief cash saldo</p>
+            <!-- 1. GECOMBINEERDE HOOFD-CONTAINER (Alle Portfolio KPIs Samen) -->
+            <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl">
+                <!-- Bovenste rij: De 2 Hoofd KPIs -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-[#182649]">
+                    <div class="flex flex-col justify-center">
+                        <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Waarde Portefeuille</span>
+                        <div class="text-3xl sm:text-4xl font-black text-slate-100 mt-1" x-text="formatCurrency(totalPortfolioValue)"></div>
+                        <span class="text-[11px] text-slate-400 mt-0.5">Inclusief contant saldo</span>
+                    </div>
+                    <div class="flex flex-col justify-center md:items-end">
+                        <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Totale Winst / Verlies</span>
+                        <div class="text-3xl sm:text-4xl font-black mt-1" :class="totalProfitLoss >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="(totalProfitLoss >= 0 ? '+' : '') + formatCurrency(totalProfitLoss)"></div>
+                        <span class="text-[11px] text-slate-400 mt-0.5">Gerealiseerd + Ongerealiseerd</span>
+                    </div>
                 </div>
-                <div class="bg-[#0f1a36]/90 backdrop-blur p-5 rounded-2xl shadow-xl border border-[#1b2b52]">
-                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Totale Deposits</p>
-                    <p class="text-2xl font-black text-[#82a4d4] mt-1" x-text="formatCurrency(totals.deposits)"></p>
-                    <p class="text-[11px] text-slate-400 mt-1">Totale stortingen</p>
-                </div>
-                <div class="bg-[#0f1a36]/90 backdrop-blur p-5 rounded-2xl shadow-xl border border-[#1b2b52]">
-                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Totale Withdrawals</p>
-                    <p class="text-2xl font-black text-slate-300 mt-1" x-text="formatCurrency(totals.withdrawals)"></p>
-                    <p class="text-[11px] text-slate-400 mt-1">Totale afhalingen</p>
-                </div>
-                <div class="bg-[#0f1a36]/90 backdrop-blur p-5 rounded-2xl shadow-xl border border-[#1b2b52]">
-                    <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Totale Winst / Verlies</p>
-                    <p class="text-2xl font-black mt-1" :class="totalProfitLoss >= 0 ? 'text-[#9db862]' : 'text-[#d65a6b]'" x-text="formatCurrency(totalProfitLoss)"></p>
-                    <p class="text-[11px] text-slate-400 mt-1">Gerealiseerd + Ongerealiseerd</p>
+
+                <!-- Onderste rij: Sub-KPIs / Breakdown (Compact & strak zonder losse kastjes) -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 text-xs">
+                    <div>
+                        <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold">Stortingen (Deposits)</span>
+                        <div class="text-base font-bold text-slate-200 mt-0.5 font-mono" x-text="formatCurrency(totals.deposits)"></div>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold">Afhalingen (Withdrawals)</span>
+                        <div class="text-base font-bold text-slate-200 mt-0.5 font-mono" x-text="formatCurrency(totals.withdrawals)"></div>
+                    </div>
+                    
+                    <!-- Klikbaar: Gerealiseerde winst -> opent gesloten posities overzicht -->
+                    <div @click="showClosedPositionsModal = true" class="cursor-pointer group">
+                        <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold flex items-center gap-1 group-hover:text-[#38bdf8] transition">
+                            Gerealiseerd (Gesloten)
+                            <svg class="w-3 h-3 text-[#38bdf8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </span>
+                        <div class="text-base font-bold mt-0.5 font-mono underline decoration-dotted underline-offset-4" :class="totals.realizedPnL >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="formatCurrency(totals.realizedPnL)"></div>
+                    </div>
+
+                    <!-- Klikbaar: Ongerealiseerde winst -> gaat direct naar tab posities -->
+                    <div @click="activeTab = 'posities'" class="cursor-pointer group">
+                        <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold flex items-center gap-1 group-hover:text-[#38bdf8] transition">
+                            Ongerealiseerd (Open)
+                            <svg class="w-3 h-3 text-[#38bdf8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                        <div class="text-base font-bold mt-0.5 font-mono underline decoration-dotted underline-offset-4" :class="unrealizedPnL >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="formatCurrency(unrealizedPnL)"></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Winst Verdieping Kaarten -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-[#0f1a36]/70 p-5 rounded-2xl border border-[#1b2b52] flex justify-between items-center shadow-lg">
+            <!-- 2. TWEE CONTAINERS: Portefeuille Breakdown & Kostenoverzicht (Elk met Pie Chart) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                
+                <!-- Container: Portefeuilleverdeling (Pie Chart in shades van Blauw) -->
+                <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl flex flex-col justify-between">
                     <div>
-                        <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Gerealiseerde Winst</span>
-                        <div class="text-xl font-bold mt-1" :class="totals.realizedPnL >= 0 ? 'text-[#9db862]' : 'text-[#d65a6b]'" x-text="formatCurrency(totals.realizedPnL)"></div>
+                        <div class="flex justify-between items-center pb-3 border-b border-[#182649] mb-4">
+                            <h3 class="text-sm font-bold text-slate-200">Portefeuilleverdeling</h3>
+                            <span class="text-xs text-[#38bdf8] font-mono">Shades of Blue</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                            <!-- Donut Chart -->
+                            <div class="sm:col-span-5 relative flex items-center justify-center h-40">
+                                <canvas id="allocationDonutChart"></canvas>
+                            </div>
+
+                            <!-- Lijst met getallen -->
+                            <div class="sm:col-span-7 space-y-2 text-xs">
+                                <div class="flex justify-between items-center p-2 rounded-lg bg-[#080e22] border border-[#1e3260]/60">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-[#1e40af]"></span>
+                                        <span class="text-slate-300">Aandelen</span>
+                                        <span class="text-[10px] text-slate-500 font-mono" x-text="'(' + breakdown.shares.count + ')'"></span>
+                                    </div>
+                                    <div class="text-right font-mono">
+                                        <span class="font-bold text-slate-200" x-text="formatCurrency(breakdown.shares.value)"></span>
+                                        <span class="text-slate-400 text-[11px] ml-1" x-text="'(' + breakdown.shares.pct.toFixed(1) + '%)'"></span>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-center p-2 rounded-lg bg-[#080e22] border border-[#1e3260]/60">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-[#38bdf8]"></span>
+                                        <span class="text-slate-300">Indexfondsen (ETFs)</span>
+                                        <span class="text-[10px] text-slate-500 font-mono" x-text="'(' + breakdown.etfs.count + ')'"></span>
+                                    </div>
+                                    <div class="text-right font-mono">
+                                        <span class="font-bold text-slate-200" x-text="formatCurrency(breakdown.etfs.value)"></span>
+                                        <span class="text-slate-400 text-[11px] ml-1" x-text="'(' + breakdown.etfs.pct.toFixed(1) + '%)'"></span>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-center p-2 rounded-lg bg-[#080e22] border border-[#1e3260]/60">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-[#93c5fd]"></span>
+                                        <span class="text-slate-300">Cash Gedeelte</span>
+                                    </div>
+                                    <div class="text-right font-mono">
+                                        <span class="font-bold text-[#93c5fd]" x-text="formatCurrency(breakdown.cash.value)"></span>
+                                        <span class="text-slate-400 text-[11px] ml-1" x-text="'(' + breakdown.cash.pct.toFixed(1) + '%)'"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <span class="text-xs bg-[#132247] px-3 py-1.5 rounded-lg border border-[#1e3260] text-slate-300 font-mono">Gesloten trades</span>
                 </div>
-                <div class="bg-[#0f1a36]/70 p-5 rounded-2xl border border-[#1b2b52] flex justify-between items-center shadow-lg">
+
+                <!-- Container: Kosten & Compensaties (Pie Chart in shades van Rood) -->
+                <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl flex flex-col justify-between">
                     <div>
-                        <span class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Ongerealiseerde Winst</span>
-                        <div class="text-xl font-bold mt-1" :class="unrealizedPnL >= 0 ? 'text-[#9db862]' : 'text-[#d65a6b]'" x-text="formatCurrency(unrealizedPnL)"></div>
-                    </div>
-                    <span class="text-xs bg-[#132247] px-3 py-1.5 rounded-lg border border-[#1e3260] text-slate-300 font-mono">Open posities</span>
-                </div>
-            </div>
+                        <div class="flex justify-between items-center pb-3 border-b border-[#182649] mb-4">
+                            <h3 class="text-sm font-bold text-slate-200">Kosten & Compensaties</h3>
+                            <div class="text-right">
+                                <span class="text-xs text-[#f87171] font-bold" x-text="'Netto: ' + formatCurrency(costs.netCosts)"></span>
+                                <span class="text-[11px] text-slate-400" x-text="' (' + costs.costPercentage.toFixed(2) + '%)'"></span>
+                            </div>
+                        </div>
 
-            <!-- Breakdown & Kosten -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Portefeuille Breakdown Card -->
-                <div class="bg-[#0f1a36]/90 backdrop-blur p-6 rounded-2xl shadow-xl border border-[#1b2b52] space-y-4">
-                    <h3 class="text-base font-bold text-slate-200 border-b border-[#182649] pb-3 flex items-center justify-between">
-                        <span>Verdeling Portefeuille</span>
-                        <span class="text-xs text-slate-400 font-normal">Vermogensallocatie</span>
-                    </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                            <!-- Donut Chart -->
+                            <div class="sm:col-span-5 relative flex items-center justify-center h-40">
+                                <canvas id="costsDonutChart"></canvas>
+                            </div>
 
-                    <div class="p-4 bg-[#0a1126] rounded-xl border border-[#1e3260] flex justify-between items-center">
-                        <div>
-                            <div class="text-sm font-bold text-slate-100 flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-[#82a4d4] inline-block"></span>
-                                Aandelen (Shares)
-                            </div>
-                            <div class="text-xs text-slate-400 mt-0.5">
-                                <span x-text="breakdown.shares.count"></span> posities (<span x-text="breakdown.shares.pct.toFixed(1) + '%'"></span>)
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-base font-black text-slate-100 font-mono" x-text="formatCurrency(breakdown.shares.value)"></div>
-                        </div>
-                    </div>
+                            <!-- Lijst met getallen -->
+                            <div class="sm:col-span-7 space-y-1.5 text-xs">
+                                <div class="flex justify-between items-center p-1.5 rounded-lg bg-[#080e22] border border-[#1e3260]/60">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-[#800020]"></span>
+                                        <span class="text-slate-300">Taksen (TOB)</span>
+                                    </div>
+                                    <span class="text-[#f87171] font-mono" x-text="formatCurrency(costs.taxes)"></span>
+                                </div>
 
-                    <div class="p-4 bg-[#0a1126] rounded-xl border border-[#1e3260] flex justify-between items-center">
-                        <div>
-                            <div class="text-sm font-bold text-slate-100 flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-[#7d9d43] inline-block"></span>
-                                Indexfondsen (ETFs)
-                            </div>
-                            <div class="text-xs text-slate-400 mt-0.5">
-                                <span x-text="breakdown.etfs.count"></span> posities (<span x-text="breakdown.etfs.pct.toFixed(1) + '%'"></span>)
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-base font-black text-slate-100 font-mono" x-text="formatCurrency(breakdown.etfs.value)"></div>
-                        </div>
-                    </div>
+                                <div class="flex justify-between items-center p-1.5 rounded-lg bg-[#080e22] border border-[#1e3260]/60">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-[#e11d48]"></span>
+                                        <span class="text-slate-300">Transactiekosten</span>
+                                    </div>
+                                    <span class="text-[#f87171] font-mono" x-text="formatCurrency(costs.tradingFees)"></span>
+                                </div>
 
-                    <div class="p-4 bg-[#0a1126] rounded-xl border border-[#1e3260] flex justify-between items-center">
-                        <div>
-                            <div class="text-sm font-bold text-slate-100 flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-[#e6c687] inline-block"></span>
-                                Cash Gedeelte
+                                <div class="flex justify-between items-center p-1.5 rounded-lg bg-[#080e22] border border-[#1e3260]/60">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-[#fb7185]"></span>
+                                        <span class="text-slate-300">Abonnementen</span>
+                                    </div>
+                                    <span class="text-[#f87171] font-mono" x-text="formatCurrency(costs.subscriptionFees)"></span>
+                                </div>
+
+                                <div class="flex justify-between items-center p-1.5 rounded-lg bg-[#10b981]/10 border border-[#10b981]/30 text-[#34d399]">
+                                    <span>Compensaties</span>
+                                    <span class="font-mono font-bold" x-text="'-' + formatCurrency(costs.compensations)"></span>
+                                </div>
                             </div>
-                            <div class="text-xs text-slate-400 mt-0.5">
-                                Beschikbaar saldo (<span x-text="breakdown.cash.pct.toFixed(1) + '%'"></span>)
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-base font-black text-[#e6c687] font-mono" x-text="formatCurrency(breakdown.cash.value)"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Kostenoverzicht Card -->
-                <div class="bg-[#0f1a36]/90 backdrop-blur p-6 rounded-2xl shadow-xl border border-[#1b2b52] space-y-4">
-                    <div class="border-b border-[#182649] pb-3 flex justify-between items-center">
-                        <h3 class="text-base font-bold text-slate-200">Kosten & Compensaties</h3>
-                        <div class="text-right">
-                            <span class="text-xs text-[#d65a6b] font-bold" x-text="'Netto: ' + formatCurrency(costs.netCosts)"></span>
-                            <span class="text-xs text-slate-400" x-text="' (' + costs.costPercentage.toFixed(2) + '%)'"></span>
-                        </div>
-                    </div>
-
-                    <div class="space-y-2 text-xs">
-                        <div class="flex justify-between p-2.5 bg-[#0a1126] rounded-lg border border-[#1e3260]/60">
-                            <span class="text-slate-300">Taksen (TOB & Beurstaksen)</span>
-                            <span class="text-[#d65a6b] font-mono font-medium" x-text="formatCurrency(costs.taxes)"></span>
-                        </div>
-                        <div class="flex justify-between p-2.5 bg-[#0a1126] rounded-lg border border-[#1e3260]/60">
-                            <span class="text-slate-300">Transactiekosten (Trading Fees)</span>
-                            <span class="text-[#d65a6b] font-mono font-medium" x-text="formatCurrency(costs.tradingFees)"></span>
-                        </div>
-                        <div class="flex justify-between p-2.5 bg-[#0a1126] rounded-lg border border-[#1e3260]/60">
-                            <span class="text-slate-300">Abonnements- & Servicekosten</span>
-                            <span class="text-[#d65a6b] font-mono font-medium" x-text="formatCurrency(costs.subscriptionFees)"></span>
-                        </div>
-                        <div class="flex justify-between p-2.5 bg-[#556b2f]/15 border border-[#7d9d43]/30 rounded-lg text-[#9db862]">
-                            <span>Compensaties (Promo, Lending & Reimbursements)</span>
-                            <span class="font-mono font-bold" x-text="'-' + formatCurrency(costs.compensations)"></span>
-                        </div>
-                    </div>
-
-                    <div class="pt-3 border-t border-[#182649] flex justify-between items-center text-xs">
-                        <span class="text-slate-400">Totaal bruto gemaakte kosten</span>
-                        <span class="font-mono text-slate-200 font-bold" x-text="formatCurrency(costs.grossCosts)"></span>
-                    </div>
-                </div>
             </div>
         </div>
 
         <!-- ============================================== -->
-        <!-- TAB 2: TWR & RENDEMENTSGRAFIEK                 -->
+        <!-- TAB 2: TWR RENDEMENTSGRAFIEK                   -->
         <!-- ============================================== -->
-        <div x-show="activeTab === 'twr'" class="space-y-6">
-            <div class="bg-[#0f1a36]/90 backdrop-blur p-6 rounded-2xl shadow-xl border border-[#1b2b52] space-y-5">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div x-show="activeTab === 'twr'" class="space-y-5">
+            <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
-                        <h3 class="text-base font-bold text-slate-200">Time-Weighted Return (TWR) Performance</h3>
-                        <p class="text-xs text-slate-400">Meet het zuivere rendement zonder vertekening van cashflows. Gecachet via Google Sheets.</p>
+                        <h3 class="text-sm font-bold text-slate-200">Time-Weighted Return (TWR) Curve</h3>
+                        <p class="text-xs text-slate-400">Rendement gezuiverd van timing en stortingen/afhalingen.</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <label class="text-xs text-slate-400 font-medium">Selecteer Weergave:</label>
-                        <select x-model="selectedTwrAsset" @change="updateTwrView()" class="bg-[#132247] border border-[#1e3260] text-xs rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-[#7d9d43] font-medium">
+                        <label class="text-xs text-slate-400 font-medium">Kies weergave:</label>
+                        <select x-model="selectedTwrAsset" @change="updateTwrView()" class="bg-[#132247] border border-[#1e3260] text-xs rounded-xl px-3 py-1.5 text-slate-100 focus:outline-none focus:border-[#10b981]">
                             <option value="portfolio">Totale Portefeuille (TWR)</option>
                             <optgroup label="Individuele Aandelen & ETFs">
                                 <template x-for="pos in positions" :key="pos.isin">
@@ -295,29 +321,29 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-[#0a1126] p-4 rounded-xl border border-[#1e3260]">
-                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Geselecteerd Rendement (TWR)</span>
-                        <div class="text-2xl font-black mt-1" :class="currentTwrMetrics.returnPct >= 0 ? 'text-[#9db862]' : 'text-[#d65a6b]'" x-text="(currentTwrMetrics.returnPct >= 0 ? '+' : '') + currentTwrMetrics.returnPct.toFixed(2) + '%'"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260]">
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">TWR Rendement</span>
+                        <div class="text-2xl font-black mt-0.5" :class="currentTwrMetrics.returnPct >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="(currentTwrMetrics.returnPct >= 0 ? '+' : '') + currentTwrMetrics.returnPct.toFixed(2) + '%'"></div>
                     </div>
-                    <div class="bg-[#0a1126] p-4 rounded-xl border border-[#1e3260]">
-                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Startdatum / Eerste Aankoop</span>
-                        <div class="text-lg font-bold text-slate-200 mt-1" x-text="currentTwrMetrics.startDate || '-'"></div>
+                    <div class="bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260]">
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Startdatum</span>
+                        <div class="text-lg font-bold text-slate-200 mt-0.5" x-text="currentTwrMetrics.startDate || '-'"></div>
                     </div>
-                    <div class="bg-[#0a1126] p-4 rounded-xl border border-[#1e3260]">
-                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Hoogste Punt (All-Time High TWR)</span>
-                        <div class="text-lg font-bold text-[#9db862] mt-1" x-text="'+' + currentTwrMetrics.athPct.toFixed(2) + '%'"></div>
+                    <div class="bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260]">
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Hoogste Punt (ATH TWR)</span>
+                        <div class="text-lg font-bold text-[#34d399] mt-0.5" x-text="'+' + currentTwrMetrics.athPct.toFixed(2) + '%'"></div>
                     </div>
                 </div>
 
-                <div class="relative h-96 w-full bg-[#0a1126] p-4 rounded-2xl border border-[#1b2b52]">
+                <div class="relative h-80 sm:h-96 w-full bg-[#080e22] p-3 rounded-2xl border border-[#1b2b52]">
                     <canvas id="twrChartCanvas"></canvas>
                 </div>
             </div>
         </div>
 
         <!-- ============================================== -->
-        <!-- TAB 3: POSITIES & KOERSEN                      -->
+        <!-- TAB 3: POSITIES & KOERSEN (MET SORTEREN & FX)  -->
         <!-- ============================================== -->
         <div x-show="activeTab === 'posities'" class="space-y-6">
             
@@ -336,8 +362,8 @@
                                     <div class="text-xs font-bold text-slate-200 truncate" x-text="assetMapping[isin]?.name || isin"></div>
                                     <div class="text-[10px] text-slate-400 font-mono mb-1.5" x-text="isin"></div>
                                     <div class="flex gap-1.5">
-                                        <input type="text" x-model="assetMapping[isin].ticker" placeholder="Bijv. AMS:ASML" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-2 py-1 w-full text-slate-200 focus:outline-none focus:border-[#7d9d43]">
-                                        <button @click="saveMappingToSheet(isin)" class="bg-[#5d772f] hover:bg-[#6c8b37] text-white px-2 py-1 rounded text-xs font-bold">OK</button>
+                                        <input type="text" x-model="assetMapping[isin].ticker" placeholder="Bijv. AMS:ASML" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-2 py-1 w-full text-slate-200 focus:outline-none focus:border-[#10b981]">
+                                        <button @click="saveMappingToSheet(isin)" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-2 py-1 rounded text-xs">OK</button>
                                     </div>
                                 </div>
                             </template>
@@ -346,18 +372,18 @@
                 </div>
 
                 <!-- Posities Tabel met Sorteren en Labels -->
-                <div :class="unmappedIsins.length > 0 ? 'lg:col-span-3' : 'lg:col-span-4'" class="bg-[#0f1a36]/90 backdrop-blur rounded-2xl shadow-xl border border-[#1b2b52] overflow-hidden">
+                <div :class="unmappedIsins.length > 0 ? 'lg:col-span-3' : 'lg:col-span-4'" class="bg-[#0b142c] rounded-2xl shadow-xl border border-[#1b2b52] overflow-hidden">
                     <div class="p-5 border-b border-[#182649] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div>
                             <h2 class="text-base font-bold text-slate-200">Openstaande Posities</h2>
                             <p class="text-[11px] text-slate-400">Klik op een kolomkop om te sorteren. Labels tonen valuta en koersstatus.</p>
                         </div>
-                        <button @click="fetchGoogleSheetData()" class="bg-[#132247] text-[#82a4d4] border border-[#1e3260] hover:bg-[#18274f] px-3 py-1.5 rounded-xl text-xs font-semibold transition">Koersen Vernieuwen</button>
+                        <button @click="fetchGoogleSheetData()" class="bg-[#132247] text-[#38bdf8] border border-[#1e3260] hover:bg-[#18274f] px-3 py-1.5 rounded-xl text-xs font-semibold transition">Koersen Vernieuwen</button>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse select-none">
                             <thead>
-                                <tr class="bg-[#0a1126] text-slate-400 text-[10px] uppercase tracking-wider font-semibold">
+                                <tr class="bg-[#080e22] text-slate-400 text-[10px] uppercase tracking-wider font-semibold">
                                     
                                     <!-- 1. Asset -->
                                     <th @click="setSort('name')" class="p-4 cursor-pointer hover:text-white transition">
@@ -434,7 +460,7 @@
                                                 <span class="font-bold text-slate-100" x-text="pos.name"></span>
                                                 <!-- Valuta label (bv. USD) -->
                                                 <template x-if="getAssetCurrency(pos.isin) !== 'EUR'">
-                                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 uppercase" 
+                                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-[#38bdf8] border border-blue-500/30 uppercase" 
                                                           x-text="getAssetCurrency(pos.isin)">
                                                     </span>
                                                 </template>
@@ -445,7 +471,7 @@
                                         <!-- Type -->
                                         <td class="p-4">
                                             <span class="text-[10px] px-2 py-0.5 rounded font-semibold" 
-                                                  :class="pos.isEtf ? 'bg-[#556b2f]/25 text-[#9db862] border border-[#7d9d43]/30' : 'bg-[#132247] text-[#82a4d4] border border-[#1e3260]'"
+                                                  :class="pos.isEtf ? 'bg-[#38bdf8]/15 text-[#38bdf8] border border-[#38bdf8]/30' : 'bg-[#818cf8]/15 text-[#a5b4fc] border border-[#818cf8]/30'"
                                                   x-text="pos.isEtf ? 'ETF' : 'Aandeel'">
                                             </span>
                                         </td>
@@ -473,7 +499,7 @@
                                                     </span>
                                                 </template>
 
-                                                <span class="text-[#9db862] font-bold" x-text="formatCurrency(getAssetPriceInEur(pos.isin))"></span>
+                                                <span class="text-[#34d399] font-bold" x-text="formatCurrency(getAssetPriceInEur(pos.isin))"></span>
                                             </div>
                                         </td>
                                         
@@ -489,7 +515,7 @@
                                         
                                         <!-- Rendement -->
                                         <td class="p-4 text-right font-bold font-mono" 
-                                            :class="(pos.quantity * getAssetPriceInEur(pos.isin) - (pos.quantity * pos.avgPrice)) >= 0 ? 'text-[#9db862]' : 'text-[#d65a6b]'" 
+                                            :class="(pos.quantity * getAssetPriceInEur(pos.isin) - (pos.quantity * pos.avgPrice)) >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" 
                                             x-text="formatCurrency((pos.quantity * getAssetPriceInEur(pos.isin)) - (pos.quantity * pos.avgPrice))">
                                         </td>
                                     </tr>
@@ -507,25 +533,53 @@
 
         </div>
 
-        <!-- Subtiele Footer met Databeheer / Upload Knop onderaan -->
-        <footer class="mt-12 pt-6 border-t border-[#182649] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-[#7d9d43]"></span>
-                <span x-text="loadedFileName ? 'Actief bestand: ' + loadedFileName + ' (' + transactions.length + ' transacties geladen)' : 'Geen lokaal transactiebestand geladen'"></span>
-            </div>
-            <div class="flex items-center gap-3">
-                <label for="csvFileInputFooter" class="bg-[#0f1a36] hover:bg-[#162752] text-slate-300 hover:text-white px-4 py-2 rounded-xl border border-[#1e3260] font-medium transition cursor-pointer flex items-center gap-2 shadow-sm active:scale-95">
-                    <svg class="w-4 h-4 text-[#82a4d4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                    <span>Transactiebestand (CSV) Laden</span>
-                </label>
-                <input type="file" 
-                       id="csvFileInputFooter" 
-                       accept=".csv,text/csv,text/plain,application/vnd.ms-excel,text/comma-separated-values,*" 
-                       @change="handleFileUpload($event)" 
-                       class="sr-only" />
-            </div>
-        </footer>
+    </div>
 
+    <!-- Modal: Gesloten Posities Overzicht -->
+    <div x-show="showClosedPositionsModal" 
+         x-transition 
+         class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-[#182649] flex justify-between items-center">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-100">Gesloten Trades & Resultaat</h3>
+                    <p class="text-[11px] text-slate-400">Overzicht van alle gerealiseerde verkooptransacties.</p>
+                </div>
+                <button @click="showClosedPositionsModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="text-slate-400 text-[10px] uppercase border-b border-[#182649] pb-2 font-semibold">
+                            <th class="pb-2">Asset</th>
+                            <th class="pb-2 text-right">Verkocht Aantal</th>
+                            <th class="pb-2 text-right">Gerealiseerd Resultaat</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#182649]/60">
+                        <template x-for="cp in closedPositionsList" :key="cp.isin">
+                            <tr>
+                                <td class="py-2.5">
+                                    <div class="font-bold text-slate-200" x-text="cp.name"></div>
+                                    <div class="text-[10px] text-slate-500 font-mono" x-text="cp.isin"></div>
+                                </td>
+                                <td class="py-2.5 text-right font-mono" x-text="cp.soldQuantity.toFixed(4)"></td>
+                                <td class="py-2.5 text-right font-mono font-bold" :class="cp.realizedPnL >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="formatCurrency(cp.realizedPnL)"></td>
+                            </tr>
+                        </template>
+                        <template x-if="closedPositionsList.length === 0">
+                            <tr>
+                                <td colspan="3" class="py-6 text-center text-slate-500 italic">Nog geen gesloten posities geregistreerd.</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+            <div class="p-3 border-t border-[#182649] flex justify-between items-center text-xs bg-[#080e22]">
+                <span class="text-slate-400">Totaal Gerealiseerde Winst</span>
+                <span class="font-bold font-mono text-sm" :class="totals.realizedPnL >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="formatCurrency(totals.realizedPnL)"></span>
+            </div>
+        </div>
     </div>
 
     <!-- Script Application Logic -->
@@ -545,6 +599,7 @@
                 activeTab: 'dashboard',
                 loadedFileName: '',
                 uploadMessage: '',
+                showClosedPositionsModal: false,
                 transactions: [],
                 positions: [],
                 assetMapping: {},
@@ -556,6 +611,8 @@
                 syncStatus: 'Niet gesynchroniseerd',
                 selectedTwrAsset: 'portfolio',
                 chartInstance: null,
+                allocationChartInstance: null,
+                costsChartInstance: null,
                 currentTwrMetrics: { returnPct: 0, startDate: '', athPct: 0 },
                 
                 // Sorteerstatus voor posities
@@ -592,6 +649,7 @@
                     }
 
                     this.fetchGoogleSheetData();
+                    this.$nextTick(() => { this.renderDonutCharts(); });
                 },
 
                 // Sorteren wisselen
@@ -600,7 +658,7 @@
                         this.sortAsc = !this.sortAsc;
                     } else {
                         this.sortCol = col;
-                        this.sortAsc = (col === 'name' || col === 'type'); // Tekst standaard A-Z, bedragen standaard hoog-laag
+                        this.sortAsc = (col === 'name' || col === 'type');
                     }
                 },
 
@@ -685,6 +743,82 @@
                     return pos ? pos.avgPrice : 0;
                 },
 
+                // Lijst met gesloten posities genereren voor de modal
+                get closedPositionsList() {
+                    let map = {};
+                    this.transactions.forEach(tx => {
+                        const cat = this.getVal(tx, 'Transaction Category');
+                        const trType = this.getVal(tx, 'Transfer Type');
+                        const txType = this.getVal(tx, 'Transaction Type');
+                        const isin = this.getVal(tx, 'Asset Id');
+                        const name = this.getVal(tx, 'Asset Name');
+                        const pnl = this.parseNum(this.getVal(tx, 'Profit And Loss Amount'));
+                        const qty = this.parseNum(this.getVal(tx, 'Asset Quantity'));
+
+                        if (cat === 'trades' && trType === 'CASH_CREDIT' && txType === 'Sell Trade' && isin) {
+                            if (!map[isin]) {
+                                map[isin] = { isin: isin, name: name, soldQuantity: 0, realizedPnL: 0 };
+                            }
+                            map[isin].soldQuantity += qty;
+                            map[isin].realizedPnL += pnl;
+                        }
+                    });
+                    return Object.values(map);
+                },
+
+                // Pie / Donut Charts Renderen (Blauw voor allocatie, Rood voor kosten)
+                renderDonutCharts() {
+                    // 1. Allocatie Donut (Shades of Blue)
+                    const allocCtx = document.getElementById('allocationDonutChart');
+                    if (allocCtx) {
+                        if (this.allocationChartInstance) this.allocationChartInstance.destroy();
+                        const bk = this.breakdown;
+                        this.allocationChartInstance = new Chart(allocCtx.getContext('2d'), {
+                            type: 'doughnut',
+                            data: {
+                                labels: ['Aandelen', 'ETFs', 'Cash'],
+                                datasets: [{
+                                    data: [bk.shares.value, bk.etfs.value, bk.cash.value],
+                                    backgroundColor: ['#1e40af', '#38bdf8', '#93c5fd'],
+                                    borderColor: '#0b142c',
+                                    borderWidth: 2
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                cutout: '70%',
+                                plugins: { legend: { display: false } }
+                            }
+                        });
+                    }
+
+                    // 2. Kosten Donut (Shades of Red)
+                    const costCtx = document.getElementById('costsDonutChart');
+                    if (costCtx) {
+                        if (this.costsChartInstance) this.costsChartInstance.destroy();
+                        const cs = this.costs;
+                        this.costsChartInstance = new Chart(costCtx.getContext('2d'), {
+                            type: 'doughnut',
+                            data: {
+                                labels: ['Taksen', 'Trading Fees', 'Abonnementen'],
+                                datasets: [{
+                                    data: [cs.taxes, cs.tradingFees, cs.subscriptionFees],
+                                    backgroundColor: ['#800020', '#e11d48', '#fb7185'],
+                                    borderColor: '#0b142c',
+                                    borderWidth: 2
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                cutout: '70%',
+                                plugins: { legend: { display: false } }
+                            }
+                        });
+                    }
+                },
+
                 fetchGoogleSheetData() {
                     this.syncStatus = 'Bezig met synchroniseren...';
                     fetch(GOOGLE_SCRIPT_URL)
@@ -723,6 +857,7 @@
                                 if (this.activeTab === 'twr') {
                                     this.updateTwrView();
                                 }
+                                this.renderDonutCharts();
                             } else {
                                 this.syncStatus = 'Sync fout van server';
                             }
@@ -856,6 +991,7 @@
                         
                         this.processNewTransactions();
                         this.uploadMessage = `Succesvol ${cleanRows.length} transacties geladen uit ${file.name}!`;
+                        this.renderDonutCharts();
                     };
 
                     reader.onerror = () => {
@@ -1034,8 +1170,8 @@
                     }
 
                     const isPositive = this.currentTwrMetrics.returnPct >= 0;
-                    const strokeColor = isPositive ? '#7d9d43' : '#b83344';
-                    const fillColor = isPositive ? 'rgba(125, 157, 67, 0.15)' : 'rgba(184, 51, 68, 0.15)';
+                    const strokeColor = isPositive ? '#10b981' : '#f87171';
+                    const fillColor = isPositive ? 'rgba(16, 185, 129, 0.15)' : 'rgba(248, 113, 113, 0.15)';
 
                     this.chartInstance = new Chart(canvas.getContext('2d'), {
                         type: 'line',
