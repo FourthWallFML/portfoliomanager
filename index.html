@@ -20,6 +20,21 @@
 </head>
 <body class="bg-[#070d1e] text-slate-100 font-sans min-h-screen" x-data="portfolioApp()" x-init="initApp()">
 
+    <!-- Datalist voor snelle valuta-selectie -->
+    <datalist id="currencyList">
+        <option value="EUR">Euro (EUR)</option>
+        <option value="USD">Amerikaanse Dollar (USD)</option>
+        <option value="GBP">Brits Pond (GBP)</option>
+        <option value="GBX">Britse Pence (GBX / p)</option>
+        <option value="CHF">Zwitserse Frank (CHF)</option>
+        <option value="CAD">Canadese Dollar (CAD)</option>
+        <option value="SEK">Zweedse Kroon (SEK)</option>
+        <option value="NOK">Noorse Kroon (NOK)</option>
+        <option value="DKK">Deense Kroon (DKK)</option>
+        <option value="JPY">Japanse Yen (JPY)</option>
+        <option value="AUD">Australische Dollar (AUD)</option>
+    </datalist>
+
     <!-- PWA Install Banner -->
     <div x-show="showInstallPrompt" class="bg-[#121e3d] border-b border-[#1b2b52] px-4 py-2.5 text-slate-200 text-xs flex justify-between items-center shadow-md">
         <span>Installeer Key Analysis als app op je apparaat voor snelle toegang.</span>
@@ -48,6 +63,7 @@
 
             <!-- Functioneel Menu Rechts van Banner -->
             <div class="flex flex-wrap items-center gap-2 justify-end pt-2 md:pt-0 border-t md:border-t-0 border-[#1b2b52]/60">
+                <!-- Directe Upload Knop -->
                 <label for="csvFileInputMain" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow cursor-pointer active:scale-95">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                     <span>Upload CSV</span>
@@ -102,7 +118,7 @@
             </button>
         </nav>
 
-        <!-- Unmapped Warning Banner -->
+        <!-- Unmapped Warning Banner (met Ticker én Valuta input) -->
         <template x-if="unmappedIsins.length > 0">
             <div class="bg-[#800020]/20 border-l-4 border-[#b83344] p-3.5 rounded-r-xl border border-[#800020]/40">
                 <div class="flex items-center justify-between">
@@ -115,16 +131,17 @@
                     </p>
                     <button type="button" @click="showUnmappedDetails = !showUnmappedDetails" class="text-xs text-[#f87171] hover:text-white underline" x-text="showUnmappedDetails ? 'Verberg ▲' : 'Toon ▼'"></button>
                 </div>
-                <div x-show="showUnmappedDetails" class="mt-3 pt-3 border-t border-[#800020]/30 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div x-show="showUnmappedDetails" class="mt-3 pt-3 border-t border-[#800020]/30 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <template x-for="isin in unmappedIsins" :key="isin">
-                        <div class="p-2.5 bg-[#080e22] rounded-xl border border-[#1e3260] flex items-center justify-between gap-2">
+                        <div class="p-2.5 bg-[#080e22] rounded-xl border border-[#1e3260] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div class="truncate">
                                 <div class="text-xs font-bold text-slate-200 truncate" x-text="assetMapping[isin]?.name || isin"></div>
                                 <div class="text-[10px] text-slate-400 font-mono" x-text="isin"></div>
                             </div>
-                            <div class="flex gap-1 shrink-0">
-                                <input type="text" x-model="assetMapping[isin].ticker" placeholder="Ticker" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-2 py-1 w-24 text-slate-100">
-                                <button @click="saveMappingToSheet(isin)" class="bg-[#10b981] text-slate-950 font-bold px-2 py-1 rounded text-xs">OK</button>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <input type="text" x-model="assetMapping[isin].ticker" placeholder="Ticker" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-2 py-1 w-24 text-slate-100 focus:outline-none focus:border-[#10b981]">
+                                <input type="text" x-model="assetMapping[isin].currency" placeholder="Valuta" list="currencyList" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-1.5 py-1 w-16 text-slate-100 font-mono uppercase text-center focus:outline-none focus:border-[#10b981]">
+                                <button @click="saveMappingToSheet(isin)" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-2.5 py-1 rounded text-xs transition">Opslaan</button>
                             </div>
                         </div>
                     </template>
@@ -352,9 +369,12 @@
                                 <div class="p-2.5 bg-[#0a1126] rounded-xl border border-[#1e3260]">
                                     <div class="text-xs font-bold text-slate-200 truncate" x-text="assetMapping[isin]?.name || isin"></div>
                                     <div class="text-[10px] text-slate-400 font-mono mb-1.5" x-text="isin"></div>
-                                    <div class="flex gap-1.5">
-                                        <input type="text" x-model="assetMapping[isin].ticker" placeholder="Bijv. AMS:ASML" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-2 py-1 w-full text-slate-200 focus:outline-none focus:border-[#10b981]">
-                                        <button @click="saveMappingToSheet(isin)" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-2 py-1 rounded text-xs">OK</button>
+                                    <div class="flex flex-col gap-1.5">
+                                        <div class="flex gap-1.5">
+                                            <input type="text" x-model="assetMapping[isin].ticker" placeholder="Ticker (bv. AMS:ASML)" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-2 py-1 w-full text-slate-200 focus:outline-none focus:border-[#10b981]">
+                                            <input type="text" x-model="assetMapping[isin].currency" placeholder="Valuta" list="currencyList" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-1.5 py-1 w-16 text-slate-200 font-mono uppercase text-center focus:outline-none focus:border-[#10b981]">
+                                        </div>
+                                        <button @click="saveMappingToSheet(isin)" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-2 py-1 rounded text-xs transition">Opslaan in Backend</button>
                                     </div>
                                 </div>
                             </template>
@@ -367,9 +387,16 @@
                     <div class="p-5 border-b border-[#182649] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div>
                             <h2 class="text-base font-bold text-slate-200">Openstaande Posities</h2>
-                            <p class="text-[11px] text-slate-400">Klik op een kolomkop om te sorteren. Labels tonen de valuta en koersstatus.</p>
+                            <p class="text-[11px] text-slate-400">Klik op een kolomkop om te sorteren. Klik op ✏️ om de ticker of valuta aan te passen.</p>
                         </div>
-                        <button @click="fetchGoogleSheetData()" class="bg-[#132247] text-[#38bdf8] border border-[#1e3260] hover:bg-[#18274f] px-3 py-1.5 rounded-xl text-xs font-semibold transition">Koersen Vernieuwen</button>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <!-- Knop om alle mappings & valuta's te beheren -->
+                            <button @click="showManageMappingsModal = true" class="bg-[#132247] text-slate-200 border border-[#1e3260] hover:bg-[#18274f] px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-[#38bdf8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                                <span>Tickers & Valuta Beheren</span>
+                            </button>
+                            <button @click="fetchGoogleSheetData()" class="bg-[#132247] text-[#38bdf8] border border-[#1e3260] hover:bg-[#18274f] px-3 py-1.5 rounded-xl text-xs font-semibold transition">Koersen Vernieuwen</button>
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse select-none">
@@ -435,16 +462,21 @@
                             </thead>
                             <tbody class="divide-y divide-[#182649] text-xs">
                                 <template x-for="pos in sortedPositions" :key="pos.isin">
-                                    <tr class="hover:bg-[#132247]/40 transition">
+                                    <tr class="hover:bg-[#132247]/40 transition group">
                                         
                                         <td class="p-4">
                                             <div class="flex items-center gap-1.5">
                                                 <span class="font-bold text-slate-100" x-text="pos.name"></span>
+                                                <!-- Valuta label (dynamisch) -->
                                                 <template x-if="getAssetCurrency(pos.isin) !== 'EUR'">
-                                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-[#38bdf8] border border-blue-500/30 uppercase" 
+                                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-[#38bdf8] border border-blue-500/30 uppercase font-mono" 
                                                           x-text="getAssetCurrency(pos.isin)">
                                                     </span>
                                                 </template>
+                                                <!-- Knop om direct deze positie te bewerken -->
+                                                <button type="button" @click="openEditAssetModal(pos.isin)" title="Ticker & Valuta handmatig aanpassen" class="text-slate-500 hover:text-[#38bdf8] p-0.5 transition">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                                </button>
                                             </div>
                                             <div class="text-[10px] text-slate-400 font-mono" x-text="pos.isin + ' • ' + (assetMapping[pos.isin]?.ticker || 'Geen ticker')"></div>
                                         </td>
@@ -508,7 +540,79 @@
 
     </div>
 
-    <!-- Modal: Gesloten Posities Overzicht -->
+    <!-- Modal 1: Individueel Asset Bewerken (Ticker & Currency handmatig aanpassen) -->
+    <div x-show="showEditAssetModal" 
+         x-transition 
+         class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-md p-5 shadow-2xl space-y-4">
+            <div class="flex justify-between items-start border-b border-[#182649] pb-3">
+                <div>
+                    <h3 class="text-base font-bold text-slate-100" x-text="editingAsset.name || 'Asset Configureren'"></h3>
+                    <p class="text-[11px] text-slate-400 font-mono mt-0.5" x-text="'ISIN: ' + editingAsset.isin"></p>
+                </div>
+                <button @click="showEditAssetModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Google Finance Ticker</label>
+                    <input type="text" x-model="editingAsset.ticker" placeholder="bv. NASDAQ:NVDA, AMS:ASML, LON:SHEL" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-[#10b981]">
+                    <span class="text-[10px] text-slate-400 mt-1 block">Voorbeeld: <code>NASDAQ:NVDA</code>, <code>AMS:ASML</code>, <code>LON:SHEL</code></span>
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Valuta (Currency)</label>
+                    <input type="text" x-model="editingAsset.currency" list="currencyList" placeholder="EUR, USD, GBP, GBX, CHF, CAD..." class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono uppercase focus:outline-none focus:border-[#10b981]">
+                    <span class="text-[10px] text-slate-400 mt-1 block">Kies uit de lijst of typ de code. Britse pence = <code>GBX</code>, Britse ponden = <code>GBP</code>.</span>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-3 border-t border-[#182649]">
+                <button type="button" @click="showEditAssetModal = false" class="bg-[#132247] hover:bg-[#18274f] text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition">Annuleren</button>
+                <button type="button" @click="saveEditedAsset()" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow">
+                    <span>Opslaan in Backend</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Alle Tickers & Valuta's Beheren (Centraal overzicht) -->
+    <div x-show="showManageMappingsModal" 
+         x-transition 
+         class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-[#182649] flex justify-between items-center">
+                <div>
+                    <h3 class="text-base font-bold text-slate-100">Tickers & Valuta Beheren</h3>
+                    <p class="text-[11px] text-slate-400">Pas per asset handmatig de Google ticker en valuta aan en sla direct op in de Google Sheet backend.</p>
+                </div>
+                <button @click="showManageMappingsModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+            </div>
+            
+            <div class="p-4 overflow-y-auto space-y-2.5">
+                <template x-for="(mapping, isin) in assetMapping" :key="isin">
+                    <div class="p-3 bg-[#080e22] rounded-xl border border-[#1e3260] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="truncate max-w-xs">
+                            <div class="text-xs font-bold text-slate-200 truncate" x-text="mapping.name || isin"></div>
+                            <div class="text-[10px] text-slate-400 font-mono" x-text="isin"></div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="text" x-model="mapping.ticker" placeholder="Ticker (bv. AMS:ASML)" class="text-xs bg-[#132247] border border-[#1e3260] rounded-lg px-2.5 py-1.5 w-36 text-slate-100 focus:outline-none focus:border-[#10b981]">
+                            <input type="text" x-model="mapping.currency" placeholder="Valuta" list="currencyList" class="text-xs bg-[#132247] border border-[#1e3260] rounded-lg px-2 py-1.5 w-20 text-slate-100 font-mono uppercase text-center focus:outline-none focus:border-[#10b981]">
+                            <button @click="saveMappingToSheet(isin)" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition shrink-0 shadow">Opslaan</button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="p-3 border-t border-[#182649] flex justify-between items-center text-xs bg-[#080e22]">
+                <span class="text-slate-400">Wijzigingen worden direct gesynchroniseerd met de Google backend.</span>
+                <button @click="showManageMappingsModal = false" class="bg-[#132247] hover:bg-[#18274f] text-slate-200 font-bold px-4 py-1.5 rounded-xl transition">Sluiten</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Gesloten Posities Overzicht -->
     <div x-show="showClosedPositionsModal" 
          x-transition 
          class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -557,7 +661,7 @@
 
     <!-- Script Application Logic -->
     <script>
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyUSZvAUMZTrLO5qPFwBtDW54ByrxPDV_X0KGFcxRiOVNe6aqiYwG7g3ccNrzwOFjrIFQ/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxTN8cNGXmyHRPm4XuSejOqTRFydugjHE0QDeFJaLkuLKK3iBcEhVk2SsedyPGjdotHQ/exec';
         const DUMMY_ISINS = ['DE000A3E5DT0', 'DE000TUAG109'];
 
         let deferredPrompt = null;
@@ -573,12 +677,15 @@
                 loadedFileName: '',
                 uploadMessage: '',
                 showClosedPositionsModal: false,
+                showEditAssetModal: false,
+                showManageMappingsModal: false,
+                editingAsset: { isin: '', name: '', ticker: '', currency: 'EUR' },
                 transactions: [],
                 positions: [],
                 assetMapping: {},
                 latestPrices: {},
                 currencies: {},
-                rates: { USDEUR: 0.92, USD: 0.92, EUR: 1.0 },
+                rates: { USDEUR: 0.92, USD: 0.92, EUR: 1.0, GBP: 1.17, GBX: 0.0117, CHF: 1.05, CAD: 0.68 },
                 historyData: { dates: [], tickers: [], prices: {} },
                 showInstallPrompt: false,
                 showUnmappedDetails: false,
@@ -625,6 +732,37 @@
 
                     this.fetchGoogleSheetData();
                     this.$nextTick(() => { this.renderDonutCharts(); });
+                },
+
+                // Open modal om 1 individueel aandeel aan te passen
+                openEditAssetModal(isin) {
+                    const pos = this.positions.find(p => p.isin === isin);
+                    const mapping = this.assetMapping[isin] || {};
+                    this.editingAsset = {
+                        isin: isin,
+                        name: pos ? pos.name : (mapping.name || isin),
+                        ticker: mapping.ticker || '',
+                        currency: this.getAssetCurrency(isin)
+                    };
+                    this.showEditAssetModal = true;
+                },
+
+                // Bewaar het bewerkte aandeel en stuur direct naar de backend
+                saveEditedAsset() {
+                    const isin = this.editingAsset.isin;
+                    if (!isin) return;
+
+                    if (!this.assetMapping[isin]) {
+                        this.assetMapping[isin] = { name: this.editingAsset.name, ticker: '', currency: 'EUR' };
+                    }
+
+                    this.assetMapping[isin].ticker = (this.editingAsset.ticker || '').trim();
+                    this.assetMapping[isin].currency = (this.editingAsset.currency || 'EUR').trim().toUpperCase();
+
+                    this.saveMappingToSheet(isin);
+                    this.showEditAssetModal = false;
+                    this.calculatePositions();
+                    this.renderDonutCharts();
                 },
 
                 setSort(col) {
@@ -681,17 +819,24 @@
                     return list;
                 },
 
-                // Dynamische valutadetectie (Google Finance -> CSV transactie -> Fallback)
+                // Dynamische valutadetectie (Handmatig ingesteld -> Google Backend -> CSV -> Fallback)
                 getAssetCurrency(isin) {
+                    // 1. Handmatig ingestelde currency in de interface
+                    if (this.assetMapping[isin]?.currency) {
+                        return String(this.assetMapping[isin].currency).trim().toUpperCase();
+                    }
+                    // 2. Currency uit backend mapping
                     const ticker = this.assetMapping[isin]?.ticker;
                     if (ticker && this.currencies && this.currencies[ticker]) {
                         return String(this.currencies[ticker]).trim().toUpperCase();
                     }
+                    // 3. Currency uit BUX transacties
                     const tx = this.transactions.find(t => this.getVal(t, 'Asset Id') === isin && this.getVal(t, 'Asset Currency'));
                     if (tx) {
                         const c = this.getVal(tx, 'Asset Currency');
                         if (c) return String(c).trim().toUpperCase();
                     }
+                    // 4. US ticker herkenning
                     if (ticker && (ticker.startsWith('NASDAQ:') || ticker.startsWith('NYSE:') || ticker.endsWith('.US'))) {
                         return 'USD';
                     }
@@ -783,8 +928,14 @@
                     } else if (ccy === 'USD' && this.rates && this.rates.USDEUR !== undefined) {
                         fxRate = this.rates.USDEUR;
                     } else if (ccy === 'GBX') {
-                        const gbpRate = (this.rates && this.rates.GBP) || 1.17;
+                        const gbpRate = (this.rates && (this.rates.GBP || this.rates.GBPEUR)) || 1.17;
                         fxRate = gbpRate / 100.0;
+                    } else if (ccy === 'GBP' && this.rates && this.rates.GBPEUR) {
+                        fxRate = this.rates.GBPEUR;
+                    } else if (ccy === 'CHF' && this.rates && this.rates.CHFEUR) {
+                        fxRate = this.rates.CHFEUR;
+                    } else if (ccy === 'CAD' && this.rates && this.rates.CADEUR) {
+                        fxRate = this.rates.CADEUR;
                     }
 
                     return rawPrice * fxRate;
@@ -876,6 +1027,7 @@
                                         } else {
                                             if (data.mapping[isin].ticker) this.assetMapping[isin].ticker = data.mapping[isin].ticker;
                                             if (data.mapping[isin].name && !this.assetMapping[isin].name) this.assetMapping[isin].name = data.mapping[isin].name;
+                                            if (data.mapping[isin].currency) this.assetMapping[isin].currency = data.mapping[isin].currency;
                                         }
                                     }
                                     localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
@@ -916,20 +1068,46 @@
                         });
                 },
 
+                // Sla zowel ISIN, Ticker én Currency op naar de Google Apps Script backend
                 saveMappingToSheet(isin) {
                     const mappingItem = this.assetMapping[isin];
                     if (!mappingItem) return;
 
+                    const ticker = (mappingItem.ticker || '').trim();
+                    const currency = (mappingItem.currency || this.getAssetCurrency(isin) || 'EUR').trim().toUpperCase();
+
+                    mappingItem.ticker = ticker;
+                    mappingItem.currency = currency;
+                    if (ticker) {
+                        if (!this.currencies) this.currencies = {};
+                        this.currencies[ticker] = currency;
+                        localStorage.setItem('pat_currencies', JSON.stringify(this.currencies));
+                    }
+
                     localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
+
+                    const payload = {
+                        isin: isin,
+                        name: mappingItem.name || '',
+                        ticker: ticker,
+                        currency: currency
+                    };
+
+                    this.syncStatus = `Opslaan ${ticker || isin}...`;
 
                     fetch(GOOGLE_SCRIPT_URL, {
                         method: 'POST',
                         mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ isin: isin, name: mappingItem.name || '', ticker: mappingItem.ticker || '' })
+                        body: JSON.stringify(payload)
                     }).then(() => {
-                        this.syncStatus = `Ticker ${mappingItem.ticker} opgeslagen!`;
-                    }).catch(err => console.error(err));
+                        this.syncStatus = `Opgeslagen: ${ticker || isin} (${currency})`;
+                        this.uploadMessage = `Asset ${mappingItem.name || isin} bijgewerkt: ticker '${ticker}', valuta '${currency}'.`;
+                        this.renderDonutCharts();
+                    }).catch(err => {
+                        console.error('Fout bij verzenden naar backend:', err);
+                        this.syncStatus = 'Fout bij opslaan';
+                    });
                 },
 
                 parseNum(val) {
@@ -1014,10 +1192,17 @@
                         const category = this.getVal(tx, 'Transaction Category');
                         const isin = this.getVal(tx, 'Asset Id', 'ISIN');
                         const name = this.getVal(tx, 'Asset Name', 'Name');
+                        const currency = this.getVal(tx, 'Asset Currency');
 
                         if (category === 'trades' && isin && name && !DUMMY_ISINS.includes(isin)) {
                             if (!this.assetMapping[isin]) {
-                                this.assetMapping[isin] = { name: name, ticker: '' };
+                                this.assetMapping[isin] = { 
+                                    name: name, 
+                                    ticker: '',
+                                    currency: currency || 'EUR'
+                                };
+                            } else if (!this.assetMapping[isin].currency && currency) {
+                                this.assetMapping[isin].currency = currency;
                             }
                         }
                     });
