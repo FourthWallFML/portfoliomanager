@@ -147,7 +147,7 @@
         </template>
 
         <!-- ============================================== -->
-        <!-- TAB 1: DASHBOARD (COMPACT & MET DONUTS)        -->
+        <!-- TAB 1: DASHBOARD                               -->
         <!-- ============================================== -->
         <div x-show="activeTab === 'dashboard'" class="space-y-5">
 
@@ -309,11 +309,11 @@
         <div x-show="activeTab === 'twr'" class="space-y-5">
             <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-4">
                 
-                <!-- Bovenste rij: Titel & Effect-selectie (zowel open als gesloten posities) -->
+                <!-- Bovenste rij: Titel & Effect-selectie -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
                         <h3 class="text-sm font-bold text-slate-200">Time-Weighted Return (TWR) Curve</h3>
-                        <p class="text-xs text-slate-400">Rendement gezuiverd van cashflows, inclusief aankoop- en verkoopmarkers.</p>
+                        <p class="text-xs text-slate-400">Rendement gezuiverd van cashflows.</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <label class="text-xs text-slate-400 font-medium">Kies weergave:</label>
@@ -333,9 +333,8 @@
                     </div>
                 </div>
 
-                <!-- Horizon Keuzebalk + Legende -->
+                <!-- Horizon Keuzebalk + Legende (Legende toont enkel bij individuele aandelen) -->
                 <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#182649]/60">
-                    <!-- Knoppen voor Horizon -->
                     <div class="flex flex-wrap items-center gap-1.5">
                         <span class="text-xs text-slate-400 font-medium mr-1">Horizon:</span>
                         <template x-for="h in horizonOptions" :key="h.key">
@@ -348,8 +347,8 @@
                         </template>
                     </div>
 
-                    <!-- Symbool Legende -->
-                    <div class="flex items-center gap-3.5 text-[11px] text-slate-400 font-medium bg-[#080e22] px-3 py-1 rounded-lg border border-[#1e3260]/60">
+                    <!-- Symbool Legende: ENKEL ZICHTBAAR VOOR INDIVIDUELE AANDELEN -->
+                    <div x-show="selectedTwrAsset !== 'portfolio'" class="flex items-center gap-3.5 text-[11px] text-slate-400 font-medium bg-[#080e22] px-3 py-1 rounded-lg border border-[#1e3260]/60">
                         <span class="flex items-center gap-1.5"><span class="text-[#10b981] font-black text-xs">▲</span> Koop</span>
                         <span class="flex items-center gap-1.5"><span class="text-[#f87171] font-black text-xs">◆</span> Verkoop</span>
                         <span class="flex items-center gap-1.5"><span class="text-[#38bdf8] font-black text-xs">★</span> Beide</span>
@@ -402,7 +401,7 @@
                                             <input type="text" x-model="assetMapping[isin].ticker" placeholder="Ticker (bv. AMS:ASML)" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-2 py-1 w-full text-slate-200 focus:outline-none focus:border-[#10b981]">
                                             <input type="text" x-model="assetMapping[isin].currency" placeholder="Valuta" list="currencyList" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-1.5 py-1 w-16 text-slate-100 font-mono uppercase text-center focus:outline-none focus:border-[#10b981]">
                                         </div>
-                                        <button @click="saveMappingToSheet(isin)" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-2 py-1 rounded text-xs transition">Opslaan in Backend</button>
+                                        <button @click="saveMappingToSheet(isin)" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-2.5 py-1 rounded text-xs transition">Opslaan in Backend</button>
                                     </div>
                                 </div>
                             </template>
@@ -565,7 +564,7 @@
 
     </div>
 
-    <!-- Modal 1: Individueel Asset Bewerken (Ticker & Currency handmatig aanpassen) -->
+    <!-- Modal 1: Individueel Asset Bewerken -->
     <div x-show="showEditAssetModal" 
          x-transition 
          class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -601,7 +600,7 @@
         </div>
     </div>
 
-    <!-- Modal 2: Alle Tickers & Valuta's Beheren (Centraal overzicht) -->
+    <!-- Modal 2: Alle Tickers & Valuta's Beheren -->
     <div x-show="showManageMappingsModal" 
          x-transition 
          class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -770,19 +769,16 @@
                     this.$nextTick(() => { this.renderDonutCharts(); });
                 },
 
-                // Horizon wisselen
                 setTwrHorizon(horizonKey) {
                     this.twrHorizon = horizonKey;
                     this.updateTwrView();
                 },
 
-                // Effect dropdown wijzigen -> automatisch herijken naar volledige levensduur (MAX)
                 onTwrAssetChange() {
                     this.twrHorizon = 'MAX';
                     this.updateTwrView();
                 },
 
-                // Bereken startdatum op basis van horizon
                 getHorizonStartDate(horizon, endDateStr, minDateStr) {
                     if (horizon === 'MAX') return minDateStr;
                     const end = new Date(endDateStr + 'T12:00:00');
@@ -818,6 +814,36 @@
                     return (startStr < minDateStr) ? minDateStr : startStr;
                 },
 
+                // Flexibele zoeker voor historische koersen per ticker
+                getHistoricalPricesForTicker(rawTicker) {
+                    if (!this.historyData || !this.historyData.prices || !rawTicker) return null;
+                    const cleanTicker = String(rawTicker).trim();
+                    const hp = this.historyData.prices;
+
+                    // 1. Directe match
+                    if (hp[cleanTicker] && Array.isArray(hp[cleanTicker]) && hp[cleanTicker].length > 0) {
+                        return hp[cleanTicker];
+                    }
+
+                    // 2. Case-insensitive of whitespace match
+                    for (let key in hp) {
+                        if (key.trim().toUpperCase() === cleanTicker.toUpperCase() && Array.isArray(hp[key])) {
+                            return hp[key];
+                        }
+                    }
+
+                    // 3. Match zonder beursvoorvoegsel (bv. ASML bij AMS:ASML of NVDA bij NASDAQ:NVDA)
+                    const baseSymbol = cleanTicker.includes(':') ? cleanTicker.split(':')[1].trim().toUpperCase() : cleanTicker.toUpperCase();
+                    for (let key in hp) {
+                        const keyBase = key.includes(':') ? key.split(':')[1].trim().toUpperCase() : key.trim().toUpperCase();
+                        if (keyBase === baseSymbol && Array.isArray(hp[key])) {
+                            return hp[key];
+                        }
+                    }
+
+                    return null;
+                },
+
                 openEditAssetModal(isin) {
                     const pos = this.positions.find(p => p.isin === isin);
                     const mapping = this.assetMapping[isin] || {};
@@ -845,6 +871,9 @@
                     this.showEditAssetModal = false;
                     this.calculatePositions();
                     this.renderDonutCharts();
+                    if (this.activeTab === 'twr') {
+                        this.updateTwrView();
+                    }
                 },
 
                 setSort(col) {
@@ -1344,7 +1373,7 @@
                     this.positions = Object.values(posMap).filter(p => p.quantity > 0.0001);
                 },
 
-                // TWR Rendement, Horizon en Markers Berekening
+                // TWR Curve & Horizon berekening
                 updateTwrView() {
                     const canvas = document.getElementById('twrChartCanvas');
                     if (!canvas) return;
@@ -1352,18 +1381,16 @@
                     let labels = [];
                     let dataPoints = [];
                     let assetName = "Totale Portefeuille";
-                    let minAvailableDate = '2023-12-27';
                     let maxAvailableDate = new Date().toISOString().split('T')[0];
 
                     if (this.historyData.dates && this.historyData.dates.length > 0) {
                         maxAvailableDate = this.historyData.dates[this.historyData.dates.length - 1];
                     }
 
-                    // Verzamel trades per datum voor de symbolen (Markers) en tooltips
-                    const tradeDetailsByDate = {}; // dateStr -> array of descriptive strings
+                    const tradeDetailsByDate = {};
 
                     if (this.selectedTwrAsset !== 'portfolio') {
-                        // 1. INDIVIDUEEL EFFECT
+                        // 1. INDIVIDUEEL AANDEEL / ETF
                         const isin = this.selectedTwrAsset;
                         const pos = this.positions.find(p => p.isin === isin);
                         const mapping = this.assetMapping[isin] || {};
@@ -1387,13 +1414,13 @@
                         // Is de positie nog open of volledig verkocht?
                         const isStillOpen = pos && pos.quantity > 0.0001;
 
-                        // Als er een sell was en de positie is gesloten, eindigt de horizon bij de laatste sell. Anders loopt het tot vandaag!
+                        // Als de positie gesloten is, loopt de horizon t/m laatste sell date. Anders t/m vandaag.
                         let assetEndDate = maxAvailableDate;
                         if (!isStillOpen && lastSellDate) {
                             assetEndDate = lastSellDate;
                         }
 
-                        // Registreer buy trades voor markers
+                        // Registreer buy trades voor markers en tooltips (ENKEL bij individuele aandelen)
                         buyTrades.forEach(t => {
                             const d = this.getVal(t, 'Transaction Time (CET)').split(' ')[0];
                             const q = this.parseNum(this.getVal(t, 'Asset Quantity'));
@@ -1405,7 +1432,7 @@
                             });
                         });
 
-                        // Registreer sell trades voor markers
+                        // Registreer sell trades voor markers en tooltips (ENKEL bij individuele aandelen)
                         sellTrades.forEach(t => {
                             const d = this.getVal(t, 'Transaction Time (CET)').split(' ')[0];
                             const q = this.parseNum(this.getVal(t, 'Asset Quantity'));
@@ -1417,22 +1444,23 @@
                             });
                         });
 
-                        // Bepaal de actieve startdatum op basis van de gekozen horizon
+                        // Bepaal start- en einddatum op basis van gekozen horizon
                         const startDate = this.getHorizonStartDate(this.twrHorizon, assetEndDate, firstBuyDate);
                         const endDate = assetEndDate;
 
-                        // Historische koersen doorlopen
-                        if (this.historyData.dates && this.historyData.dates.length > 0 && ticker && this.historyData.prices[ticker]) {
+                        // Zoek historische dagkoersen via de tolerante ticker-zoeker
+                        const histPrices = this.getHistoricalPricesForTicker(ticker);
+
+                        if (this.historyData.dates && this.historyData.dates.length > 0 && histPrices && histPrices.length > 0) {
                             const allDates = this.historyData.dates;
-                            const allPrices = this.historyData.prices[ticker];
                             const fxTicker = (ccy === 'GBX') ? 'CURRENCY:GBPEUR' : `CURRENCY:${ccy}EUR`;
 
                             let basePriceEur = null;
 
                             for (let i = 0; i < allDates.length; i++) {
                                 const curD = allDates[i];
-                                if (curD >= startDate && curD <= endDate && allPrices[i] > 0) {
-                                    let priceEur = allPrices[i];
+                                if (curD >= startDate && curD <= endDate && histPrices[i] > 0) {
+                                    let priceEur = histPrices[i];
                                     if (isNonEur) {
                                         let fxRate = 1.0;
                                         if (this.historyData.prices && this.historyData.prices[fxTicker] && this.historyData.prices[fxTicker][i]) {
@@ -1455,7 +1483,7 @@
                             }
                         }
 
-                        // Fallback indien er nog geen dagkoersen zijn ingeladen
+                        // Robuuste Fallback als Google Finance de historische slotkoersen (nog) niet heeft
                         if (dataPoints.length === 0) {
                             const curPrice = this.getAssetPriceInEur(isin);
                             const basePrice = (pos && pos.avgPrice > 0) ? pos.avgPrice : curPrice;
@@ -1469,7 +1497,7 @@
                         this.currentTwrMetrics = { returnPct: currentTwr, startDate: startDate, endDate: endDate, athPct: ath };
 
                     } else {
-                        // 2. TOTALE PORTEFEUILLE
+                        // 2. TOTALE PORTEFEUILLE (ZONDER KOOP/VERKOOP MARKERS)
                         assetName = "Totale Portefeuille";
                         const firstTx = this.transactions.filter(t => this.getVal(t, 'Transaction Category') === 'deposits')
                             .sort((a,b) => this.getVal(a, 'Transaction Time (CET)').localeCompare(this.getVal(b, 'Transaction Time (CET)')));
@@ -1477,26 +1505,6 @@
                         
                         const endDate = maxAvailableDate;
                         const startDate = this.getHorizonStartDate(this.twrHorizon, endDate, firstDepDate);
-
-                        // Registreer alle trades voor markers op de portefeuille-grafiek
-                        this.transactions.forEach(t => {
-                            const cat = this.getVal(t, 'Transaction Category');
-                            const type = this.getVal(t, 'Transaction Type');
-                            const trType = this.getVal(t, 'Transfer Type');
-                            const isin = this.getVal(t, 'Asset Id');
-                            const name = this.getVal(t, 'Asset Name');
-                            const d = this.getVal(t, 'Transaction Time (CET)').split(' ')[0];
-
-                            if (cat === 'trades' && isin && !DUMMY_ISINS.includes(isin)) {
-                                if (type === 'Buy Trade' && (trType === 'CASH_DEBIT' || trType === '')) {
-                                    if (!tradeDetailsByDate[d]) tradeDetailsByDate[d] = [];
-                                    tradeDetailsByDate[d].push({ type: 'buy', text: `▲ Koop: ${name}` });
-                                } else if (type === 'Sell Trade' && (trType === 'CASH_CREDIT' || trType === '')) {
-                                    if (!tradeDetailsByDate[d]) tradeDetailsByDate[d] = [];
-                                    tradeDetailsByDate[d].push({ type: 'sell', text: `◆ Verkoop: ${name}` });
-                                }
-                            }
-                        });
 
                         if (this.historyData.dates && this.historyData.dates.length > 0) {
                             let cumulativeTwrFactor = 1.0;
@@ -1531,11 +1539,12 @@
                         this.currentTwrMetrics = { returnPct: currentTwr, startDate: startDate, endDate: endDate, athPct: ath };
                     }
 
-                    // Bepaal de marker styling per datapunt op de grafiek
+                    // Bepaal marker styling: ENKEL markers bij individuele aandelen!
                     const isPositive = this.currentTwrMetrics.returnPct >= 0;
                     const strokeColor = isPositive ? '#10b981' : '#f87171';
                     const fillColor = isPositive ? 'rgba(16, 185, 129, 0.15)' : 'rgba(248, 113, 113, 0.15)';
 
+                    const isIndividual = (this.selectedTwrAsset !== 'portfolio');
                     const pointStyles = [];
                     const pointRadii = [];
                     const pointHoverRadii = [];
@@ -1545,7 +1554,7 @@
 
                     labels.forEach(d => {
                         const trades = tradeDetailsByDate[d];
-                        if (trades && trades.length > 0) {
+                        if (isIndividual && trades && trades.length > 0) {
                             const hasBuy = trades.some(t => t.type === 'buy');
                             const hasSell = trades.some(t => t.type === 'sell');
 
@@ -1572,6 +1581,7 @@
                                 pointBorderWidths.push(2);
                             }
                         } else {
+                            // Portfolio TWR (of dagen zonder transactie): geen markers, strakke curve
                             pointStyles.push('circle');
                             pointRadii.push(labels.length > 60 ? 0 : 2);
                             pointHoverRadii.push(5);
@@ -1616,6 +1626,7 @@
                                     callbacks: {
                                         label: (context) => ` TWR: ${context.parsed.y >= 0 ? '+' : ''}${context.parsed.y.toFixed(2)}%`,
                                         afterBody: (contextItems) => {
+                                            if (!isIndividual) return [];
                                             const d = labels[contextItems[0].dataIndex];
                                             const trades = tradeDetailsByDate[d];
                                             if (trades && trades.length > 0) {
@@ -1660,10 +1671,11 @@
                     this.positions.forEach(pos => {
                         const ticker = this.assetMapping[pos.isin]?.ticker;
                         let price = 0;
-                        if (this.historyData.dates && ticker && this.historyData.prices[ticker]) {
+                        if (this.historyData.dates && ticker) {
                             const idx = this.historyData.dates.indexOf(dateStr);
-                            if (idx !== -1) {
-                                price = this.historyData.prices[ticker][idx];
+                            const histPrices = this.getHistoricalPricesForTicker(ticker);
+                            if (idx !== -1 && histPrices) {
+                                price = histPrices[idx];
                                 const ccy = this.getAssetCurrency(pos.isin);
                                 if (ccy !== 'EUR') {
                                     const fxTicker = (ccy === 'GBX') ? 'CURRENCY:GBPEUR' : `CURRENCY:${ccy}EUR`;
@@ -1851,4 +1863,3 @@
     </script>
 </body>
 </html>
-
