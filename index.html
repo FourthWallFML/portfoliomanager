@@ -49,7 +49,6 @@
         <!-- Header: Compactere Banner Links & Functioneel Menu Rechts -->
         <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-3 sm:p-4 shadow-xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
             
-            <!-- Compactere Banner Links -->
             <div class="flex items-center gap-4">
                 <img src="banner.jpg" alt="Key Analysis" class="h-14 sm:h-16 w-auto max-w-[240px] sm:max-w-xs object-cover rounded-xl border border-[#1e3260] shadow" />
                 <div>
@@ -61,9 +60,7 @@
                 </div>
             </div>
 
-            <!-- Functioneel Menu Rechts van Banner -->
             <div class="flex flex-wrap items-center gap-2 justify-end pt-2 md:pt-0 border-t md:border-t-0 border-[#1b2b52]/60">
-                <!-- Directe Upload Knop -->
                 <label for="csvFileInputMain" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow cursor-pointer active:scale-95">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                     <span>Upload CSV</span>
@@ -118,7 +115,7 @@
             </button>
         </nav>
 
-        <!-- Unmapped Warning Banner (met Ticker én Valuta input) -->
+        <!-- Unmapped Warning Banner -->
         <template x-if="unmappedIsins.length > 0">
             <div class="bg-[#800020]/20 border-l-4 border-[#b83344] p-3.5 rounded-r-xl border border-[#800020]/40">
                 <div class="flex items-center justify-between">
@@ -154,7 +151,7 @@
         <!-- ============================================== -->
         <div x-show="activeTab === 'dashboard'" class="space-y-5">
 
-            <!-- 1. GECOMBINEERDE HOOFD-CONTAINER (Alle Portfolio KPIs Samen) -->
+            <!-- GECOMBINEERDE HOOFD-CONTAINER -->
             <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-[#182649]">
                     <div class="flex flex-col justify-center">
@@ -197,10 +194,10 @@
                 </div>
             </div>
 
-            <!-- 2. TWEE CONTAINERS: Portefeuille Breakdown & Kostenoverzicht (Met Donut Charts) -->
+            <!-- Twee Containers met Donut Charts -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 
-                <!-- Container: Portefeuilleverdeling (Shades of Blue) -->
+                <!-- Portefeuilleverdeling -->
                 <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center pb-3 border-b border-[#182649] mb-4">
@@ -253,7 +250,7 @@
                     </div>
                 </div>
 
-                <!-- Container: Kosten & Compensaties (Shades of Red) -->
+                <!-- Kosten & Compensaties -->
                 <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center pb-3 border-b border-[#182649] mb-4">
@@ -311,32 +308,63 @@
         <!-- ============================================== -->
         <div x-show="activeTab === 'twr'" class="space-y-5">
             <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-4">
+                
+                <!-- Bovenste rij: Titel & Effect-selectie (zowel open als gesloten posities) -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
                         <h3 class="text-sm font-bold text-slate-200">Time-Weighted Return (TWR) Curve</h3>
-                        <p class="text-xs text-slate-400">Rendement gezuiverd van timing en stortingen/afhalingen.</p>
+                        <p class="text-xs text-slate-400">Rendement gezuiverd van cashflows, inclusief aankoop- en verkoopmarkers.</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <label class="text-xs text-slate-400 font-medium">Kies weergave:</label>
-                        <select x-model="selectedTwrAsset" @change="updateTwrView()" class="bg-[#132247] border border-[#1e3260] text-xs rounded-xl px-3 py-1.5 text-slate-100 focus:outline-none focus:border-[#10b981]">
+                        <select x-model="selectedTwrAsset" @change="onTwrAssetChange()" class="bg-[#132247] border border-[#1e3260] text-xs rounded-xl px-3 py-1.5 text-slate-100 focus:outline-none focus:border-[#10b981]">
                             <option value="portfolio">Totale Portefeuille (TWR)</option>
-                            <optgroup label="Individuele Aandelen & ETFs">
+                            <optgroup label="Openstaande Posities">
                                 <template x-for="pos in positions" :key="pos.isin">
                                     <option :value="pos.isin" x-text="pos.name"></option>
+                                </template>
+                            </optgroup>
+                            <optgroup label="Gesloten Posities">
+                                <template x-for="cp in closedPositionsList" :key="cp.isin">
+                                    <option :value="cp.isin" x-text="cp.name + ' (Gesloten)'"></option>
                                 </template>
                             </optgroup>
                         </select>
                     </div>
                 </div>
 
+                <!-- Horizon Keuzebalk + Legende -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#182649]/60">
+                    <!-- Knoppen voor Horizon -->
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="text-xs text-slate-400 font-medium mr-1">Horizon:</span>
+                        <template x-for="h in horizonOptions" :key="h.key">
+                            <button type="button" 
+                                    @click="setTwrHorizon(h.key)" 
+                                    :class="twrHorizon === h.key ? 'bg-[#10b981] text-slate-950 font-bold shadow-sm' : 'bg-[#132247] text-slate-300 hover:text-white hover:bg-[#18274f] border border-[#1e3260]'" 
+                                    class="px-2.5 py-1 rounded-lg text-xs transition" 
+                                    x-text="h.label">
+                            </button>
+                        </template>
+                    </div>
+
+                    <!-- Symbool Legende -->
+                    <div class="flex items-center gap-3.5 text-[11px] text-slate-400 font-medium bg-[#080e22] px-3 py-1 rounded-lg border border-[#1e3260]/60">
+                        <span class="flex items-center gap-1.5"><span class="text-[#10b981] font-black text-xs">▲</span> Koop</span>
+                        <span class="flex items-center gap-1.5"><span class="text-[#f87171] font-black text-xs">◆</span> Verkoop</span>
+                        <span class="flex items-center gap-1.5"><span class="text-[#38bdf8] font-black text-xs">★</span> Beide</span>
+                    </div>
+                </div>
+
+                <!-- TWR Metrics Tegels -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div class="bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260]">
-                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">TWR Rendement</span>
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">TWR Rendement (Horizon)</span>
                         <div class="text-2xl font-black mt-0.5" :class="currentTwrMetrics.returnPct >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="(currentTwrMetrics.returnPct >= 0 ? '+' : '') + currentTwrMetrics.returnPct.toFixed(2) + '%'"></div>
                     </div>
                     <div class="bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260]">
-                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Startdatum</span>
-                        <div class="text-lg font-bold text-slate-200 mt-0.5" x-text="currentTwrMetrics.startDate || '-'"></div>
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Periode (Start - Eind)</span>
+                        <div class="text-xs font-bold text-slate-200 mt-1 font-mono" x-text="(currentTwrMetrics.startDate || '-') + ' t/m ' + (currentTwrMetrics.endDate || 'Huidig')"></div>
                     </div>
                     <div class="bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260]">
                         <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Hoogste Punt (ATH TWR)</span>
@@ -372,7 +400,7 @@
                                     <div class="flex flex-col gap-1.5">
                                         <div class="flex gap-1.5">
                                             <input type="text" x-model="assetMapping[isin].ticker" placeholder="Ticker (bv. AMS:ASML)" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-2 py-1 w-full text-slate-200 focus:outline-none focus:border-[#10b981]">
-                                            <input type="text" x-model="assetMapping[isin].currency" placeholder="Valuta" list="currencyList" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-1.5 py-1 w-16 text-slate-200 font-mono uppercase text-center focus:outline-none focus:border-[#10b981]">
+                                            <input type="text" x-model="assetMapping[isin].currency" placeholder="Valuta" list="currencyList" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-1.5 py-1 w-16 text-slate-100 font-mono uppercase text-center focus:outline-none focus:border-[#10b981]">
                                         </div>
                                         <button @click="saveMappingToSheet(isin)" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-2 py-1 rounded text-xs transition">Opslaan in Backend</button>
                                     </div>
@@ -390,7 +418,6 @@
                             <p class="text-[11px] text-slate-400">Klik op een kolomkop om te sorteren. Klik op ✏️ om de ticker of valuta aan te passen.</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
-                            <!-- Knop om alle mappings & valuta's te beheren -->
                             <button @click="showManageMappingsModal = true" class="bg-[#132247] text-slate-200 border border-[#1e3260] hover:bg-[#18274f] px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
                                 <svg class="w-3.5 h-3.5 text-[#38bdf8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                                 <span>Tickers & Valuta Beheren</span>
@@ -467,13 +494,11 @@
                                         <td class="p-4">
                                             <div class="flex items-center gap-1.5">
                                                 <span class="font-bold text-slate-100" x-text="pos.name"></span>
-                                                <!-- Valuta label (dynamisch) -->
                                                 <template x-if="getAssetCurrency(pos.isin) !== 'EUR'">
                                                     <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-[#38bdf8] border border-blue-500/30 uppercase font-mono" 
                                                           x-text="getAssetCurrency(pos.isin)">
                                                     </span>
                                                 </template>
-                                                <!-- Knop om direct deze positie te bewerken -->
                                                 <button type="button" @click="openEditAssetModal(pos.isin)" title="Ticker & Valuta handmatig aanpassen" class="text-slate-500 hover:text-[#38bdf8] p-0.5 transition">
                                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                                 </button>
@@ -691,10 +716,21 @@
                 showUnmappedDetails: false,
                 syncStatus: 'Niet gesynchroniseerd',
                 selectedTwrAsset: 'portfolio',
+                twrHorizon: 'MAX',
+                horizonOptions: [
+                    { key: '1D', label: '1D' },
+                    { key: '1W', label: '1W' },
+                    { key: '1M', label: '1M' },
+                    { key: '6M', label: '6M' },
+                    { key: '1Y', label: '1J' },
+                    { key: 'YTD', label: 'YTD' },
+                    { key: '2Y', label: '2J' },
+                    { key: 'MAX', label: 'Max' }
+                ],
                 chartInstance: null,
                 allocationChartInstance: null,
                 costsChartInstance: null,
-                currentTwrMetrics: { returnPct: 0, startDate: '', athPct: 0 },
+                currentTwrMetrics: { returnPct: 0, startDate: '', endDate: '', athPct: 0 },
                 
                 sortCol: 'value',
                 sortAsc: false,
@@ -734,7 +770,54 @@
                     this.$nextTick(() => { this.renderDonutCharts(); });
                 },
 
-                // Open modal om 1 individueel aandeel aan te passen
+                // Horizon wisselen
+                setTwrHorizon(horizonKey) {
+                    this.twrHorizon = horizonKey;
+                    this.updateTwrView();
+                },
+
+                // Effect dropdown wijzigen -> automatisch herijken naar volledige levensduur (MAX)
+                onTwrAssetChange() {
+                    this.twrHorizon = 'MAX';
+                    this.updateTwrView();
+                },
+
+                // Bereken startdatum op basis van horizon
+                getHorizonStartDate(horizon, endDateStr, minDateStr) {
+                    if (horizon === 'MAX') return minDateStr;
+                    const end = new Date(endDateStr + 'T12:00:00');
+                    let start = new Date(end);
+                    
+                    switch (horizon) {
+                        case '1D':
+                            start.setDate(end.getDate() - 1);
+                            break;
+                        case '1W':
+                            start.setDate(end.getDate() - 7);
+                            break;
+                        case '1M':
+                            start.setMonth(end.getMonth() - 1);
+                            break;
+                        case '6M':
+                            start.setMonth(end.getMonth() - 6);
+                            break;
+                        case '1Y':
+                            start.setFullYear(end.getFullYear() - 1);
+                            break;
+                        case 'YTD':
+                            start = new Date(end.getFullYear(), 0, 1);
+                            break;
+                        case '2Y':
+                            start.setFullYear(end.getFullYear() - 2);
+                            break;
+                        default:
+                            return minDateStr;
+                    }
+                    
+                    const startStr = start.toISOString().split('T')[0];
+                    return (startStr < minDateStr) ? minDateStr : startStr;
+                },
+
                 openEditAssetModal(isin) {
                     const pos = this.positions.find(p => p.isin === isin);
                     const mapping = this.assetMapping[isin] || {};
@@ -747,7 +830,6 @@
                     this.showEditAssetModal = true;
                 },
 
-                // Bewaar het bewerkte aandeel en stuur direct naar de backend
                 saveEditedAsset() {
                     const isin = this.editingAsset.isin;
                     if (!isin) return;
@@ -819,24 +901,19 @@
                     return list;
                 },
 
-                // Dynamische valutadetectie (Handmatig ingesteld -> Google Backend -> CSV -> Fallback)
                 getAssetCurrency(isin) {
-                    // 1. Handmatig ingestelde currency in de interface
                     if (this.assetMapping[isin]?.currency) {
                         return String(this.assetMapping[isin].currency).trim().toUpperCase();
                     }
-                    // 2. Currency uit backend mapping
                     const ticker = this.assetMapping[isin]?.ticker;
                     if (ticker && this.currencies && this.currencies[ticker]) {
                         return String(this.currencies[ticker]).trim().toUpperCase();
                     }
-                    // 3. Currency uit BUX transacties
                     const tx = this.transactions.find(t => this.getVal(t, 'Asset Id') === isin && this.getVal(t, 'Asset Currency'));
                     if (tx) {
                         const c = this.getVal(tx, 'Asset Currency');
                         if (c) return String(c).trim().toUpperCase();
                     }
-                    // 4. US ticker herkenning
                     if (ticker && (ticker.startsWith('NASDAQ:') || ticker.startsWith('NYSE:') || ticker.endsWith('.US'))) {
                         return 'USD';
                     }
@@ -903,7 +980,6 @@
                     return `${sym} ${rawPrice.toFixed(2)} ${ccy}`;
                 },
 
-                // Dynamische valutaconversie naar EUR
                 getAssetPriceInEur(isin) {
                     const ticker = this.assetMapping[isin]?.ticker;
                     let rawPrice = 0;
@@ -1068,7 +1144,6 @@
                         });
                 },
 
-                // Sla zowel ISIN, Ticker én Currency op naar de Google Apps Script backend
                 saveMappingToSheet(isin) {
                     const mappingItem = this.assetMapping[isin];
                     if (!mappingItem) return;
@@ -1269,6 +1344,7 @@
                     this.positions = Object.values(posMap).filter(p => p.quantity > 0.0001);
                 },
 
+                // TWR Rendement, Horizon en Markers Berekening
                 updateTwrView() {
                     const canvas = document.getElementById('twrChartCanvas');
                     if (!canvas) return;
@@ -1276,19 +1352,76 @@
                     let labels = [];
                     let dataPoints = [];
                     let assetName = "Totale Portefeuille";
+                    let minAvailableDate = '2023-12-27';
+                    let maxAvailableDate = new Date().toISOString().split('T')[0];
+
+                    if (this.historyData.dates && this.historyData.dates.length > 0) {
+                        maxAvailableDate = this.historyData.dates[this.historyData.dates.length - 1];
+                    }
+
+                    // Verzamel trades per datum voor de symbolen (Markers) en tooltips
+                    const tradeDetailsByDate = {}; // dateStr -> array of descriptive strings
 
                     if (this.selectedTwrAsset !== 'portfolio') {
-                        const pos = this.positions.find(p => p.isin === this.selectedTwrAsset);
+                        // 1. INDIVIDUEEL EFFECT
                         const isin = this.selectedTwrAsset;
-                        assetName = pos ? pos.name : isin;
-                        const ticker = this.assetMapping[isin]?.ticker;
+                        const pos = this.positions.find(p => p.isin === isin);
+                        const mapping = this.assetMapping[isin] || {};
+                        assetName = pos ? pos.name : (mapping.name || isin);
+                        const ticker = mapping.ticker;
                         const ccy = this.getAssetCurrency(isin);
                         const isNonEur = ccy !== 'EUR';
 
-                        const buyTrades = this.transactions.filter(t => this.getVal(t, 'Asset Id') === isin && this.getVal(t, 'Transaction Type') === 'Buy Trade')
+                        const buyTrades = this.transactions.filter(t => this.getVal(t, 'Asset Id') === isin && this.getVal(t, 'Transaction Type') === 'Buy Trade' && (this.getVal(t, 'Transfer Type') === 'CASH_DEBIT' || this.getVal(t, 'Transfer Type') === ''))
                             .sort((a,b) => this.getVal(a, 'Transaction Time (CET)').localeCompare(this.getVal(b, 'Transaction Time (CET)')));
-                        const startDate = buyTrades.length > 0 ? this.getVal(buyTrades[0], 'Transaction Time (CET)').split(' ')[0] : '2024-01-01';
+                        
+                        const sellTrades = this.transactions.filter(t => this.getVal(t, 'Asset Id') === isin && this.getVal(t, 'Transaction Type') === 'Sell Trade' && (this.getVal(t, 'Transfer Type') === 'CASH_CREDIT' || this.getVal(t, 'Transfer Type') === ''))
+                            .sort((a,b) => this.getVal(a, 'Transaction Time (CET)').localeCompare(this.getVal(b, 'Transaction Time (CET)')));
 
+                        // Eerste buy date
+                        const firstBuyDate = buyTrades.length > 0 ? this.getVal(buyTrades[0], 'Transaction Time (CET)').split(' ')[0] : '2024-01-01';
+                        
+                        // Laatste sell date
+                        const lastSellDate = sellTrades.length > 0 ? this.getVal(sellTrades[sellTrades.length - 1], 'Transaction Time (CET)').split(' ')[0] : null;
+                        
+                        // Is de positie nog open of volledig verkocht?
+                        const isStillOpen = pos && pos.quantity > 0.0001;
+
+                        // Als er een sell was en de positie is gesloten, eindigt de horizon bij de laatste sell. Anders loopt het tot vandaag!
+                        let assetEndDate = maxAvailableDate;
+                        if (!isStillOpen && lastSellDate) {
+                            assetEndDate = lastSellDate;
+                        }
+
+                        // Registreer buy trades voor markers
+                        buyTrades.forEach(t => {
+                            const d = this.getVal(t, 'Transaction Time (CET)').split(' ')[0];
+                            const q = this.parseNum(this.getVal(t, 'Asset Quantity'));
+                            const p = this.parseNum(this.getVal(t, 'Asset Price'));
+                            if (!tradeDetailsByDate[d]) tradeDetailsByDate[d] = [];
+                            tradeDetailsByDate[d].push({
+                                type: 'buy',
+                                text: `▲ Koop: ${q.toFixed(4)} stuks @ ${p > 0 ? p.toFixed(2) + ' ' + ccy : ''}`
+                            });
+                        });
+
+                        // Registreer sell trades voor markers
+                        sellTrades.forEach(t => {
+                            const d = this.getVal(t, 'Transaction Time (CET)').split(' ')[0];
+                            const q = this.parseNum(this.getVal(t, 'Asset Quantity'));
+                            const pnl = this.parseNum(this.getVal(t, 'Profit And Loss Amount'));
+                            if (!tradeDetailsByDate[d]) tradeDetailsByDate[d] = [];
+                            tradeDetailsByDate[d].push({
+                                type: 'sell',
+                                text: `◆ Verkoop: ${q.toFixed(4)} stuks (Winst: ${this.formatCurrency(pnl)})`
+                            });
+                        });
+
+                        // Bepaal de actieve startdatum op basis van de gekozen horizon
+                        const startDate = this.getHorizonStartDate(this.twrHorizon, assetEndDate, firstBuyDate);
+                        const endDate = assetEndDate;
+
+                        // Historische koersen doorlopen
                         if (this.historyData.dates && this.historyData.dates.length > 0 && ticker && this.historyData.prices[ticker]) {
                             const allDates = this.historyData.dates;
                             const allPrices = this.historyData.prices[ticker];
@@ -1297,7 +1430,8 @@
                             let basePriceEur = null;
 
                             for (let i = 0; i < allDates.length; i++) {
-                                if (allDates[i] >= startDate && allPrices[i] > 0) {
+                                const curD = allDates[i];
+                                if (curD >= startDate && curD <= endDate && allPrices[i] > 0) {
                                     let priceEur = allPrices[i];
                                     if (isNonEur) {
                                         let fxRate = 1.0;
@@ -1315,28 +1449,54 @@
                                     if (basePriceEur === null) basePriceEur = priceEur;
 
                                     const twr = ((priceEur / basePriceEur) - 1) * 100;
-                                    labels.push(allDates[i]);
+                                    labels.push(curD);
                                     dataPoints.push(parseFloat(twr.toFixed(2)));
                                 }
                             }
                         }
 
-                        if (dataPoints.length === 0 && pos) {
+                        // Fallback indien er nog geen dagkoersen zijn ingeladen
+                        if (dataPoints.length === 0) {
                             const curPrice = this.getAssetPriceInEur(isin);
-                            const twr = pos.avgPrice > 0 ? ((curPrice - pos.avgPrice) / pos.avgPrice) * 100 : 0;
-                            labels = [startDate, 'Huidig'];
+                            const basePrice = (pos && pos.avgPrice > 0) ? pos.avgPrice : curPrice;
+                            const twr = basePrice > 0 ? ((curPrice - basePrice) / basePrice) * 100 : 0;
+                            labels = [startDate, endDate];
                             dataPoints = [0, parseFloat(twr.toFixed(2))];
                         }
 
                         const currentTwr = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1] : 0;
                         const ath = dataPoints.length > 0 ? Math.max(...dataPoints) : 0;
-                        this.currentTwrMetrics = { returnPct: currentTwr, startDate: startDate, athPct: ath };
+                        this.currentTwrMetrics = { returnPct: currentTwr, startDate: startDate, endDate: endDate, athPct: ath };
 
                     } else {
+                        // 2. TOTALE PORTEFEUILLE
                         assetName = "Totale Portefeuille";
                         const firstTx = this.transactions.filter(t => this.getVal(t, 'Transaction Category') === 'deposits')
                             .sort((a,b) => this.getVal(a, 'Transaction Time (CET)').localeCompare(this.getVal(b, 'Transaction Time (CET)')));
-                        const startDate = firstTx.length > 0 ? this.getVal(firstTx[0], 'Transaction Time (CET)').split(' ')[0] : '2023-12-27';
+                        const firstDepDate = firstTx.length > 0 ? this.getVal(firstTx[0], 'Transaction Time (CET)').split(' ')[0] : '2023-12-27';
+                        
+                        const endDate = maxAvailableDate;
+                        const startDate = this.getHorizonStartDate(this.twrHorizon, endDate, firstDepDate);
+
+                        // Registreer alle trades voor markers op de portefeuille-grafiek
+                        this.transactions.forEach(t => {
+                            const cat = this.getVal(t, 'Transaction Category');
+                            const type = this.getVal(t, 'Transaction Type');
+                            const trType = this.getVal(t, 'Transfer Type');
+                            const isin = this.getVal(t, 'Asset Id');
+                            const name = this.getVal(t, 'Asset Name');
+                            const d = this.getVal(t, 'Transaction Time (CET)').split(' ')[0];
+
+                            if (cat === 'trades' && isin && !DUMMY_ISINS.includes(isin)) {
+                                if (type === 'Buy Trade' && (trType === 'CASH_DEBIT' || trType === '')) {
+                                    if (!tradeDetailsByDate[d]) tradeDetailsByDate[d] = [];
+                                    tradeDetailsByDate[d].push({ type: 'buy', text: `▲ Koop: ${name}` });
+                                } else if (type === 'Sell Trade' && (trType === 'CASH_CREDIT' || trType === '')) {
+                                    if (!tradeDetailsByDate[d]) tradeDetailsByDate[d] = [];
+                                    tradeDetailsByDate[d].push({ type: 'sell', text: `◆ Verkoop: ${name}` });
+                                }
+                            }
+                        });
 
                         if (this.historyData.dates && this.historyData.dates.length > 0) {
                             let cumulativeTwrFactor = 1.0;
@@ -1344,38 +1504,87 @@
                             const dates = this.historyData.dates;
 
                             dates.forEach((d) => {
-                                const val = this.calculateHistoricalPortfolioValue(d);
-                                const cf = this.getCashFlowOnDate(d);
+                                if (d >= startDate && d <= endDate) {
+                                    const val = this.calculateHistoricalPortfolioValue(d);
+                                    const cf = this.getCashFlowOnDate(d);
 
-                                if (prevVal !== null && prevVal > 0) {
-                                    const subReturn = (val - cf - prevVal) / prevVal;
-                                    cumulativeTwrFactor *= (1 + subReturn);
+                                    if (prevVal !== null && prevVal > 0) {
+                                        const subReturn = (val - cf - prevVal) / prevVal;
+                                        cumulativeTwrFactor *= (1 + subReturn);
+                                    }
+                                    prevVal = val;
+
+                                    labels.push(d);
+                                    dataPoints.push(parseFloat(((cumulativeTwrFactor - 1) * 100).toFixed(2)));
                                 }
-                                prevVal = val;
-
-                                labels.push(d);
-                                dataPoints.push(parseFloat(((cumulativeTwrFactor - 1) * 100).toFixed(2)));
                             });
                         }
 
                         if (dataPoints.length === 0) {
                             const totalReturn = this.totalInvested > 0 ? ((this.totalPortfolioValue - this.totalInvested) / this.totalInvested) * 100 : 0;
-                            labels = [startDate, 'Huidig'];
+                            labels = [startDate, endDate];
                             dataPoints = [0, parseFloat(totalReturn.toFixed(2))];
                         }
 
                         const currentTwr = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1] : 0;
                         const ath = dataPoints.length > 0 ? Math.max(...dataPoints) : 0;
-                        this.currentTwrMetrics = { returnPct: currentTwr, startDate: startDate, athPct: ath };
+                        this.currentTwrMetrics = { returnPct: currentTwr, startDate: startDate, endDate: endDate, athPct: ath };
                     }
 
-                    if (this.chartInstance) {
-                        this.chartInstance.destroy();
-                    }
-
+                    // Bepaal de marker styling per datapunt op de grafiek
                     const isPositive = this.currentTwrMetrics.returnPct >= 0;
                     const strokeColor = isPositive ? '#10b981' : '#f87171';
                     const fillColor = isPositive ? 'rgba(16, 185, 129, 0.15)' : 'rgba(248, 113, 113, 0.15)';
+
+                    const pointStyles = [];
+                    const pointRadii = [];
+                    const pointHoverRadii = [];
+                    const pointBgColors = [];
+                    const pointBorderColors = [];
+                    const pointBorderWidths = [];
+
+                    labels.forEach(d => {
+                        const trades = tradeDetailsByDate[d];
+                        if (trades && trades.length > 0) {
+                            const hasBuy = trades.some(t => t.type === 'buy');
+                            const hasSell = trades.some(t => t.type === 'sell');
+
+                            if (hasBuy && hasSell) {
+                                pointStyles.push('star');
+                                pointRadii.push(7.5);
+                                pointHoverRadii.push(11);
+                                pointBgColors.push('#38bdf8');
+                                pointBorderColors.push('#ffffff');
+                                pointBorderWidths.push(2);
+                            } else if (hasBuy) {
+                                pointStyles.push('triangle');
+                                pointRadii.push(7);
+                                pointHoverRadii.push(10);
+                                pointBgColors.push('#10b981');
+                                pointBorderColors.push('#ffffff');
+                                pointBorderWidths.push(2);
+                            } else if (hasSell) {
+                                pointStyles.push('rectRot');
+                                pointRadii.push(7);
+                                pointHoverRadii.push(10);
+                                pointBgColors.push('#f87171');
+                                pointBorderColors.push('#ffffff');
+                                pointBorderWidths.push(2);
+                            }
+                        } else {
+                            pointStyles.push('circle');
+                            pointRadii.push(labels.length > 60 ? 0 : 2);
+                            pointHoverRadii.push(5);
+                            pointBgColors.push(strokeColor);
+                            pointBorderColors.push(strokeColor);
+                            pointBorderWidths.push(1);
+                        }
+                    });
+
+                    // Render Chart.js
+                    if (this.chartInstance) {
+                        this.chartInstance.destroy();
+                    }
 
                     this.chartInstance = new Chart(canvas.getContext('2d'), {
                         type: 'line',
@@ -1389,8 +1598,12 @@
                                 borderWidth: 2.5,
                                 fill: true,
                                 tension: 0.25,
-                                pointRadius: dataPoints.length > 50 ? 0 : 3,
-                                pointHoverRadius: 6
+                                pointStyle: pointStyles,
+                                pointRadius: pointRadii,
+                                pointHoverRadius: pointHoverRadii,
+                                pointBackgroundColor: pointBgColors,
+                                pointBorderColor: pointBorderColors,
+                                pointBorderWidth: pointBorderWidths
                             }]
                         },
                         options: {
@@ -1401,7 +1614,16 @@
                                 legend: { display: false },
                                 tooltip: {
                                     callbacks: {
-                                        label: (context) => ` ${context.parsed.y >= 0 ? '+' : ''}${context.parsed.y.toFixed(2)}%`
+                                        label: (context) => ` TWR: ${context.parsed.y >= 0 ? '+' : ''}${context.parsed.y.toFixed(2)}%`,
+                                        afterBody: (contextItems) => {
+                                            const d = labels[contextItems[0].dataIndex];
+                                            const trades = tradeDetailsByDate[d];
+                                            if (trades && trades.length > 0) {
+                                                const uniqueLines = Array.from(new Set(trades.map(t => t.text)));
+                                                return ['', 'Transacties:', ...uniqueLines];
+                                            }
+                                            return [];
+                                        }
                                     }
                                 }
                             },
@@ -1629,3 +1851,4 @@
     </script>
 </body>
 </html>
+
