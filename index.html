@@ -48,7 +48,6 @@
 
             <!-- Functioneel Menu Rechts van Banner -->
             <div class="flex flex-wrap items-center gap-2 justify-end pt-2 md:pt-0 border-t md:border-t-0 border-[#1b2b52]/60">
-                <!-- Directe Upload Knop -->
                 <label for="csvFileInputMain" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow cursor-pointer active:scale-95">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                     <span>Upload CSV</span>
@@ -140,7 +139,6 @@
 
             <!-- 1. GECOMBINEERDE HOOFD-CONTAINER (Alle Portfolio KPIs Samen) -->
             <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl">
-                <!-- Bovenste rij: De 2 Hoofd KPIs -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-[#182649]">
                     <div class="flex flex-col justify-center">
                         <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Waarde Portefeuille</span>
@@ -154,7 +152,6 @@
                     </div>
                 </div>
 
-                <!-- Onderste rij: Sub-KPIs / Breakdown (Compact & strak zonder losse kastjes) -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 text-xs">
                     <div>
                         <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold">Stortingen (Deposits)</span>
@@ -165,7 +162,6 @@
                         <div class="text-base font-bold text-slate-200 mt-0.5 font-mono" x-text="formatCurrency(totals.withdrawals)"></div>
                     </div>
                     
-                    <!-- Klikbaar: Gerealiseerde winst -> opent gesloten posities overzicht -->
                     <div @click="showClosedPositionsModal = true" class="cursor-pointer group">
                         <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold flex items-center gap-1 group-hover:text-[#38bdf8] transition">
                             Gerealiseerd (Gesloten)
@@ -174,7 +170,6 @@
                         <div class="text-base font-bold mt-0.5 font-mono underline decoration-dotted underline-offset-4" :class="totals.realizedPnL >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="formatCurrency(totals.realizedPnL)"></div>
                     </div>
 
-                    <!-- Klikbaar: Ongerealiseerde winst -> gaat direct naar tab posities -->
                     <div @click="activeTab = 'posities'" class="cursor-pointer group">
                         <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold flex items-center gap-1 group-hover:text-[#38bdf8] transition">
                             Ongerealiseerd (Open)
@@ -185,10 +180,10 @@
                 </div>
             </div>
 
-            <!-- 2. TWEE CONTAINERS: Portefeuille Breakdown & Kostenoverzicht (Elk met Pie Chart) -->
+            <!-- 2. TWEE CONTAINERS: Portefeuille Breakdown & Kostenoverzicht (Met Donut Charts) -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 
-                <!-- Container: Portefeuilleverdeling (Pie Chart in shades van Blauw) -->
+                <!-- Container: Portefeuilleverdeling (Shades of Blue) -->
                 <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center pb-3 border-b border-[#182649] mb-4">
@@ -197,12 +192,10 @@
                         </div>
                         
                         <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                            <!-- Donut Chart -->
                             <div class="sm:col-span-5 relative flex items-center justify-center h-40">
                                 <canvas id="allocationDonutChart"></canvas>
                             </div>
 
-                            <!-- Lijst met getallen -->
                             <div class="sm:col-span-7 space-y-2 text-xs">
                                 <div class="flex justify-between items-center p-2 rounded-lg bg-[#080e22] border border-[#1e3260]/60">
                                     <div class="flex items-center gap-2">
@@ -243,7 +236,7 @@
                     </div>
                 </div>
 
-                <!-- Container: Kosten & Compensaties (Pie Chart in shades van Rood) -->
+                <!-- Container: Kosten & Compensaties (Shades of Red) -->
                 <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center pb-3 border-b border-[#182649] mb-4">
@@ -255,12 +248,10 @@
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                            <!-- Donut Chart -->
                             <div class="sm:col-span-5 relative flex items-center justify-center h-40">
                                 <canvas id="costsDonutChart"></canvas>
                             </div>
 
-                            <!-- Lijst met getallen -->
                             <div class="sm:col-span-7 space-y-1.5 text-xs">
                                 <div class="flex justify-between items-center p-1.5 rounded-lg bg-[#080e22] border border-[#1e3260]/60">
                                     <div class="flex items-center gap-1.5">
@@ -376,7 +367,7 @@
                     <div class="p-5 border-b border-[#182649] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div>
                             <h2 class="text-base font-bold text-slate-200">Openstaande Posities</h2>
-                            <p class="text-[11px] text-slate-400">Klik op een kolomkop om te sorteren. Labels tonen valuta en koersstatus.</p>
+                            <p class="text-[11px] text-slate-400">Klik op een kolomkop om te sorteren. Labels tonen de valuta en koersstatus.</p>
                         </div>
                         <button @click="fetchGoogleSheetData()" class="bg-[#132247] text-[#38bdf8] border border-[#1e3260] hover:bg-[#18274f] px-3 py-1.5 rounded-xl text-xs font-semibold transition">Koersen Vernieuwen</button>
                     </div>
@@ -385,7 +376,6 @@
                             <thead>
                                 <tr class="bg-[#080e22] text-slate-400 text-[10px] uppercase tracking-wider font-semibold">
                                     
-                                    <!-- 1. Asset -->
                                     <th @click="setSort('name')" class="p-4 cursor-pointer hover:text-white transition">
                                         <div class="flex items-center gap-1.5">
                                             <span>Asset</span>
@@ -393,7 +383,6 @@
                                         </div>
                                     </th>
 
-                                    <!-- 2. Type -->
                                     <th @click="setSort('type')" class="p-4 cursor-pointer hover:text-white transition">
                                         <div class="flex items-center gap-1.5">
                                             <span>Type</span>
@@ -401,7 +390,6 @@
                                         </div>
                                     </th>
 
-                                    <!-- 3. Aantal -->
                                     <th @click="setSort('quantity')" class="p-4 text-right cursor-pointer hover:text-white transition">
                                         <div class="flex items-center justify-end gap-1.5">
                                             <span>Aantal</span>
@@ -409,7 +397,6 @@
                                         </div>
                                     </th>
 
-                                    <!-- 4. Gem. Aankoop (EUR) -->
                                     <th @click="setSort('avgPrice')" class="p-4 text-right cursor-pointer hover:text-white transition">
                                         <div class="flex items-center justify-end gap-1.5">
                                             <span>Gem. Aankoop (EUR)</span>
@@ -417,7 +404,6 @@
                                         </div>
                                     </th>
 
-                                    <!-- 5. Laatste Koers (Origineel) -->
                                     <th @click="setSort('rawPrice')" class="p-4 text-right cursor-pointer hover:text-white transition">
                                         <div class="flex items-center justify-end gap-1.5">
                                             <span>Laatste Koers (Origineel)</span>
@@ -425,7 +411,6 @@
                                         </div>
                                     </th>
 
-                                    <!-- 6. Laatste Koers (EUR) -->
                                     <th @click="setSort('eurPrice')" class="p-4 text-right cursor-pointer hover:text-white transition">
                                         <div class="flex items-center justify-end gap-1.5">
                                             <span>Laatste Koers (EUR)</span>
@@ -433,7 +418,6 @@
                                         </div>
                                     </th>
 
-                                    <!-- 7. Huidige Waarde -->
                                     <th @click="setSort('value')" class="p-4 text-right cursor-pointer hover:text-white transition">
                                         <div class="flex items-center justify-end gap-1.5">
                                             <span>Huidige Waarde</span>
@@ -441,7 +425,6 @@
                                         </div>
                                     </th>
 
-                                    <!-- 8. Rendement -->
                                     <th @click="setSort('rendement')" class="p-4 text-right cursor-pointer hover:text-white transition">
                                         <div class="flex items-center justify-end gap-1.5">
                                             <span>Rendement</span>
@@ -454,11 +437,9 @@
                                 <template x-for="pos in sortedPositions" :key="pos.isin">
                                     <tr class="hover:bg-[#132247]/40 transition">
                                         
-                                        <!-- Asset met FX-label -->
                                         <td class="p-4">
                                             <div class="flex items-center gap-1.5">
                                                 <span class="font-bold text-slate-100" x-text="pos.name"></span>
-                                                <!-- Valuta label (bv. USD) -->
                                                 <template x-if="getAssetCurrency(pos.isin) !== 'EUR'">
                                                     <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-[#38bdf8] border border-blue-500/30 uppercase" 
                                                           x-text="getAssetCurrency(pos.isin)">
@@ -468,7 +449,6 @@
                                             <div class="text-[10px] text-slate-400 font-mono" x-text="pos.isin + ' • ' + (assetMapping[pos.isin]?.ticker || 'Geen ticker')"></div>
                                         </td>
 
-                                        <!-- Type -->
                                         <td class="p-4">
                                             <span class="text-[10px] px-2 py-0.5 rounded font-semibold" 
                                                   :class="pos.isEtf ? 'bg-[#38bdf8]/15 text-[#38bdf8] border border-[#38bdf8]/30' : 'bg-[#818cf8]/15 text-[#a5b4fc] border border-[#818cf8]/30'"
@@ -476,21 +456,16 @@
                                             </span>
                                         </td>
 
-                                        <!-- Aantal -->
                                         <td class="p-4 text-right font-mono" x-text="pos.quantity.toFixed(4)"></td>
 
-                                        <!-- Gem. Aankoop (EUR) -->
                                         <td class="p-4 text-right font-mono" x-text="formatCurrency(pos.avgPrice)"></td>
                                         
-                                        <!-- Originele Koers -->
                                         <td class="p-4 text-right font-mono text-slate-300">
                                             <span x-text="formatOriginalPrice(pos.isin)"></span>
                                         </td>
                                         
-                                        <!-- Geconverteerde Euro Koers met eventueel Waarschuwingsdriehoekje -->
                                         <td class="p-4 text-right font-mono">
                                             <div class="flex items-center justify-end gap-1.5">
-                                                <!-- Waarschuwingsbadge bij 0 of GAK fallback -->
                                                 <template x-if="hasPriceWarning(pos)">
                                                     <span class="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 cursor-help"
                                                           :title="getPriceWarningTitle(pos)">
@@ -503,7 +478,6 @@
                                             </div>
                                         </td>
                                         
-                                        <!-- Huidige Waarde -->
                                         <td class="p-4 text-right font-bold font-mono text-slate-100">
                                             <div class="flex items-center justify-end gap-1">
                                                 <template x-if="(pos.quantity * getAssetPriceInEur(pos.isin)) === 0">
@@ -513,7 +487,6 @@
                                             </div>
                                         </td>
                                         
-                                        <!-- Rendement -->
                                         <td class="p-4 text-right font-bold font-mono" 
                                             :class="(pos.quantity * getAssetPriceInEur(pos.isin) - (pos.quantity * pos.avgPrice)) >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" 
                                             x-text="formatCurrency((pos.quantity * getAssetPriceInEur(pos.isin)) - (pos.quantity * pos.avgPrice))">
@@ -604,7 +577,8 @@
                 positions: [],
                 assetMapping: {},
                 latestPrices: {},
-                rates: { USDEUR: 0.92 },
+                currencies: {},
+                rates: { USDEUR: 0.92, USD: 0.92, EUR: 1.0 },
                 historyData: { dates: [], tickers: [], prices: {} },
                 showInstallPrompt: false,
                 showUnmappedDetails: false,
@@ -615,7 +589,6 @@
                 costsChartInstance: null,
                 currentTwrMetrics: { returnPct: 0, startDate: '', athPct: 0 },
                 
-                // Sorteerstatus voor posities
                 sortCol: 'value',
                 sortAsc: false,
 
@@ -631,6 +604,7 @@
                     const savedTx = localStorage.getItem('pat_transactions');
                     const savedMap = localStorage.getItem('pat_mapping');
                     const savedPrices = localStorage.getItem('pat_prices');
+                    const savedCurrencies = localStorage.getItem('pat_currencies');
                     const savedRates = localStorage.getItem('pat_rates');
                     const savedHist = localStorage.getItem('pat_history');
                     const savedName = localStorage.getItem('pat_filename');
@@ -638,6 +612,7 @@
                     if (savedTx) this.transactions = JSON.parse(savedTx);
                     if (savedMap) this.assetMapping = JSON.parse(savedMap);
                     if (savedPrices) this.latestPrices = JSON.parse(savedPrices);
+                    if (savedCurrencies) this.currencies = JSON.parse(savedCurrencies);
                     if (savedRates) this.rates = JSON.parse(savedRates);
                     if (savedHist) this.historyData = JSON.parse(savedHist);
                     if (savedName) this.loadedFileName = savedName;
@@ -652,7 +627,6 @@
                     this.$nextTick(() => { this.renderDonutCharts(); });
                 },
 
-                // Sorteren wisselen
                 setSort(col) {
                     if (this.sortCol === col) {
                         this.sortAsc = !this.sortAsc;
@@ -662,7 +636,6 @@
                     }
                 },
 
-                // Sorteer-getter voor de tabel
                 get sortedPositions() {
                     let list = [...this.positions];
                     list.sort((a, b) => {
@@ -708,18 +681,27 @@
                     return list;
                 },
 
-                // Valuta opzoeken voor het label
+                // Dynamische valutadetectie (Google Finance -> CSV transactie -> Fallback)
                 getAssetCurrency(isin) {
-                    if (this.isUsdAsset(isin)) return 'USD';
+                    const ticker = this.assetMapping[isin]?.ticker;
+                    if (ticker && this.currencies && this.currencies[ticker]) {
+                        return String(this.currencies[ticker]).trim().toUpperCase();
+                    }
                     const tx = this.transactions.find(t => this.getVal(t, 'Asset Id') === isin && this.getVal(t, 'Asset Currency'));
                     if (tx) {
                         const c = this.getVal(tx, 'Asset Currency');
-                        if (c && c !== 'EUR') return c;
+                        if (c) return String(c).trim().toUpperCase();
+                    }
+                    if (ticker && (ticker.startsWith('NASDAQ:') || ticker.startsWith('NYSE:') || ticker.endsWith('.US'))) {
+                        return 'USD';
                     }
                     return 'EUR';
                 },
 
-                // Controleer of de koers op 0 staat of terugvalt op de GAK (geen live koers)
+                isUsdAsset(isin) {
+                    return this.getAssetCurrency(isin) === 'USD';
+                },
+
                 hasPriceWarning(pos) {
                     const isin = pos.isin;
                     const ticker = this.assetMapping[isin]?.ticker;
@@ -743,7 +725,71 @@
                     return pos ? pos.avgPrice : 0;
                 },
 
-                // Lijst met gesloten posities genereren voor de modal
+                formatOriginalPrice(isin) {
+                    const ticker = this.assetMapping[isin]?.ticker;
+                    let rawPrice = 0;
+                    if (ticker && this.latestPrices[ticker] !== undefined) {
+                        rawPrice = this.latestPrices[ticker];
+                    } else if (this.latestPrices[isin] !== undefined) {
+                        rawPrice = this.latestPrices[isin];
+                    } else {
+                        const pos = this.positions.find(p => p.isin === isin);
+                        rawPrice = pos ? pos.avgPrice : 0;
+                    }
+
+                    const ccy = this.getAssetCurrency(isin);
+                    const symbols = {
+                        'USD': '$',
+                        'GBP': '£',
+                        'GBX': 'p',
+                        'EUR': '€',
+                        'CHF': 'CHF',
+                        'CAD': 'CA$',
+                        'SEK': 'kr',
+                        'NOK': 'kr',
+                        'DKK': 'kr',
+                        'JPY': '¥',
+                        'AUD': 'A$'
+                    };
+                    const sym = symbols[ccy] || ccy;
+                    if (ccy === 'EUR') {
+                        return `€ ${rawPrice.toFixed(2)}`;
+                    }
+                    return `${sym} ${rawPrice.toFixed(2)} ${ccy}`;
+                },
+
+                // Dynamische valutaconversie naar EUR
+                getAssetPriceInEur(isin) {
+                    const ticker = this.assetMapping[isin]?.ticker;
+                    let rawPrice = 0;
+
+                    if (ticker && this.latestPrices[ticker] !== undefined) {
+                        rawPrice = this.latestPrices[ticker];
+                    } else if (this.latestPrices[isin] !== undefined) {
+                        rawPrice = this.latestPrices[isin];
+                    } else {
+                        const pos = this.positions.find(p => p.isin === isin);
+                        return pos ? pos.avgPrice : 0;
+                    }
+
+                    const ccy = this.getAssetCurrency(isin);
+                    if (ccy === 'EUR') {
+                        return rawPrice;
+                    }
+
+                    let fxRate = 1.0;
+                    if (this.rates && this.rates[ccy] !== undefined) {
+                        fxRate = this.rates[ccy];
+                    } else if (ccy === 'USD' && this.rates && this.rates.USDEUR !== undefined) {
+                        fxRate = this.rates.USDEUR;
+                    } else if (ccy === 'GBX') {
+                        const gbpRate = (this.rates && this.rates.GBP) || 1.17;
+                        fxRate = gbpRate / 100.0;
+                    }
+
+                    return rawPrice * fxRate;
+                },
+
                 get closedPositionsList() {
                     let map = {};
                     this.transactions.forEach(tx => {
@@ -766,9 +812,7 @@
                     return Object.values(map);
                 },
 
-                // Pie / Donut Charts Renderen (Blauw voor allocatie, Rood voor kosten)
                 renderDonutCharts() {
-                    // 1. Allocatie Donut (Shades of Blue)
                     const allocCtx = document.getElementById('allocationDonutChart');
                     if (allocCtx) {
                         if (this.allocationChartInstance) this.allocationChartInstance.destroy();
@@ -793,7 +837,6 @@
                         });
                     }
 
-                    // 2. Kosten Donut (Shades of Red)
                     const costCtx = document.getElementById('costsDonutChart');
                     if (costCtx) {
                         if (this.costsChartInstance) this.costsChartInstance.destroy();
@@ -843,6 +886,11 @@
                                     localStorage.setItem('pat_prices', JSON.stringify(this.latestPrices));
                                 }
 
+                                if (data.currencies) {
+                                    this.currencies = data.currencies;
+                                    localStorage.setItem('pat_currencies', JSON.stringify(this.currencies));
+                                }
+
                                 if (data.rates) {
                                     this.rates = data.rates;
                                     localStorage.setItem('pat_rates', JSON.stringify(this.rates));
@@ -882,47 +930,6 @@
                     }).then(() => {
                         this.syncStatus = `Ticker ${mappingItem.ticker} opgeslagen!`;
                     }).catch(err => console.error(err));
-                },
-
-                isUsdAsset(isin) {
-                    const ticker = this.assetMapping[isin]?.ticker;
-                    return ticker && (ticker.startsWith('NASDAQ:') || ticker.startsWith('NYSE:') || ticker.endsWith('.US'));
-                },
-
-                formatOriginalPrice(isin) {
-                    const ticker = this.assetMapping[isin]?.ticker;
-                    let rawPrice = 0;
-                    if (ticker && this.latestPrices[ticker] !== undefined) {
-                        rawPrice = this.latestPrices[ticker];
-                    } else if (this.latestPrices[isin] !== undefined) {
-                        rawPrice = this.latestPrices[isin];
-                    }
-
-                    if (this.isUsdAsset(isin)) {
-                        return `$ ${rawPrice.toFixed(2)} USD`;
-                    }
-                    return `€ ${rawPrice.toFixed(2)}`;
-                },
-
-                getAssetPriceInEur(isin) {
-                    const ticker = this.assetMapping[isin]?.ticker;
-                    let rawPrice = 0;
-
-                    if (ticker && this.latestPrices[ticker] !== undefined) {
-                        rawPrice = this.latestPrices[ticker];
-                    } else if (this.latestPrices[isin] !== undefined) {
-                        rawPrice = this.latestPrices[isin];
-                    } else {
-                        const pos = this.positions.find(p => p.isin === isin);
-                        return pos ? pos.avgPrice : 0;
-                    }
-
-                    if (this.isUsdAsset(isin)) {
-                        const rate = this.rates.USDEUR || 0.92;
-                        return rawPrice * rate;
-                    }
-
-                    return rawPrice;
                 },
 
                 parseNum(val) {
@@ -1090,7 +1097,8 @@
                         const isin = this.selectedTwrAsset;
                         assetName = pos ? pos.name : isin;
                         const ticker = this.assetMapping[isin]?.ticker;
-                        const isUsd = this.isUsdAsset(isin);
+                        const ccy = this.getAssetCurrency(isin);
+                        const isNonEur = ccy !== 'EUR';
 
                         const buyTrades = this.transactions.filter(t => this.getVal(t, 'Asset Id') === isin && this.getVal(t, 'Transaction Type') === 'Buy Trade')
                             .sort((a,b) => this.getVal(a, 'Transaction Time (CET)').localeCompare(this.getVal(b, 'Transaction Time (CET)')));
@@ -1099,14 +1107,25 @@
                         if (this.historyData.dates && this.historyData.dates.length > 0 && ticker && this.historyData.prices[ticker]) {
                             const allDates = this.historyData.dates;
                             const allPrices = this.historyData.prices[ticker];
-                            const usdRates = this.historyData.prices['CURRENCY:USDEUR'] || [];
+                            const fxTicker = (ccy === 'GBX') ? 'CURRENCY:GBPEUR' : `CURRENCY:${ccy}EUR`;
 
                             let basePriceEur = null;
 
                             for (let i = 0; i < allDates.length; i++) {
                                 if (allDates[i] >= startDate && allPrices[i] > 0) {
                                     let priceEur = allPrices[i];
-                                    if (isUsd && usdRates[i]) priceEur = priceEur * usdRates[i];
+                                    if (isNonEur) {
+                                        let fxRate = 1.0;
+                                        if (this.historyData.prices && this.historyData.prices[fxTicker] && this.historyData.prices[fxTicker][i]) {
+                                            fxRate = this.historyData.prices[fxTicker][i];
+                                            if (ccy === 'GBX') fxRate /= 100.0;
+                                        } else if (this.rates && this.rates[ccy]) {
+                                            fxRate = this.rates[ccy];
+                                        } else if (ccy === 'USD' && this.rates && this.rates.USDEUR) {
+                                            fxRate = this.rates.USDEUR;
+                                        }
+                                        priceEur *= fxRate;
+                                    }
 
                                     if (basePriceEur === null) basePriceEur = priceEur;
 
@@ -1238,8 +1257,19 @@
                             const idx = this.historyData.dates.indexOf(dateStr);
                             if (idx !== -1) {
                                 price = this.historyData.prices[ticker][idx];
-                                if (this.isUsdAsset(pos.isin) && this.historyData.prices['CURRENCY:USDEUR']) {
-                                    price *= this.historyData.prices['CURRENCY:USDEUR'][idx];
+                                const ccy = this.getAssetCurrency(pos.isin);
+                                if (ccy !== 'EUR') {
+                                    const fxTicker = (ccy === 'GBX') ? 'CURRENCY:GBPEUR' : `CURRENCY:${ccy}EUR`;
+                                    let fxRate = 1.0;
+                                    if (this.historyData.prices && this.historyData.prices[fxTicker] && this.historyData.prices[fxTicker][idx]) {
+                                        fxRate = this.historyData.prices[fxTicker][idx];
+                                        if (ccy === 'GBX') fxRate /= 100.0;
+                                    } else if (this.rates && this.rates[ccy]) {
+                                        fxRate = this.rates[ccy];
+                                    } else if (ccy === 'USD' && this.rates && this.rates.USDEUR) {
+                                        fxRate = this.rates.USDEUR;
+                                    }
+                                    price *= fxRate;
                                 }
                             }
                         }
@@ -1373,6 +1403,7 @@
                         this.positions = [];
                         this.assetMapping = {};
                         this.latestPrices = {};
+                        this.currencies = {};
                         this.historyData = { dates: [], tickers: [], prices: {} };
                         this.loadedFileName = '';
                         this.uploadMessage = '';
@@ -1385,6 +1416,7 @@
                         transactions: this.transactions,
                         mapping: this.assetMapping,
                         prices: this.latestPrices,
+                        currencies: this.currencies,
                         rates: this.rates,
                         history: this.historyData,
                         filename: this.loadedFileName
