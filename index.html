@@ -319,16 +319,9 @@
                         <label class="text-xs text-slate-400 font-medium">Kies weergave:</label>
                         <select x-model="selectedTwrAsset" @change="onTwrAssetChange()" class="bg-[#132247] border border-[#1e3260] text-xs rounded-xl px-3 py-1.5 text-slate-100 focus:outline-none focus:border-[#10b981]">
                             <option value="portfolio">Totale Portefeuille (TWR)</option>
-                            <optgroup label="Openstaande Posities">
-                                <template x-for="pos in positions" :key="pos.isin">
-                                    <option :value="pos.isin" x-text="pos.name"></option>
-                                </template>
-                            </optgroup>
-                            <optgroup label="Gesloten Posities">
-                                <template x-for="cp in closedPositionsList" :key="cp.isin">
-                                    <option :value="cp.isin" x-text="cp.name + ' (Gesloten)'"></option>
-                                </template>
-                            </optgroup>
+                            <template x-for="item in twrAssetSelectOptions" :key="item.value">
+                                <option :value="item.value" x-text="item.label"></option>
+                            </template>
                         </select>
                     </div>
                 </div>
@@ -769,6 +762,22 @@
                     this.$nextTick(() => { this.renderDonutCharts(); });
                 },
 
+                // Genereert een propere lijst van opties voor de TWR-dropdown
+                get twrAssetSelectOptions() {
+                    let list = [];
+                    // Openstaande posities
+                    this.positions.forEach(p => {
+                        list.push({ value: p.isin, label: `${p.name} (Open)` });
+                    });
+                    // Gesloten posities
+                    this.closedPositionsList.forEach(cp => {
+                        if (!this.positions.some(p => p.isin === cp.isin)) {
+                            list.push({ value: cp.isin, label: `${cp.name} (Gesloten)` });
+                        }
+                    });
+                    return list;
+                },
+
                 setTwrHorizon(horizonKey) {
                     this.twrHorizon = horizonKey;
                     this.updateTwrView();
@@ -832,7 +841,7 @@
                         }
                     }
 
-                    // 3. Match zonder beursvoorvoegsel (bv. ASML bij AMS:ASML of NVDA bij NASDAQ:NVDA)
+                    // 3. Match zonder beursvoorvoegsel (bv. ASML bij AMS:ASML)
                     const baseSymbol = cleanTicker.includes(':') ? cleanTicker.split(':')[1].trim().toUpperCase() : cleanTicker.toUpperCase();
                     for (let key in hp) {
                         const keyBase = key.includes(':') ? key.split(':')[1].trim().toUpperCase() : key.trim().toUpperCase();
@@ -1208,6 +1217,9 @@
                         this.syncStatus = `Opgeslagen: ${ticker || isin} (${currency})`;
                         this.uploadMessage = `Asset ${mappingItem.name || isin} bijgewerkt: ticker '${ticker}', valuta '${currency}'.`;
                         this.renderDonutCharts();
+                        if (this.activeTab === 'twr') {
+                            this.updateTwrView();
+                        }
                     }).catch(err => {
                         console.error('Fout bij verzenden naar backend:', err);
                         this.syncStatus = 'Fout bij opslaan';
@@ -1373,7 +1385,7 @@
                     this.positions = Object.values(posMap).filter(p => p.quantity > 0.0001);
                 },
 
-                // TWR Curve & Horizon berekening
+                // TWR Rendement, Horizon en Markers Berekening
                 updateTwrView() {
                     const canvas = document.getElementById('twrChartCanvas');
                     if (!canvas) return;
@@ -1387,6 +1399,7 @@
                         maxAvailableDate = this.historyData.dates[this.historyData.dates.length - 1];
                     }
 
+                    // Enkel gevuld bij individuele aandelen!
                     const tradeDetailsByDate = {};
 
                     if (this.selectedTwrAsset !== 'portfolio') {
@@ -1497,7 +1510,7 @@
                         this.currentTwrMetrics = { returnPct: currentTwr, startDate: startDate, endDate: endDate, athPct: ath };
 
                     } else {
-                        // 2. TOTALE PORTEFEUILLE (ZONDER KOOP/VERKOOP MARKERS)
+                        // 2. TOTALE PORTEFEUILLE (STRIKTE LIJN, GÉÉN TRANSACTIEMARKERS)
                         assetName = "Totale Portefeuille";
                         const firstTx = this.transactions.filter(t => this.getVal(t, 'Transaction Category') === 'deposits')
                             .sort((a,b) => this.getVal(a, 'Transaction Time (CET)').localeCompare(this.getVal(b, 'Transaction Time (CET)')));
@@ -1581,7 +1594,7 @@
                                 pointBorderWidths.push(2);
                             }
                         } else {
-                            // Portfolio TWR (of dagen zonder transactie): geen markers, strakke curve
+                            // Portefeuille TWR (of dagen zonder transactie): GEEN icoontjes, strakke curve
                             pointStyles.push('circle');
                             pointRadii.push(labels.length > 60 ? 0 : 2);
                             pointHoverRadii.push(5);
