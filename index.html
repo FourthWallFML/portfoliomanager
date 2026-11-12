@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#070d1e">
   <link rel="apple-touch-icon" href="icon-192.png">
-  
+
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Alpine.js -->
@@ -45,10 +45,10 @@
   </div>
 
   <div class="max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-5">
-    
+
     <!-- Header: Compactere Banner Links & Functioneel Menu Rechts -->
     <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-3 sm:p-4 shadow-xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-      
+
       <div class="flex items-center gap-4">
         <img src="banner.jpg" alt="Key Analysis" class="h-14 sm:h-16 w-auto max-w-[240px] sm:max-w-xs object-cover rounded-xl border border-[#1e3260] shadow" />
         <div>
@@ -65,11 +65,11 @@
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
           <span>Upload CSV</span>
         </label>
-        <input type="file" 
-             id="csvFileInputMain" 
-             accept=".csv,text/csv,text/plain,application/vnd.ms-excel,*/*" 
-             @change="handleFileUpload($event)" 
-             class="sr-only" />
+        <input type="file"
+           id="csvFileInputMain"
+           accept=".csv,text/csv,text/plain,application/vnd.ms-excel,*/*"
+           @change="handleFileUpload($event)"
+           class="sr-only" />
 
         <button type="button" @click="fetchGoogleSheetData()" class="bg-[#132247] hover:bg-[#182b59] text-slate-200 border border-[#1e3260] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-[#38bdf8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
@@ -85,43 +85,43 @@
     </div>
 
     <!-- Status Notificatie bij inladen -->
-    <div x-show="uploadMessage" 
-       x-transition 
-       class="p-3.5 rounded-xl bg-[#10b981]/15 border border-[#10b981]/30 text-[#34d399] text-xs font-medium flex justify-between items-center shadow-lg">
+    <div x-show="uploadMessage"
+      x-transition
+      class="p-3.5 rounded-xl bg-[#10b981]/15 border border-[#10b981]/30 text-[#34d399] text-xs font-medium flex justify-between items-center shadow-lg">
       <span x-text="uploadMessage"></span>
       <button @click="uploadMessage = ''" class="text-white hover:text-slate-300 ml-3 font-bold">✕</button>
     </div>
 
     <!-- Tab Navigatie -->
     <nav class="flex flex-wrap gap-2 border-b border-[#182649] pb-2">
-      <button @click="destroyTabCharts('dashboard'); activeTab = 'dashboard'; $nextTick(() => renderDonutCharts())" 
-          :class="activeTab === 'dashboard' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'" 
+      <button @click="destroyTabCharts('dashboard'); activeTab = 'dashboard'; $nextTick(() => renderDonutCharts())"
+          :class="activeTab === 'dashboard' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'"
           class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
         Dashboard
       </button>
-      <button @click="destroyTabCharts('twr'); activeTab = 'twr'; $nextTick(() => updateTwrView())" 
-          :class="activeTab === 'twr' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'" 
+      <button @click="destroyTabCharts('twr'); activeTab = 'twr'; $nextTick(() => updateTwrView())"
+          :class="activeTab === 'twr' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'"
           class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
         TWR Rendement
       </button>
-      <button @click="destroyTabCharts('posities'); activeTab = 'posities'" 
-          :class="activeTab === 'posities' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'" 
+      <button @click="destroyTabCharts('posities'); activeTab = 'posities'"
+          :class="activeTab === 'posities' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'"
           class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         Posities & Koersen
         <span class="bg-[#080e22] text-[10px] px-2 py-0.5 rounded-full border border-[#1e3260] text-slate-300 font-mono" x-text="positions.length"></span>
       </button>
-      <button @click="destroyTabCharts('dividenden'); activeTab = 'dividenden'; $nextTick(() => renderDividendCharts())" 
-          :class="activeTab === 'dividenden' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'" 
+      <button @click="destroyTabCharts('dividenden'); activeTab = 'dividenden'; $nextTick(() => renderDividendCharts())"
+          :class="activeTab === 'dividenden' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'"
           class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         Dividenden
         <span class="bg-[#080e22] text-[10px] px-2 py-0.5 rounded-full border border-[#1e3260] text-[#34d399] font-mono" x-text="dividendSummary.payingAssetsCount"></span>
       </button>
-      <button @click="openAssetDetail(selectedDetailIsin)" 
-          :class="activeTab === 'assetDetail' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'" 
+      <button @click="openAssetDetail(selectedDetailIsin)"
+          :class="activeTab === 'assetDetail' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'"
           class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
         Asset Detail
@@ -133,10 +133,10 @@
       <div class="bg-[#800020]/20 border-l-4 border-[#b83344] p-3.5 rounded-r-xl border border-[#800020]/40">
         <div class="flex items-center justify-between">
           <p class="text-xs text-slate-200">
-            Let op: Er zijn 
+            Let op: Er zijn
             <button type="button" @click="showUnmappedDetails = !showUnmappedDetails" class="font-black text-[#f87171] underline cursor-pointer">
               <span x-text="unmappedIsins.length"></span>
-            </button> 
+            </button>
             assets zonder ticker gemapt.
           </p>
           <button type="button" @click="showUnmappedDetails = !showUnmappedDetails" class="text-xs text-[#f87171] hover:text-white underline" x-text="showUnmappedDetails ? 'Verberg ▲' : 'Toon ▼'"></button>
@@ -145,7 +145,7 @@
           <template x-for="isin in unmappedIsins" :key="isin">
             <div class="p-2.5 bg-[#080e22] rounded-xl border border-[#1e3260] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div class="truncate">
-                <div class="text-xs font-bold text-slate-200 truncate" x-text="getAssetDisplayName(isin)"></div>
+                <div class="text-xs font-bold text-slate-200 truncate" x-text="assetMapping[isin]?.name || isin"></div>
                 <div class="text-[10px] text-slate-400 font-mono" x-text="isin"></div>
               </div>
               <div class="flex items-center gap-1.5 shrink-0">
@@ -188,7 +188,7 @@
             <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold">Afhalingen (Withdrawals)</span>
             <div class="text-base font-bold text-slate-200 mt-0.5 font-mono" x-text="formatCurrency(totals.withdrawals)"></div>
           </div>
-          
+
           <div @click="showClosedPositionsModal = true" class="cursor-pointer group">
             <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold flex items-center gap-1 group-hover:text-[#38bdf8] transition">
               Gerealiseerd (Gesloten)
@@ -197,7 +197,7 @@
             <div class="text-base font-bold mt-0.5 font-mono underline decoration-dotted underline-offset-4" :class="totals.realizedPnL >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="formatCurrency(totals.realizedPnL)"></div>
           </div>
 
-          <div @click="activeTab = 'posities'" class="cursor-pointer group">
+          <div @click="destroyTabCharts('posities'); activeTab = 'posities'" class="cursor-pointer group">
             <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold flex items-center gap-1 group-hover:text-[#38bdf8] transition">
               Ongerealiseerd (Open)
               <svg class="w-3 h-3 text-[#38bdf8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
@@ -206,7 +206,7 @@
           </div>
 
           <!-- Expliciete Dividend Inkomsten KPI op Dashboard -->
-          <div @click="activeTab = 'dividenden'; $nextTick(() => renderDividendCharts())" class="cursor-pointer group">
+          <div @click="destroyTabCharts('dividenden'); activeTab = 'dividenden'; $nextTick(() => renderDividendCharts())" class="cursor-pointer group">
             <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold flex items-center gap-1 group-hover:text-[#34d399] transition">
               Dividend Inkomsten
               <svg class="w-3 h-3 text-[#34d399]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
@@ -216,9 +216,44 @@
         </div>
       </div>
 
+      <!-- PORTEFEUILLE RENDEMENT (TWR) PER PERIODE: 1W, 1M, 3M, 6M, YTD, 1J -->
+      <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-4 sm:p-5 shadow-xl space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs uppercase tracking-wider text-slate-300 font-bold">Portefeuille Rendement (TWR)</span>
+            <span class="text-[10px] text-slate-400 bg-[#080e22] px-2 py-0.5 rounded-full border border-[#1e3260]">Time-Weighted Return</span>
+          </div>
+          <button type="button"
+                  @click="destroyTabCharts('twr'); activeTab = 'twr'; $nextTick(() => updateTwrView())"
+                  class="text-[11px] text-[#38bdf8] hover:text-white font-semibold flex items-center gap-1 transition self-start sm:self-auto">
+            <span>Bekijk grafiek & benchmarks</span>
+            <span>→</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          <template x-for="item in portfolioReturnsSummary" :key="item.key">
+            <button type="button"
+                    @click="destroyTabCharts('twr'); twrHorizon = item.key; activeTab = 'twr'; $nextTick(() => updateTwrView())"
+                    :title="'Klik om ' + item.fullLabel + ' in de TWR-grafiek te openen (' + item.startDate + ' t/m ' + item.endDate + ')'"
+                    class="bg-[#080e22] hover:bg-[#132247]/80 border border-[#1e3260] hover:border-[#38bdf8]/50 rounded-xl p-3 text-left transition group cursor-pointer flex flex-col justify-between">
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-200" x-text="item.label"></span>
+                <span class="text-[10px] text-slate-500 group-hover:text-[#38bdf8] transition">↗</span>
+              </div>
+              <div class="text-lg sm:text-xl font-black font-mono mt-1"
+                   :class="item.returnPct >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'"
+                   x-text="formatSignedPct(item.returnPct)">
+              </div>
+              <span class="text-[10px] text-slate-500 font-mono mt-0.5 truncate" x-text="item.subLabel"></span>
+            </button>
+          </template>
+        </div>
+      </div>
+
       <!-- Twee Containers met Donut Charts -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        
+
         <!-- Portefeuilleverdeling -->
         <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl flex flex-col justify-between">
           <div>
@@ -226,7 +261,7 @@
               <h3 class="text-sm font-bold text-slate-200">Portefeuilleverdeling</h3>
               <span class="text-xs text-[#38bdf8] font-mono">Shades of Blue</span>
             </div>
-            
+
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
               <div class="sm:col-span-5 relative flex items-center justify-center h-40">
                 <canvas id="allocationDonutChart"></canvas>
@@ -330,43 +365,55 @@
     <!-- ============================================== -->
     <div x-show="activeTab === 'twr'" class="space-y-5">
       <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-4">
-        
+
         <!-- Bovenste rij: Titel & Horizon Keuzebalk -->
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
           <div>
             <h3 class="text-sm font-bold text-slate-200">Portefeuille TWR & Waardeontwikkeling</h3>
             <p class="text-xs text-slate-400">Time-Weighted Return (%) vergeleken met benchmarks en totale portefeuillewaarde (€).</p>
           </div>
-          
+
           <!-- Horizon Keuzebalk -->
           <div class="flex flex-wrap items-center gap-1.5">
             <span class="text-xs text-slate-400 font-medium mr-1">Horizon:</span>
             <template x-for="h in horizonOptions" :key="h.key">
-              <button type="button" 
-                  @click="setTwrHorizon(h.key)" 
-                  :class="twrHorizon === h.key ? 'bg-[#10b981] text-slate-950 font-bold shadow-sm' : 'bg-[#132247] text-slate-300 hover:text-white hover:bg-[#18274f] border border-[#1e3260]'" 
-                  class="px-2.5 py-1 rounded-lg text-xs transition" 
-                  x-text="h.label">
+              <button type="button"
+                @click="setTwrHorizon(h.key)"
+                :class="twrHorizon === h.key ? 'bg-[#10b981] text-slate-950 font-bold shadow-sm' : 'bg-[#132247] text-slate-300 hover:text-white hover:bg-[#18274f] border border-[#1e3260]'"
+                class="px-2.5 py-1 rounded-lg text-xs transition"
+                x-text="h.label">
               </button>
             </template>
           </div>
         </div>
 
-        <!-- Tweede rij: 4 Togglebare Benchmarks + Legenda -->
+        <!-- Tweede rij: Togglebare Benchmarks + Legenda -->
         <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#182649]/60">
           <div class="flex flex-wrap items-center gap-2">
             <span class="text-xs text-slate-400 font-medium mr-1">Benchmarks:</span>
             <template x-for="bm in benchmarkConfigs" :key="bm.id">
               <button type="button"
-                  @click="toggleBenchmark(bm.id)"
-                  :class="bm.enabled ? 'bg-[#132247] text-white border-opacity-80 shadow-sm' : 'bg-[#080e22]/70 text-slate-400 border-[#1e3260]/60 opacity-65 hover:opacity-100'"
-                  :style="bm.enabled ? `border-color: ${bm.color}` : ''"
-                  class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition flex items-center gap-2 cursor-pointer">
+                @click="toggleBenchmark(bm.id)"
+                :title="hasBenchmarkHistory(bm) ? ('Ticker: ' + bm.ticker) : ('Geen historische koersdata in backend voor ' + bm.ticker)"
+                :class="bm.enabled ? 'bg-[#132247] text-white border-opacity-80 shadow-sm' : 'bg-[#080e22]/70 text-slate-400 border-[#1e3260]/60 opacity-65 hover:opacity-100'"
+                :style="bm.enabled ? `border-color: ${bm.color}` : ''"
+                class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition flex items-center gap-2 cursor-pointer">
                 <span class="w-2.5 h-2.5 rounded-full shrink-0" :style="`background-color: ${bm.color}`"></span>
                 <span x-text="bm.label"></span>
+                <template x-if="!hasBenchmarkHistory(bm)">
+                  <span class="text-[9px] text-amber-400 font-mono" title="Nog geen koersdata gesynchroniseerd">⚠️</span>
+                </template>
                 <span class="text-[10px] font-mono" x-text="bm.enabled ? '✓' : '+'"></span>
               </button>
             </template>
+            <template x-if="benchmarkConfigs.length === 0">
+              <span class="text-[11px] text-slate-500 italic">Geen benchmarks geconfigureerd in backend.</span>
+            </template>
+            <button type="button"
+                @click="showManageBenchmarksModal = true"
+                class="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-[#080e22] hover:bg-[#132247] text-[#38bdf8] border border-[#1e3260] transition flex items-center gap-1">
+              <span>⚙ Beheren</span>
+            </button>
           </div>
 
           <!-- Grafiek Legende (Lijn vs Balk) -->
@@ -412,7 +459,7 @@
     <!-- TAB 3: POSITIES & KOERSEN (MET SORTEREN & CA)  -->
     <!-- ============================================== -->
     <div x-show="activeTab === 'posities'" class="space-y-6">
-      
+
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Asset Mapping Sidebar -->
         <div class="lg:col-span-1 space-y-6" x-show="unmappedIsins.length > 0">
@@ -466,7 +513,7 @@
             <table class="w-full text-left border-collapse select-none">
               <thead>
                 <tr class="bg-[#080e22] text-slate-400 text-[10px] uppercase tracking-wider font-semibold">
-                  
+
                   <th @click="setSort('name')" class="p-4 cursor-pointer hover:text-white transition">
                     <div class="flex items-center gap-1.5">
                       <span>Asset</span>
@@ -527,19 +574,19 @@
               <tbody class="divide-y divide-[#182649] text-xs">
                 <template x-for="pos in sortedPositions" :key="pos.isin">
                   <tr class="hover:bg-[#132247]/40 transition group">
-                    
+
                     <td class="p-4">
                       <div class="flex items-center gap-1.5 flex-wrap">
                         <button type="button" @click="openAssetDetail(pos.isin)" title="Bekijk Asset Detail & TWR" class="font-bold text-slate-100 hover:text-[#38bdf8] underline decoration-dotted decoration-slate-600 hover:decoration-[#38bdf8] underline-offset-4 text-left transition cursor-pointer" x-text="getAssetDisplayName(pos)"></button>
                         <template x-if="getAssetCurrency(pos.isin) !== 'EUR'">
-                          <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-[#38bdf8] border border-blue-500/30 uppercase font-mono" 
-                              x-text="getAssetCurrency(pos.isin)">
+                          <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-[#38bdf8] border border-blue-500/30 uppercase font-mono"
+                             x-text="getAssetCurrency(pos.isin)">
                           </span>
                         </template>
                         <template x-if="pos.caBadge">
-                          <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono cursor-help" 
-                              :title="pos.caNote || 'Corporate Action toegepast'"
-                              x-text="pos.caBadge">
+                          <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono cursor-help"
+                             :title="pos.caNote || 'Corporate Action toegepast'"
+                             x-text="pos.caBadge">
                           </span>
                         </template>
                         <button type="button" @click="openEditAssetModal(pos.isin)" title="Ticker & Valuta handmatig aanpassen" class="text-slate-500 hover:text-[#38bdf8] p-0.5 transition">
@@ -550,25 +597,25 @@
                     </td>
 
                     <td class="p-4">
-                      <span class="text-[10px] px-2 py-0.5 rounded font-semibold" 
-                          :class="pos.isEtf ? 'bg-[#38bdf8]/15 text-[#38bdf8] border border-[#38bdf8]/30' : 'bg-[#818cf8]/15 text-[#a5b4fc] border border-[#818cf8]/30'"
-                          x-text="pos.isEtf ? 'ETF' : 'Aandeel'">
+                      <span class="text-[10px] px-2 py-0.5 rounded font-semibold"
+                         :class="pos.isEtf ? 'bg-[#38bdf8]/15 text-[#38bdf8] border border-[#38bdf8]/30' : 'bg-[#818cf8]/15 text-[#a5b4fc] border border-[#818cf8]/30'"
+                         x-text="pos.isEtf ? 'ETF' : 'Aandeel'">
                       </span>
                     </td>
 
                     <td class="p-4 text-right font-mono" x-text="pos.quantity.toFixed(4)"></td>
 
                     <td class="p-4 text-right font-mono" x-text="formatCurrency(pos.avgPrice)"></td>
-                    
+
                     <td class="p-4 text-right font-mono text-slate-300">
                       <span x-text="formatOriginalPrice(pos.isin)"></span>
                     </td>
-                    
+
                     <td class="p-4 text-right font-mono">
                       <div class="flex items-center justify-end gap-1.5">
                         <template x-if="hasPriceWarning(pos)">
                           <span class="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 cursor-help"
-                              :title="getPriceWarningTitle(pos)">
+                             :title="getPriceWarningTitle(pos)">
                             <span>⚠️</span>
                             <span x-text="getAssetPriceInEur(pos.isin) === 0 ? '0' : 'GAK'"></span>
                           </span>
@@ -577,7 +624,7 @@
                         <span class="text-[#34d399] font-bold" x-text="formatCurrency(getAssetPriceInEur(pos.isin))"></span>
                       </div>
                     </td>
-                    
+
                     <td class="p-4 text-right font-bold font-mono text-slate-100">
                       <div class="flex items-center justify-end gap-1">
                         <template x-if="(pos.quantity * getAssetPriceInEur(pos.isin)) === 0">
@@ -586,9 +633,9 @@
                         <span x-text="formatCurrency(pos.quantity * getAssetPriceInEur(pos.isin))"></span>
                       </div>
                     </td>
-                    
-                    <td class="p-4 text-right font-bold font-mono" 
-                      :class="(pos.quantity * getAssetPriceInEur(pos.isin) - (pos.quantity * pos.avgPrice)) >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" 
+
+                    <td class="p-4 text-right font-bold font-mono"
+                      :class="(pos.quantity * getAssetPriceInEur(pos.isin) - (pos.quantity * pos.avgPrice)) >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'"
                       x-text="formatCurrency((pos.quantity * getAssetPriceInEur(pos.isin)) - (pos.quantity * pos.avgPrice))">
                     </td>
                   </tr>
@@ -640,7 +687,7 @@
 
       <!-- 2. Grafieken: Dividend per Periode (Bar) & Verdeling per Stock (Donut) -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        
+
         <!-- Bar Chart: Dividend Inkomsten per Maand / Jaar -->
         <div class="lg:col-span-7 bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl flex flex-col justify-between">
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-[#182649] mb-4">
@@ -841,7 +888,7 @@
       <!-- Bovenste Selectiebalk & Horizon Controls -->
       <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-4 sm:p-5 shadow-xl space-y-4">
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-          
+
           <!-- Dropdown Box met alle bekende assets uit allKnownAssets -->
           <div class="flex flex-col sm:flex-row sm:items-center gap-2.5 w-full lg:w-auto">
             <label for="assetDetailSelect" class="text-xs text-slate-400 font-semibold uppercase tracking-wider shrink-0">Kies Asset:</label>
@@ -894,20 +941,20 @@
 
       <!-- Hoofd Grid: Grafiek & KPI's Links (lg:col-span-8) | Bedrijfsprofiel & Metadata Rechts (lg:col-span-4) -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        
+
         <!-- Linker Kolom (8/12): KPI Tegels + Interactieve Stock TWR Grafiek -->
         <div class="lg:col-span-8 space-y-5">
-          
+
           <!-- 3 KPI Tegels -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            
+
             <!-- Tegel 1: Periode Rendement (TWR %) + Portefeuille Benchmark Sub-label -->
             <div class="bg-[#0b142c] p-4 rounded-2xl border border-[#1b2b52] shadow-lg flex flex-col justify-between">
               <div>
                 <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold block" x-text="'Periode Rendement (' + detailHorizon + ')'"></span>
                 <div class="text-2xl font-black mt-1 font-mono"
-                   :class="detailMetrics.cumulativePct >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'"
-                   x-text="formatSignedPct(detailMetrics.cumulativePct)">
+                  :class="detailMetrics.cumulativePct >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'"
+                  x-text="formatSignedPct(detailMetrics.cumulativePct)">
                 </div>
               </div>
               <div class="mt-2.5 pt-2 border-t border-[#182649] flex items-center justify-between text-[11px] text-slate-400">
@@ -925,8 +972,8 @@
                 <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold block">Geannualiseerd (1Y CAGR)</span>
                 <template x-if="!detailMetrics.isShortHorizon">
                   <div class="text-2xl font-black mt-1 font-mono"
-                     :class="detailMetrics.annualizedPct >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'"
-                     x-text="formatSignedPct(detailMetrics.annualizedPct)">
+                    :class="detailMetrics.annualizedPct >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'"
+                    x-text="formatSignedPct(detailMetrics.annualizedPct)">
                   </div>
                 </template>
                 <template x-if="detailMetrics.isShortHorizon">
@@ -999,8 +1046,8 @@
               <div class="p-3.5 rounded-xl bg-[#080e22] border border-[#1e3260]/70 space-y-1.5">
                 <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold block">Korte Beschrijving</span>
                 <p class="leading-relaxed"
-                  :class="currentAssetMetadata.description ? 'text-slate-200' : 'text-slate-400 italic'"
-                  x-text="currentAssetMetadata.description || ('Bedrijfsomschrijving wordt binnenkort toegevoegd voor ' + (getAssetDisplayName(selectedDetailIsin) || 'dit effect') + '...')">
+                 :class="currentAssetMetadata.description ? 'text-slate-200' : 'text-slate-400 italic'"
+                 x-text="currentAssetMetadata.description || ('Bedrijfsomschrijving wordt binnenkort toegevoegd voor ' + (getAssetDisplayName(selectedDetailIsin) || 'dit effect') + '...')">
                 </p>
               </div>
 
@@ -1074,314 +1121,393 @@
       </div>
     </div>
 
-    <!-- Modal 1: Individueel Asset Bewerken -->
-    <div x-show="showEditAssetModal" 
-       x-transition 
-       class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-md p-5 shadow-2xl space-y-4">
-        <div class="flex justify-between items-start border-b border-[#182649] pb-3">
-          <div>
-            <h3 class="text-base font-bold text-slate-100" x-text="editingAsset.name || 'Asset Configureren'"></h3>
-            <p class="text-[11px] text-slate-400 font-mono mt-0.5" x-text="'ISIN: ' + editingAsset.isin"></p>
-          </div>
-          <button @click="showEditAssetModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+  </div>
+
+  <!-- Modal 5: Benchmarks Beheren (Google Sheet Backend) -->
+  <div x-show="showManageBenchmarksModal"
+    x-transition
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-3xl max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-[#182649] flex justify-between items-center">
+        <div>
+          <h3 class="text-base font-bold text-slate-100">Benchmarks Beheren (Backend)</h3>
+          <p class="text-[11px] text-slate-400">Benchmarks worden opgeslagen in het tabblad <code>Benchmarks</code> van je Google Sheet en automatisch opgehaald via Google Finance.</p>
         </div>
-
-        <div class="space-y-3 text-xs">
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">Naam Stock / ETF</label>
-            <input type="text" x-model="editingAsset.name" placeholder="bv. Aedifica, ASML Holding, iShares Core MSCI World" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-[#10b981]">
-          </div>
-
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">Google Finance Ticker</label>
-            <input type="text" x-model="editingAsset.ticker" placeholder="bv. NASDAQ:NVDA, AMS:ASML, LON:SHEL" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-[#10b981]">
-            <span class="text-[10px] text-slate-400 mt-1 block">Voorbeeld: <code>NASDAQ:NVDA</code>, <code>AMS:ASML</code>, <code>LON:SHEL</code></span>
-          </div>
-
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1">Valuta (Currency)</label>
-            <input type="text" x-model="editingAsset.currency" list="currencyList" placeholder="EUR, USD, GBP, GBX, CHF, CAD..." class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono uppercase focus:outline-none focus:border-[#10b981]">
-            <span class="text-[10px] text-slate-400 mt-1 block">Kies uit de lijst of typ de code. Britse pence = <code>GBX</code>, Britse ponden = <code>GBP</code>.</span>
-          </div>
-        </div>
-
-        <div class="flex justify-end gap-2 pt-3 border-t border-[#182649]">
-          <button type="button" @click="showEditAssetModal = false" class="bg-[#132247] hover:bg-[#18274f] text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition">Annuleren</button>
-          <button type="button" @click="saveEditedAsset()" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow">
-            <span>Opslaan in Backend</span>
-          </button>
-        </div>
+        <button @click="showManageBenchmarksModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
       </div>
-    </div>
 
-    <!-- Modal 2: Alle Tickers & Valuta's Beheren -->
-    <div x-show="showManageMappingsModal" 
-       x-transition 
-       class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-        <div class="p-4 border-b border-[#182649] flex justify-between items-center">
-          <div>
-            <h3 class="text-base font-bold text-slate-100">Tickers & Valuta Beheren</h3>
-            <p class="text-[11px] text-slate-400">Pas per asset handmatig de Google ticker en valuta aan en sla direct op in de Google Sheet backend.</p>
+      <div class="p-4 overflow-y-auto space-y-5 text-xs">
+        <div class="bg-[#080e22] p-4 rounded-xl border border-[#1e3260] space-y-3">
+          <div class="font-bold text-slate-200 uppercase tracking-wider">Nieuwe Benchmark Toevoegen</div>
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end">
+            <div class="sm:col-span-4">
+              <label class="block text-slate-400 font-semibold mb-1">Weergavenaam</label>
+              <input type="text" x-model="newBenchmark.label" placeholder="bv. MSCI World Index" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+            </div>
+            <div class="sm:col-span-4">
+              <label class="block text-slate-400 font-semibold mb-1">Google Finance Ticker</label>
+              <input type="text" x-model="newBenchmark.ticker" placeholder="bv. AMS:IWDA of INDEXSP:.INX" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-slate-400 font-semibold mb-1">Valuta</label>
+              <input type="text" x-model="newBenchmark.currency" list="currencyList" placeholder="EUR" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-2.5 py-2 text-slate-100 font-mono uppercase text-center">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-slate-400 font-semibold mb-1">Kleur</label>
+              <input type="color" x-model="newBenchmark.color" class="w-full h-[34px] bg-[#132247] border border-[#1e3260] rounded-xl px-1 py-0.5 cursor-pointer">
+            </div>
           </div>
-          <button @click="showManageMappingsModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+          <div class="flex justify-end pt-1">
+            <button type="button" @click="addBenchmark()" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-2 rounded-xl transition shadow">
+              + Opslaan in Backend
+            </button>
+          </div>
         </div>
-        
-        <div class="p-4 overflow-y-auto space-y-2.5">
-          <template x-for="[isin, mapping] in activeAssetMappingEntries" :key="isin">
-            <div class="p-3 bg-[#080e22] rounded-xl border border-[#1e3260] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div class="truncate max-w-xs">
-                <div class="text-xs font-bold text-slate-200 truncate" x-text="getAssetDisplayName(isin)"></div>
-                <div class="text-[10px] text-slate-400 font-mono" x-text="isin"></div>
+
+        <div class="space-y-2">
+          <div class="font-bold text-slate-300 uppercase tracking-wider">Geconfigureerde Benchmarks (<span x-text="benchmarkConfigs.length"></span>)</div>
+          <template x-if="benchmarkConfigs.length === 0">
+            <div class="p-4 bg-[#080e22]/60 rounded-xl border border-[#1e3260]/60 text-slate-500 italic text-center">
+              Nog geen benchmarks aanwezig. Voeg er hierboven één toe of klik op 'Sync Sheet'.
+            </div>
+          </template>
+          <template x-for="(bm, idx) in benchmarkConfigs" :key="bm.id">
+            <div class="p-3 bg-[#080e22] rounded-xl border border-[#1e3260] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div class="flex flex-wrap items-center gap-2 flex-1">
+                <input type="color" x-model="bm.color" class="w-7 h-7 rounded bg-transparent border-0 cursor-pointer">
+                <input type="text" x-model="bm.label" placeholder="Naam" class="bg-[#132247] border border-[#1e3260] rounded-lg px-2.5 py-1.5 text-slate-100 font-semibold w-40">
+                <input type="text" x-model="bm.ticker" placeholder="Ticker" class="bg-[#132247] border border-[#1e3260] rounded-lg px-2.5 py-1.5 text-slate-100 font-mono w-36">
+                <input type="text" x-model="bm.currency" list="currencyList" placeholder="Valuta" class="bg-[#132247] border border-[#1e3260] rounded-lg px-2 py-1.5 text-slate-100 font-mono uppercase text-center w-16">
               </div>
-              <div class="flex items-center gap-2">
-                <input type="text" x-model="mapping.ticker" placeholder="Ticker (bv. AMS:ASML)" class="text-xs bg-[#132247] border border-[#1e3260] rounded-lg px-2.5 py-1.5 w-36 text-slate-100 focus:outline-none focus:border-[#10b981]">
-                <input type="text" x-model="mapping.currency" placeholder="Valuta" list="currencyList" class="text-xs bg-[#132247] border border-[#1e3260] rounded-lg px-2 py-1.5 w-20 text-slate-100 font-mono uppercase text-center focus:outline-none focus:border-[#10b981]">
-                <button @click="saveMappingToSheet(isin)" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition shrink-0 shadow">Opslaan</button>
+              <div class="flex items-center gap-2 shrink-0">
+                <button type="button" @click="saveBenchmarkToSheet(bm)" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-3 py-1.5 rounded-lg transition">Opslaan</button>
+                <button type="button" @click="removeBenchmark(idx)" class="bg-[#800020]/20 hover:bg-[#800020]/40 text-[#f87171] border border-[#800020]/40 px-2.5 py-1.5 rounded-lg font-semibold transition">✕</button>
               </div>
             </div>
           </template>
         </div>
+      </div>
 
-        <div class="p-3 border-t border-[#182649] flex justify-between items-center text-xs bg-[#080e22]">
-          <span class="text-slate-400">Wijzigingen worden direct gesynchroniseerd met de Google backend.</span>
-          <button @click="showManageMappingsModal = false" class="bg-[#132247] hover:bg-[#18274f] text-slate-200 font-bold px-4 py-1.5 rounded-xl transition">Sluiten</button>
-        </div>
+      <div class="p-3 border-t border-[#182649] flex justify-between items-center text-xs bg-[#080e22]">
+        <span class="text-slate-400">Na toevoegen/wijzigen: klik op <strong>Sync Sheet</strong> om de koershistorie op te halen.</span>
+        <button @click="showManageBenchmarksModal = false" class="bg-[#132247] hover:bg-[#18274f] text-slate-200 font-bold px-4 py-1.5 rounded-xl transition">Sluiten</button>
       </div>
     </div>
+  </div>
 
-    <!-- Modal 3: Gesloten Posities Overzicht -->
-    <div x-show="showClosedPositionsModal" 
-       x-transition 
-       class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden">
-        <div class="p-4 border-b border-[#182649] flex justify-between items-center">
-          <div>
-            <h3 class="text-sm font-bold text-slate-100">Gesloten Trades & Resultaat</h3>
-            <p class="text-[11px] text-slate-400">Overzicht van alle gerealiseerde verkooptransacties.</p>
-          </div>
-          <button @click="showClosedPositionsModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+  <!-- Modal 1: Individueel Asset Bewerken -->
+  <div x-show="showEditAssetModal"
+    x-transition
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-md p-5 shadow-2xl space-y-4">
+      <div class="flex justify-between items-start border-b border-[#182649] pb-3">
+        <div>
+          <h3 class="text-base font-bold text-slate-100" x-text="editingAsset.name || 'Asset Configureren'"></h3>
+          <p class="text-[11px] text-slate-400 font-mono mt-0.5" x-text="'ISIN: ' + editingAsset.isin"></p>
         </div>
-        <div class="p-4 overflow-y-auto">
-          <table class="w-full text-left text-xs">
-            <thead>
-              <tr class="text-slate-400 text-[10px] uppercase border-b border-[#182649] pb-2 font-semibold">
-                <th class="pb-2">Asset</th>
-                <th class="pb-2 text-right">Verkocht Aantal</th>
-                <th class="pb-2 text-right">Gerealiseerd Resultaat</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-[#182649]/60">
-              <template x-for="cp in closedPositionsList" :key="cp.isin">
-                <tr>
-                  <td class="py-2.5">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                      <span class="font-bold text-slate-200" x-text="getAssetDisplayName(cp)"></span>
-                      <template x-if="cp.note">
-                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono" x-text="cp.note"></span>
-                      </template>
-                    </div>
-                    <div class="text-[10px] text-slate-500 font-mono" x-text="cp.isin"></div>
-                  </td>
-                  <td class="py-2.5 text-right font-mono" x-text="cp.soldQuantity.toFixed(4)"></td>
-                  <td class="py-2.5 text-right font-mono font-bold" :class="cp.realizedPnL >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="formatCurrency(cp.realizedPnL)"></td>
-                </tr>
-              </template>
-              <template x-if="closedPositionsList.length === 0">
-                <tr>
-                  <td colspan="3" class="py-6 text-center text-slate-500 italic">Nog geen gesloten posities geregistreerd.</td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
+        <button @click="showEditAssetModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Naam Stock / ETF</label>
+          <input type="text" x-model="editingAsset.name" placeholder="bv. Aedifica, ASML Holding, iShares Core MSCI World" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-[#10b981]">
         </div>
-        <div class="p-3 border-t border-[#182649] flex justify-between items-center text-xs bg-[#080e22]">
-          <span class="text-slate-400">Totaal Gerealiseerde Winst</span>
-          <span class="font-bold font-mono text-sm" :class="totals.realizedPnL >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="formatCurrency(totals.realizedPnL)"></span>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Google Finance Ticker</label>
+          <input type="text" x-model="editingAsset.ticker" placeholder="bv. NASDAQ:NVDA, AMS:ASML, LON:SHEL" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-[#10b981]">
+          <span class="text-[10px] text-slate-400 mt-1 block">Voorbeeld: <code>NASDAQ:NVDA</code>, <code>AMS:ASML</code>, <code>LON:SHEL</code></span>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Valuta (Currency)</label>
+          <input type="text" x-model="editingAsset.currency" list="currencyList" placeholder="EUR, USD, GBP, GBX, CHF, CAD..." class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono uppercase focus:outline-none focus:border-[#10b981]">
+          <span class="text-[10px] text-slate-400 mt-1 block">Kies uit de lijst of typ de code. Britse pence = <code>GBX</code>, Britse ponden = <code>GBP</code>.</span>
         </div>
       </div>
+
+      <div class="flex justify-end gap-2 pt-3 border-t border-[#182649]">
+        <button type="button" @click="showEditAssetModal = false" class="bg-[#132247] hover:bg-[#18274f] text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition">Annuleren</button>
+        <button type="button" @click="saveEditedAsset()" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow">
+          <span>Opslaan in Backend</span>
+        </button>
+      </div>
     </div>
+  </div>
 
-    <!-- Modal 4: Corporate Actions Beheer -->
-    <div x-show="showCorporateActionsModal" 
-       x-transition 
-       class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-3xl max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
-        <div class="p-4 border-b border-[#182649] flex justify-between items-center">
-          <div>
-            <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
-              <span class="text-amber-400">⇄</span> Corporate Actions Beheren
-            </h3>
-            <p class="text-[11px] text-slate-400">Verwerk naamswijzigingen (bv. Barrick), overnames/fusies (bv. Cofinimmo → Aedifica) of splitsingen (bv. ÷ 100) met behoud van aankoopwaarde.</p>
-          </div>
-          <button @click="showCorporateActionsModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+  <!-- Modal 2: Alle Tickers & Valuta's Beheren -->
+  <div x-show="showManageMappingsModal"
+    x-transition
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-[#182649] flex justify-between items-center">
+        <div>
+          <h3 class="text-base font-bold text-slate-100">Tickers & Valuta Beheren</h3>
+          <p class="text-[11px] text-slate-400">Pas per asset handmatig de Google ticker en valuta aan en sla direct op in de Google Sheet backend.</p>
         </div>
+        <button @click="showManageMappingsModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+      </div>
 
-        <div class="p-4 overflow-y-auto space-y-5 text-xs">
-          <div class="bg-[#080e22] p-4 rounded-xl border border-[#1e3260] space-y-3">
-            <div class="font-bold text-slate-200 text-xs uppercase tracking-wider">Nieuwe Corporate Action Toevoegen</div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <button type="button" @click="newCa.type = 'merger'" :class="newCa.type === 'merger' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#132247] text-slate-300 border border-[#1e3260]'" class="p-2.5 rounded-xl text-center transition">
-                Overname / ISIN-wissel
-                <span class="block text-[10px] opacity-80 font-normal">bv. Cofinimmo → Aedifica</span>
-              </button>
-              <button type="button" @click="newCa.type = 'split'" :class="newCa.type === 'split' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#132247] text-slate-300 border border-[#1e3260]'" class="p-2.5 rounded-xl text-center transition">
-                Splitsing / Reverse Split
-                <span class="block text-[10px] opacity-80 font-normal">bv. Aantal ÷ 100 of × 10</span>
-              </button>
-              <button type="button" @click="newCa.type = 'rename'" :class="newCa.type === 'rename' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#132247] text-slate-300 border border-[#1e3260]'" class="p-2.5 rounded-xl text-center transition">
-                Naamswijziging
-                <span class="block text-[10px] opacity-80 font-normal">bv. Barrick Gold → Mining</span>
-              </button>
+      <div class="p-4 overflow-y-auto space-y-2.5">
+        <template x-for="[isin, mapping] in activeAssetMappingEntries" :key="isin">
+          <div class="p-3 bg-[#080e22] rounded-xl border border-[#1e3260] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="truncate max-w-xs">
+              <div class="text-xs font-bold text-slate-200 truncate" x-text="getAssetDisplayName(isin)"></div>
+              <div class="text-[10px] text-slate-400 font-mono" x-text="isin"></div>
             </div>
+            <div class="flex items-center gap-2">
+              <input type="text" x-model="mapping.ticker" placeholder="Ticker (bv. AMS:ASML)" class="text-xs bg-[#132247] border border-[#1e3260] rounded-lg px-2.5 py-1.5 w-36 text-slate-100 focus:outline-none focus:border-[#10b981]">
+              <input type="text" x-model="mapping.currency" placeholder="Valuta" list="currencyList" class="text-xs bg-[#132247] border border-[#1e3260] rounded-lg px-2 py-1.5 w-20 text-slate-100 font-mono uppercase text-center focus:outline-none focus:border-[#10b981]">
+              <button @click="saveMappingToSheet(isin)" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition shrink-0 shadow">Opslaan</button>
+            </div>
+          </div>
+        </template>
+      </div>
 
-            <template x-if="newCa.type === 'merger'">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">Oud Aandeel (Bron-ISIN)</label>
-                  <select x-model="newCa.fromIsin" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
-                    <option value="">-- Kies oud aandeel --</option>
-                    <template x-for="item in allKnownAssets" :key="item.isin">
-                      <option :value="item.isin" x-text="item.name + ' (' + item.isin + ')'"></option>
-                    </template>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">Nieuw Aandeel (Doel-ISIN)</label>
-                  <input type="text" x-model="newCa.toIsin" list="knownIsinsList" placeholder="bv. BE0003851681 (Aedifica)" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono uppercase">
-                  <datalist id="knownIsinsList">
-                    <template x-for="item in allKnownAssets" :key="item.isin">
-                      <option :value="item.isin" x-text="item.name"></option>
-                    </template>
-                  </datalist>
-                </div>
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">Nieuwe Naam (optioneel)</label>
-                  <input type="text" x-model="newCa.toName" placeholder="bv. Aedifica" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
-                </div>
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">Nieuwe Google Ticker (optioneel)</label>
-                  <input type="text" x-model="newCa.toTicker" placeholder="bv. EBR:AED" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
-                </div>
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">Conversieratio (1 oud = X nieuw)</label>
-                  <input type="number" step="any" x-model="newCa.ratio" placeholder="1 (of bv. 1.185)" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
-                  <span class="text-[10px] text-slate-500">Bij 1-op-1 wissel vul je <code>1</code> in.</span>
-                </div>
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">Ontvangen Cash-opleg (€, optioneel)</label>
-                  <input type="number" step="any" x-model="newCa.cashBoot" placeholder="0.00" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
-                  <span class="text-[10px] text-slate-500">Wordt in mindering gebracht op de kostprijs.</span>
-                </div>
+      <div class="p-3 border-t border-[#182649] flex justify-between items-center text-xs bg-[#080e22]">
+        <span class="text-slate-400">Wijzigingen worden direct gesynchroniseerd met de Google backend.</span>
+        <button @click="showManageMappingsModal = false" class="bg-[#132247] hover:bg-[#18274f] text-slate-200 font-bold px-4 py-1.5 rounded-xl transition">Sluiten</button>
+      </div>
+    </div>
+  </div>
 
-                <template x-if="mergerPreview">
-                  <div class="sm:col-span-2 p-3 rounded-xl bg-[#132247]/70 border border-[#38bdf8]/30 space-y-1.5 text-[11px]">
-                    <div class="font-bold text-[#38bdf8] flex items-center justify-between">
-                      <span>Voorvertoning GAK-berekening (Overname)</span>
-                      <span class="font-mono text-[10px]" x-text="'Ratio 1 : ' + mergerPreview.ratio"></span>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-slate-300">
-                      <div>• Afsluiten <span class="font-semibold" x-text="mergerPreview.fromName"></span>: <span class="font-mono" x-text="mergerPreview.oldQty.toFixed(4) + ' stuks @ ' + formatCurrency(mergerPreview.oldGak)"></span></div>
-                      <div>• Geconverteerde GAK: <span class="font-mono text-[#34d399] font-bold" x-text="mergerPreview.newConvertedQty.toFixed(4) + ' stuks @ ' + formatCurrency(mergerPreview.convertedGak)"></span></div>
-                      <template x-if="mergerPreview.existingTargetQty > 0">
-                        <div class="sm:col-span-2 text-amber-300">• Bestaande positie <span class="font-semibold" x-text="mergerPreview.toName"></span>: <span class="font-mono" x-text="mergerPreview.existingTargetQty.toFixed(4) + ' stuks @ ' + formatCurrency(mergerPreview.existingTargetGak)"></span></div>
-                      </template>
-                    </div>
-                    <div class="pt-1.5 border-t border-[#1e3260] flex justify-between items-center font-bold text-slate-100">
-                      <span>Nieuwe gecombineerde positie (<span x-text="mergerPreview.toName"></span>):</span>
-                      <span class="font-mono text-[#34d399]" x-text="mergerPreview.finalQty.toFixed(4) + ' stuks • Nieuwe GAK: ' + formatCurrency(mergerPreview.finalGak)"></span>
-                    </div>
+  <!-- Modal 3: Gesloten Posities Overzicht -->
+  <div x-show="showClosedPositionsModal"
+    x-transition
+    class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-[#182649] flex justify-between items-center">
+        <div>
+          <h3 class="text-sm font-bold text-slate-100">Gesloten Trades & Resultaat</h3>
+          <p class="text-[11px] text-slate-400">Overzicht van alle gerealiseerde verkooptransacties.</p>
+        </div>
+        <button @click="showClosedPositionsModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+      </div>
+      <div class="p-4 overflow-y-auto">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="text-slate-400 text-[10px] uppercase border-b border-[#182649] pb-2 font-semibold">
+              <th class="pb-2">Asset</th>
+              <th class="pb-2 text-right">Verkocht Aantal</th>
+              <th class="pb-2 text-right">Gerealiseerd Resultaat</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#182649]/60">
+            <template x-for="cp in closedPositionsList" :key="cp.isin">
+              <tr>
+                <td class="py-2.5">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="font-bold text-slate-200" x-text="getAssetDisplayName(cp)"></span>
+                    <template x-if="cp.note">
+                      <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono" x-text="cp.note"></span>
+                    </template>
                   </div>
-                </template>
-              </div>
+                  <div class="text-[10px] text-slate-500 font-mono" x-text="cp.isin"></div>
+                </td>
+                <td class="py-2.5 text-right font-mono" x-text="cp.soldQuantity.toFixed(4)"></td>
+                <td class="py-2.5 text-right font-mono font-bold" :class="cp.realizedPnL >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="formatCurrency(cp.realizedPnL)"></td>
+              </tr>
             </template>
-
-            <template x-if="newCa.type === 'split'">
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">Aandeel</label>
-                  <select x-model="newCa.isin" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
-                    <option value="">-- Kies aandeel --</option>
-                    <template x-for="item in allKnownAssets" :key="item.isin">
-                      <option :value="item.isin" x-text="item.name + ' (' + item.isin + ')'"></option>
-                    </template>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">Bewerking op Aantal</label>
-                  <select x-model="newCa.mode" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
-                    <option value="divide">Delen door (÷ Reverse Split)</option>
-                    <option value="multiply">Vermenigvuldigen met (× Split)</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">Factor</label>
-                  <input type="number" step="any" x-model="newCa.factor" placeholder="bv. 100" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
-                  <span class="text-[10px] text-slate-500">Voor delen door 100 vul je <code>100</code> in.</span>
-                </div>
-              </div>
+            <template x-if="closedPositionsList.length === 0">
+              <tr>
+                <td colspan="3" class="py-6 text-center text-slate-500 italic">Nog geen gesloten posities geregistreerd.</td>
+              </tr>
             </template>
-
-            <template x-if="newCa.type === 'rename'">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">Aandeel</label>
-                  <select x-model="newCa.isin" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
-                    <option value="">-- Kies aandeel --</option>
-                    <template x-for="item in allKnownAssets" :key="item.isin">
-                      <option :value="item.isin" x-text="item.name + ' (' + item.isin + ')'"></option>
-                    </template>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">Nieuwe Weergavenaam</label>
-                  <input type="text" x-model="newCa.newName" placeholder="bv. Barrick Mining Corp" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
-                </div>
-              </div>
-            </template>
-
-            <div class="flex justify-end pt-2">
-              <button type="button" @click="addCorporateAction()" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow">
-                + Corporate Action Toepassen
-              </button>
-            </div>
-          </div>
-
-          <div class="space-y-2">
-            <div class="font-bold text-slate-300 text-xs uppercase tracking-wider">Actieve Corporate Actions (<span x-text="corporateActions.length"></span>)</div>
-            
-            <template x-if="corporateActions.length === 0">
-              <div class="p-4 bg-[#080e22]/60 rounded-xl border border-[#1e3260]/60 text-slate-500 italic text-center">
-                Nog geen handmatige corporate actions ingesteld. (Eventuele corporate actions in je BUX CSV worden al automatisch verwerkt).
-              </div>
-            </template>
-
-            <template x-for="(ca, idx) in corporateActions" :key="ca.id">
-              <div class="p-3 bg-[#080e22] rounded-xl border border-[#1e3260] flex items-center justify-between gap-3">
-                <div>
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded uppercase mr-1.5"
-                      :class="ca.type === 'merger' ? 'bg-blue-500/20 text-[#38bdf8]' : (ca.type === 'split' ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-[#34d399]')"
-                      x-text="ca.type === 'merger' ? 'Overname / Wissel' : (ca.type === 'split' ? 'Splitsing' : 'Naamswijziging')">
-                  </span>
-                  <span class="font-semibold text-slate-200" x-text="describeCorporateAction(ca)"></span>
-                </div>
-                <button type="button" @click="removeCorporateAction(idx)" class="text-[#f87171] hover:text-white bg-[#800020]/20 hover:bg-[#800020]/40 px-2.5 py-1 rounded-lg text-xs font-semibold transition shrink-0">
-                  Verwijder
-                </button>
-              </div>
-            </template>
-          </div>
-        </div>
-
-        <div class="p-3 border-t border-[#182649] flex justify-between items-center text-xs bg-[#080e22]">
-          <span class="text-slate-400">Automatische BUX CSV corporate actions worden ook meegenomen.</span>
-          <button @click="showCorporateActionsModal = false" class="bg-[#132247] hover:bg-[#18274f] text-slate-200 font-bold px-4 py-1.5 rounded-xl transition">Sluiten</button>
-        </div>
+          </tbody>
+        </table>
+      </div>
+      <div class="p-3 border-t border-[#182649] flex justify-between items-center text-xs bg-[#080e22]">
+        <span class="text-slate-400">Totaal Gerealiseerde Winst</span>
+        <span class="font-bold font-mono text-sm" :class="totals.realizedPnL >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="formatCurrency(totals.realizedPnL)"></span>
       </div>
     </div>
+  </div>
 
+  <!-- Modal 4: Corporate Actions Beheer (Naamswijziging, Overname/Fusie, Aandelensplitsing) -->
+  <div x-show="showCorporateActionsModal"
+    x-transition
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-3xl max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-[#182649] flex justify-between items-center">
+        <div>
+          <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
+            <span class="text-amber-400">⇄</span> Corporate Actions Beheren
+          </h3>
+          <p class="text-[11px] text-slate-400">Verwerk naamswijzigingen (bv. Barrick), overnames/fusies (bv. Cofinimmo → Aedifica) of splitsingen (bv. ÷ 100) met behoud van aankoopwaarde.</p>
+        </div>
+        <button @click="showCorporateActionsModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+      </div>
+
+      <div class="p-4 overflow-y-auto space-y-5 text-xs">
+        <!-- Nieuw Corporate Action Formulier -->
+        <div class="bg-[#080e22] p-4 rounded-xl border border-[#1e3260] space-y-3">
+          <div class="font-bold text-slate-200 text-xs uppercase tracking-wider">Nieuwe Corporate Action Toevoegen</div>
+
+          <!-- Type Selectie -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <button type="button" @click="newCa.type = 'merger'" :class="newCa.type === 'merger' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#132247] text-slate-300 border border-[#1e3260]'" class="p-2.5 rounded-xl text-center transition">
+              Overname / ISIN-wissel
+              <span class="block text-[10px] opacity-80 font-normal">bv. Cofinimmo → Aedifica</span>
+            </button>
+            <button type="button" @click="newCa.type = 'split'" :class="newCa.type === 'split' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#132247] text-slate-300 border border-[#1e3260]'" class="p-2.5 rounded-xl text-center transition">
+              Splitsing / Reverse Split
+              <span class="block text-[10px] opacity-80 font-normal">bv. Aantal ÷ 100 of × 10</span>
+            </button>
+            <button type="button" @click="newCa.type = 'rename'" :class="newCa.type === 'rename' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#132247] text-slate-300 border border-[#1e3260]'" class="p-2.5 rounded-xl text-center transition">
+              Naamswijziging
+              <span class="block text-[10px] opacity-80 font-normal">bv. Barrick Gold → Mining</span>
+            </button>
+          </div>
+
+          <!-- Formulier velden: OVERNAME / FUSIE / ISIN-WISSEL -->
+          <template x-if="newCa.type === 'merger'">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">Oud Aandeel (Bron-ISIN)</label>
+                <select x-model="newCa.fromIsin" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+                  <option value="">-- Kies oud aandeel --</option>
+                  <template x-for="item in allKnownAssets" :key="item.isin">
+                    <option :value="item.isin" x-text="item.name + ' (' + item.isin + ')'"></option>
+                  </template>
+                </select>
+              </div>
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">Nieuw Aandeel (Doel-ISIN)</label>
+                <input type="text" x-model="newCa.toIsin" list="knownIsinsList" placeholder="bv. BE0003851681 (Aedifica)" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono uppercase">
+                <datalist id="knownIsinsList">
+                  <template x-for="item in allKnownAssets" :key="item.isin">
+                    <option :value="item.isin" x-text="item.name"></option>
+                  </template>
+                </datalist>
+              </div>
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">Nieuwe Naam (optioneel)</label>
+                <input type="text" x-model="newCa.toName" placeholder="bv. Aedifica" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+              </div>
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">Nieuwe Google Ticker (optioneel)</label>
+                <input type="text" x-model="newCa.toTicker" placeholder="bv. EBR:AED" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+              </div>
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">Conversieratio (1 oud = X nieuw)</label>
+                <input type="number" step="any" x-model="newCa.ratio" placeholder="1 (of bv. 1.185)" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+                <span class="text-[10px] text-slate-500">Bij 1-op-1 wissel vul je <code>1</code> in.</span>
+              </div>
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">Ontvangen Cash-opleg (€, optioneel)</label>
+                <input type="number" step="any" x-model="newCa.cashBoot" placeholder="0.00" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+                <span class="text-[10px] text-slate-500">Wordt in mindering gebracht op de kostprijs.</span>
+              </div>
+
+              <!-- Live Voorvertoning GAK Berekening -->
+              <template x-if="mergerPreview">
+                <div class="sm:col-span-2 p-3 rounded-xl bg-[#132247]/70 border border-[#38bdf8]/30 space-y-1.5 text-[11px]">
+                  <div class="font-bold text-[#38bdf8] flex items-center justify-between">
+                    <span>Voorvertoning GAK-berekening (Overname)</span>
+                    <span class="font-mono text-[10px]" x-text="'Ratio 1 : ' + mergerPreview.ratio"></span>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-slate-300">
+                    <div>• Afsluiten <span class="font-semibold" x-text="mergerPreview.fromName"></span>: <span class="font-mono" x-text="mergerPreview.oldQty.toFixed(4) + ' stuks @ ' + formatCurrency(mergerPreview.oldGak)"></span></div>
+                    <div>• Geconverteerde GAK: <span class="font-mono text-[#34d399] font-bold" x-text="mergerPreview.newConvertedQty.toFixed(4) + ' stuks @ ' + formatCurrency(mergerPreview.convertedGak)"></span></div>
+                    <template x-if="mergerPreview.existingTargetQty > 0">
+                      <div class="sm:col-span-2 text-amber-300">• Bestaande positie <span class="font-semibold" x-text="mergerPreview.toName"></span>: <span class="font-mono" x-text="mergerPreview.existingTargetQty.toFixed(4) + ' stuks @ ' + formatCurrency(mergerPreview.existingTargetGak)"></span></div>
+                    </template>
+                  </div>
+                  <div class="pt-1.5 border-t border-[#1e3260] flex justify-between items-center font-bold text-slate-100">
+                    <span>Nieuwe gecombineerde positie (<span x-text="mergerPreview.toName"></span>):</span>
+                    <span class="font-mono text-[#34d399]" x-text="mergerPreview.finalQty.toFixed(4) + ' stuks • Nieuwe GAK: ' + formatCurrency(mergerPreview.finalGak)"></span>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </template>
+
+          <!-- Formulier velden: SPLITSING / REVERSE SPLIT -->
+          <template x-if="newCa.type === 'split'">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">Aandeel</label>
+                <select x-model="newCa.isin" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+                  <option value="">-- Kies aandeel --</option>
+                  <template x-for="item in allKnownAssets" :key="item.isin">
+                    <option :value="item.isin" x-text="item.name + ' (' + item.isin + ')'"></option>
+                  </template>
+                </select>
+              </div>
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">Bewerking op Aantal</label>
+                <select x-model="newCa.mode" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+                  <option value="divide">Delen door (÷ Reverse Split)</option>
+                  <option value="multiply">Vermenigvuldigen met (× Split)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">Factor</label>
+                <input type="number" step="any" x-model="newCa.factor" placeholder="bv. 100" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+                <span class="text-[10px] text-slate-500">Voor delen door 100 vul je <code>100</code> in.</span>
+              </div>
+            </div>
+          </template>
+
+          <!-- Formulier velden: NAAMSWIJZIGING -->
+          <template x-if="newCa.type === 'rename'">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">Aandeel</label>
+                <select x-model="newCa.isin" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+                  <option value="">-- Kies aandeel --</option>
+                  <template x-for="item in allKnownAssets" :key="item.isin">
+                    <option :value="item.isin" x-text="item.name + ' (' + item.isin + ')'"></option>
+                  </template>
+                </select>
+              </div>
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">Nieuwe Weergavenaam</label>
+                <input type="text" x-model="newCa.newName" placeholder="bv. Barrick Mining Corp" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+              </div>
+            </div>
+          </template>
+
+          <div class="flex justify-end pt-2">
+            <button type="button" @click="addCorporateAction()" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow">
+              + Corporate Action Toepassen
+            </button>
+          </div>
+        </div>
+
+        <!-- Lijst met actieve Corporate Actions -->
+        <div class="space-y-2">
+          <div class="font-bold text-slate-300 text-xs uppercase tracking-wider">Actieve Corporate Actions (<span x-text="corporateActions.length"></span>)</div>
+
+          <template x-if="corporateActions.length === 0">
+            <div class="p-4 bg-[#080e22]/60 rounded-xl border border-[#1e3260]/60 text-slate-500 italic text-center">
+              Nog geen handmatige corporate actions ingesteld. (Eventuele corporate actions in je BUX CSV worden al automatisch verwerkt).
+            </div>
+          </template>
+
+          <template x-for="(ca, idx) in corporateActions" :key="ca.id">
+            <div class="p-3 bg-[#080e22] rounded-xl border border-[#1e3260] flex items-center justify-between gap-3">
+              <div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded uppercase mr-1.5"
+                   :class="ca.type === 'merger' ? 'bg-blue-500/20 text-[#38bdf8]' : (ca.type === 'split' ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-[#34d399]')"
+                   x-text="ca.type === 'merger' ? 'Overname / Wissel' : (ca.type === 'split' ? 'Splitsing' : 'Naamswijziging')">
+                </span>
+                <span class="font-semibold text-slate-200" x-text="describeCorporateAction(ca)"></span>
+              </div>
+              <button type="button" @click="removeCorporateAction(idx)" class="text-[#f87171] hover:text-white bg-[#800020]/20 hover:bg-[#800020]/40 px-2.5 py-1 rounded-lg text-xs font-semibold transition shrink-0">
+                Verwijder
+              </button>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <div class="p-3 border-t border-[#182649] flex justify-between items-center text-xs bg-[#080e22]">
+        <span class="text-slate-400">Automatische BUX CSV corporate actions worden ook meegenomen.</span>
+        <button @click="showCorporateActionsModal = false" class="bg-[#132247] hover:bg-[#18274f] text-slate-200 font-bold px-4 py-1.5 rounded-xl transition">Sluiten</button>
+      </div>
+    </div>
   </div>
 
   <!-- Script Application Logic -->
@@ -1432,16 +1558,14 @@
         showUnmappedDetails: false,
         syncStatus: 'Niet gesynchroniseerd',
         twrHorizon: 'MAX',
-        benchmarkConfigs: [
-          { id: 'msci_world', label: 'MSCI World Index', tickers: ['AMS:IWDA', 'NYSEARCA:URTH', 'IWDA', 'MSCI_WORLD'], color: '#38bdf8', enabled: true },
-          { id: 'sp500', label: 'S&P 500', tickers: ['INDEXSP:.INX', 'AMS:CSPX', 'NYSEARCA:SPY', '.INX', 'SP500'], color: '#f59e0b', enabled: true },
-          { id: 'bel20', label: 'BEL 20', tickers: ['INDEXEURO:BEL20', 'EBR:BEL20', 'BEL20'], color: '#a855f7', enabled: false },
-          { id: 'stoxx50', label: 'EURO STOXX 50', tickers: ['INDEXSTOXX:SX5E', 'SX5E', 'EUROSTOXX50'], color: '#ec4899', enabled: false }
-        ],
+        benchmarkConfigs: [],
+        showManageBenchmarksModal: false,
+        newBenchmark: { label: '', ticker: '', currency: 'EUR', color: '#38bdf8', enabled: true },
         horizonOptions: [
           { key: '1D', label: '1D' },
           { key: '1W', label: '1W' },
           { key: '1M', label: '1M' },
+          { key: '3M', label: '3M' },
           { key: '6M', label: '6M' },
           { key: '1Y', label: '1J' },
           { key: 'YTD', label: 'YTD' },
@@ -1487,6 +1611,7 @@
         editingDetailMetadata: false,
         metadataForm: { description: '', marketCap: '', country: '', ceo: '', sector: '', employees: '' },
         currentTwrMetrics: { returnPct: 0, startDate: '', endDate: '', athPct: 0 },
+
         sortCol: 'value',
         sortAsc: false,
 
@@ -1508,6 +1633,9 @@
           const savedHist = localStorage.getItem('pat_history');
           const savedName = localStorage.getItem('pat_filename');
           const savedMeta = localStorage.getItem('pat_stock_metadata');
+          const savedBm = localStorage.getItem('pat_benchmarks');
+          if (savedMeta) this.assetMetadata = JSON.parse(savedMeta);
+          if (savedBm) this.benchmarkConfigs = JSON.parse(savedBm);
 
           if (savedTx) this.transactions = JSON.parse(savedTx);
           if (savedMap) this.assetMapping = JSON.parse(savedMap);
@@ -1517,7 +1645,6 @@
           if (savedRates) this.rates = JSON.parse(savedRates);
           if (savedHist) this.historyData = JSON.parse(savedHist);
           if (savedName) this.loadedFileName = savedName;
-          if (savedMeta) this.assetMetadata = JSON.parse(savedMeta);
 
           DUMMY_ISINS.forEach(d => delete this.assetMapping[d]);
 
@@ -1527,25 +1654,6 @@
 
           this.fetchGoogleSheetData();
           this.$nextTick(() => { this.renderDonutCharts(); });
-        },
-
-        destroyTabCharts(nextTab) {
-          if (nextTab !== 'assetDetail' && this.detailChartInstance) {
-            this.detailChartInstance.destroy();
-            this.detailChartInstance = null;
-          }
-          if (nextTab !== 'twr' && this.chartInstance) {
-            this.chartInstance.destroy();
-            this.chartInstance = null;
-          }
-          if (nextTab !== 'dashboard') {
-            if (this.allocationChartInstance) { this.allocationChartInstance.destroy(); this.allocationChartInstance = null; }
-            if (this.costsChartInstance) { this.costsChartInstance.destroy(); this.costsChartInstance = null; }
-          }
-          if (nextTab !== 'dividenden') {
-            if (this.dividendTimelineChartInstance) { this.dividendTimelineChartInstance.destroy(); this.dividendTimelineChartInstance = null; }
-            if (this.dividendAssetChartInstance) { this.dividendAssetChartInstance.destroy(); this.dividendAssetChartInstance = null; }
-          }
         },
 
         isRawTickerOrIsin(val, isin = '', ticker = '') {
@@ -1796,6 +1904,16 @@
           return mult;
         },
 
+        installPwa() {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(() => {
+              deferredPrompt = null;
+              this.showInstallPrompt = false;
+            });
+          }
+        },
+
         openEditAssetModal(isin) {
           const pos = this.positions.find(p => p.isin === isin);
           const mapping = this.assetMapping[isin] || {};
@@ -1912,7 +2030,7 @@
         hasPriceWarning(pos) {
           const isin = pos.isin;
           const ticker = this.assetMapping[isin]?.ticker;
-          const hasLivePrice = (ticker && this.latestPrices[ticker] !== undefined && this.latestPrices[ticker] > 0) || 
+          const hasLivePrice = (ticker && this.latestPrices[ticker] !== undefined && this.latestPrices[ticker] > 0) ||
                      (this.latestPrices[isin] !== undefined && this.latestPrices[isin] > 0);
           const curPrice = this.getAssetPriceInEur(isin);
           return !hasLivePrice || curPrice === 0;
@@ -2119,6 +2237,25 @@
                   localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
                 }
 
+                if (Array.isArray(data.benchmarks)) {
+                  const prevEnabled = {};
+                  this.benchmarkConfigs.forEach(b => { prevEnabled[b.id] = b.enabled; });
+                  this.benchmarkConfigs = data.benchmarks.map(b => {
+                    const id = b.id || b.ticker;
+                    const tickers = Array.isArray(b.tickers) ? b.tickers : (b.ticker ? [b.ticker] : []);
+                    return {
+                      id: id,
+                      label: b.label || b.name || b.ticker,
+                      ticker: b.ticker || (tickers[0] || ''),
+                      tickers: tickers,
+                      currency: (b.currency || 'EUR').toUpperCase(),
+                      color: b.color || '#38bdf8',
+                      enabled: prevEnabled[id] !== undefined ? prevEnabled[id] : Boolean(b.enabled)
+                    };
+                  });
+                  localStorage.setItem('pat_benchmarks', JSON.stringify(this.benchmarkConfigs));
+                }
+
                 if (data.prices) {
                   this.latestPrices = data.prices;
                   localStorage.setItem('pat_prices', JSON.stringify(this.latestPrices));
@@ -2270,7 +2407,7 @@
             const cleanRows = parsed.data.filter(r => Object.keys(r).length > 1);
             this.transactions = cleanRows;
             localStorage.setItem('pat_transactions', JSON.stringify(this.transactions));
-            
+
             this.processNewTransactions();
             this.uploadMessage = `Succesvol ${cleanRows.length} transacties geladen uit ${file.name}!`;
             this.renderDonutCharts();
@@ -2295,8 +2432,8 @@
 
             if ((category === 'trades' || category === 'corporate_actions' || category === 'dividends') && isin && name && !DUMMY_ISINS.includes(isin)) {
               if (!this.assetMapping[isin]) {
-                this.assetMapping[isin] = { 
-                  name: name, 
+                this.assetMapping[isin] = {
+                  name: name,
                   ticker: '',
                   currency: currency || 'EUR'
                 };
@@ -2326,7 +2463,7 @@
           let posMap = {};
           let pendingCaDebits = [];
           let closedByMerger = [];
-          
+
           let sortedTx = [...this.transactions].sort((a, b) => {
             const ta = this.getVal(a, 'Transaction Time (CET)', 'Date', 'Time');
             const tb = this.getVal(b, 'Transaction Time (CET)', 'Date', 'Time');
@@ -2419,11 +2556,11 @@
 
             if (category === 'trades') {
               if (!posMap[isin]) {
-                posMap[isin] = { 
-                  isin: isin, 
-                  name: resolvedName, 
-                  quantity: 0, 
-                  totalCost: 0, 
+                posMap[isin] = {
+                  isin: isin,
+                  name: resolvedName,
+                  quantity: 0,
+                  totalCost: 0,
                   avgPrice: 0,
                   isEtf: this.isEtfAsset(resolvedName, isin),
                   caBadge: '',
@@ -2434,7 +2571,7 @@
               if (type === 'Buy Trade' && (transferType === 'CASH_DEBIT' || transferType === '')) {
                 posMap[isin].quantity += qty;
                 posMap[isin].totalCost += eurAmount;
-              } 
+              }
               else if (type === 'Sell Trade' && (transferType === 'CASH_CREDIT' || transferType === '')) {
                 let avg = posMap[isin].quantity > 0 ? posMap[isin].totalCost / posMap[isin].quantity : 0;
                 posMap[isin].quantity -= qty;
@@ -2482,7 +2619,7 @@
                   remainingCost: removedCost,
                   date: txDate
                 });
-              } 
+              }
               else if (dir === 'CREDIT' && qty > 0) {
                 let inheritedCost = 0;
                 let sourceDebit = null;
@@ -2535,7 +2672,7 @@
                 posMap[isin].caBadge = 'Naam';
                 posMap[isin].caNote = `Hernoemd naar ${ca.newName}`;
               }
-            } 
+            }
             else if (ca.type === 'split') {
               const isin = ca.isin;
               const factor = parseFloat(ca.factor);
@@ -2551,7 +2688,7 @@
                 }
                 posMap[isin].avgPrice = posMap[isin].totalCost / posMap[isin].quantity;
               }
-            } 
+            }
             else if (ca.type === 'merger') {
               const fromIsin = ca.fromIsin;
               const toIsin = ca.toIsin;
@@ -2629,7 +2766,7 @@
           if (horizon === 'MAX') return minDateStr;
           const end = new Date(endDateStr + 'T12:00:00');
           let start = new Date(end);
-          
+
           switch (horizon) {
             case '1D':
               start.setDate(end.getDate() - 1);
@@ -2661,7 +2798,7 @@
             default:
               return minDateStr;
           }
-          
+
           const startStr = start.toISOString().split('T')[0];
           return (startStr < minDateStr) ? minDateStr : startStr;
         },
@@ -2899,12 +3036,18 @@
           return timeline;
         },
 
+        // Haalt de procentuele benchmark-reeks (%) dynamisch uit de backend historyData (zonder hardcoded data)
         getBenchmarkReturnSeries(bmConfig, labels) {
-          if (!labels || labels.length === 0) return [];
+          if (!labels || labels.length === 0 || !bmConfig) return [];
+          if (!this.historyData || !this.historyData.dates || this.historyData.dates.length === 0) return null;
+
+          const candidateTickers = Array.isArray(bmConfig.tickers) && bmConfig.tickers.length > 0
+            ? bmConfig.tickers
+            : (bmConfig.ticker ? [bmConfig.ticker] : []);
 
           let rawSeries = null;
           let matchedTicker = '';
-          for (let t of bmConfig.tickers) {
+          for (let t of candidateTickers) {
             const s = this.getHistoricalPricesForTicker(t);
             if (s && s.length > 0 && s.some(v => v > 0)) {
               rawSeries = s;
@@ -2913,116 +3056,154 @@
             }
           }
 
-          if (rawSeries && this.historyData.dates && this.historyData.dates.length > 0) {
-            let dateToPrice = {};
-            const allDates = this.historyData.dates;
-            const isUsdTicker = matchedTicker.includes('URTH') || matchedTicker.includes('SPY') || matchedTicker.includes('.INX');
+          if (!rawSeries) return null;
 
-            for (let i = 0; i < allDates.length; i++) {
-              let p = rawSeries[i];
-              if (p > 0) {
-                if (isUsdTicker && this.historyData.prices['CURRENCY:USDEUR'] && this.historyData.prices['CURRENCY:USDEUR'][i]) {
-                  p *= this.historyData.prices['CURRENCY:USDEUR'][i];
+          let dateToPrice = {};
+          const allDates = this.historyData.dates;
+          const ccy = String(bmConfig.currency || (this.currencies && this.currencies[matchedTicker]) || 'EUR').trim().toUpperCase();
+          const isNonEur = ccy !== 'EUR';
+          const fxTicker = (ccy === 'GBX') ? 'CURRENCY:GBPEUR' : `CURRENCY:${ccy}EUR`;
+
+          for (let i = 0; i < allDates.length; i++) {
+            let p = rawSeries[i];
+            if (p > 0) {
+              if (isNonEur) {
+                let fxRate = 1.0;
+                if (this.historyData.prices && this.historyData.prices[fxTicker] && this.historyData.prices[fxTicker][i]) {
+                  fxRate = this.historyData.prices[fxTicker][i];
+                  if (ccy === 'GBX') fxRate /= 100.0;
+                } else if (this.rates && this.rates[ccy]) {
+                  fxRate = this.rates[ccy];
+                } else if (ccy === 'USD' && this.rates && this.rates.USDEUR) {
+                  fxRate = this.rates.USDEUR;
                 }
-                dateToPrice[allDates[i]] = p;
+                p *= fxRate;
               }
+              dateToPrice[allDates[i]] = p;
             }
-
-            let basePrice = null;
-            let lastPrice = null;
-            let result = [];
-
-            labels.forEach(d => {
-              let p = dateToPrice[d];
-              if (!p) {
-                for (let i = allDates.length - 1; i >= 0; i--) {
-                  if (allDates[i] <= d && dateToPrice[allDates[i]]) {
-                    p = dateToPrice[allDates[i]];
-                    break;
-                  }
-                }
-              }
-              if (p && p > 0) {
-                lastPrice = p;
-                if (basePrice === null) basePrice = p;
-              }
-              if (basePrice !== null && lastPrice !== null) {
-                result.push(parseFloat((((lastPrice / basePrice) - 1) * 100).toFixed(2)));
-              } else {
-                result.push(0);
-              }
-            });
-
-            if (basePrice !== null) return result;
           }
 
-          const anchors = {
-            msci_world: [
-              ['2023-12-27', 100.0], ['2024-01-31', 102.8], ['2024-02-29', 107.4], ['2024-03-31', 111.0],
-              ['2024-04-30', 107.9], ['2024-05-31', 111.5], ['2024-06-30', 115.2], ['2024-07-31', 116.4],
-              ['2024-08-31', 117.1], ['2024-09-30', 118.5], ['2024-10-31', 119.2], ['2024-11-30', 127.8],
-              ['2024-12-31', 126.9], ['2025-01-31', 131.2], ['2025-02-28', 130.1], ['2025-03-31', 121.8],
-              ['2025-04-30', 118.4], ['2025-05-31', 125.6], ['2025-06-30', 129.8], ['2025-07-31', 132.4],
-              ['2025-08-31', 134.9], ['2025-09-30', 137.5], ['2025-10-31', 140.2], ['2025-11-30', 143.1],
-              ['2025-12-31', 145.0], ['2026-01-31', 147.2], ['2026-02-28', 148.9], ['2026-03-31', 150.4],
-              ['2026-04-30', 152.1], ['2026-05-31', 154.0], ['2026-06-30', 155.8], ['2026-07-31', 157.5],
-              ['2026-08-31', 159.1], ['2026-09-30', 160.8], ['2026-10-31', 162.4], ['2026-11-12', 163.2]
-            ],
-            sp500: [
-              ['2023-12-27', 100.0], ['2024-01-31', 103.2], ['2024-02-29', 108.9], ['2024-03-31', 112.5],
-              ['2024-04-30', 108.8], ['2024-05-31', 112.7], ['2024-06-30', 117.9], ['2024-07-31', 118.3],
-              ['2024-08-31', 118.7], ['2024-09-30', 120.2], ['2024-10-31', 121.8], ['2024-11-30', 132.4],
-              ['2024-12-31', 131.5], ['2025-01-31', 135.1], ['2025-02-28', 133.2], ['2025-03-31', 123.5],
-              ['2025-04-30', 119.2], ['2025-05-31', 127.4], ['2025-06-30', 132.8], ['2025-07-31', 136.1],
-              ['2025-08-31', 139.0], ['2025-09-30', 142.3], ['2025-10-31', 145.6], ['2025-11-30', 148.8],
-              ['2025-12-31', 151.0], ['2026-01-31', 153.5], ['2026-02-28', 155.2], ['2026-03-31', 157.0],
-              ['2026-04-30', 158.9], ['2026-05-31', 161.1], ['2026-06-30', 163.0], ['2026-07-31', 164.8],
-              ['2026-08-31', 166.5], ['2026-09-30', 168.4], ['2026-10-31', 170.1], ['2026-11-12', 171.0]
-            ],
-            bel20: [
-              ['2023-12-27', 100.0], ['2024-01-31', 99.4], ['2024-02-29', 98.8], ['2024-03-31', 102.5],
-              ['2024-04-30', 104.2], ['2024-05-31', 106.1], ['2024-06-30', 104.8], ['2024-07-31', 109.5],
-              ['2024-08-31', 112.8], ['2024-09-30', 115.6], ['2024-10-31', 114.9], ['2024-11-30', 113.8],
-              ['2024-12-31', 115.2], ['2025-01-31', 117.4], ['2025-02-28', 119.8], ['2025-03-31', 117.2],
-              ['2025-04-30', 116.5], ['2025-05-31', 120.4], ['2025-06-30', 122.1], ['2025-07-31', 123.9],
-              ['2025-08-31', 125.0], ['2025-09-30', 126.4], ['2025-10-31', 127.8], ['2025-11-30', 129.1],
-              ['2025-12-31', 130.5], ['2026-01-31', 131.8], ['2026-02-28', 132.9], ['2026-03-31', 134.0],
-              ['2026-04-30', 135.1], ['2026-05-31', 136.4], ['2026-06-30', 137.5], ['2026-07-31', 138.6],
-              ['2026-08-31', 139.5], ['2026-09-30', 140.7], ['2026-10-31', 141.8], ['2026-11-12', 142.3]
-            ],
-            stoxx50: [
-              ['2023-12-27', 100.0], ['2024-01-31', 102.8], ['2024-02-29', 107.9], ['2024-03-31', 112.4],
-              ['2024-04-30', 108.9], ['2024-05-31', 110.3], ['2024-06-30', 108.4], ['2024-07-31', 107.9],
-              ['2024-08-31', 109.8], ['2024-09-30', 110.7], ['2024-10-31', 106.9], ['2024-11-30', 106.4],
-              ['2024-12-31', 108.3], ['2025-01-31', 116.8], ['2025-02-28', 120.7], ['2025-03-31', 116.0],
-              ['2025-04-30', 114.2], ['2025-05-31', 118.9], ['2025-06-30', 120.5], ['2025-07-31', 122.1],
-              ['2025-08-31', 123.6], ['2025-09-30', 125.0], ['2025-10-31', 126.5], ['2025-11-30', 128.0],
-              ['2025-12-31', 129.4], ['2026-01-31', 130.9], ['2026-02-28', 132.2], ['2026-03-31', 133.5],
-              ['2026-04-30', 134.8], ['2026-05-31', 136.1], ['2026-06-30', 137.3], ['2026-07-31', 138.5],
-              ['2026-08-31', 139.6], ['2026-09-30', 140.8], ['2026-10-31', 141.9], ['2026-11-12', 142.5]
-            ]
-          };
+          let basePrice = null;
+          let lastPrice = null;
+          let result = [];
 
-          const pts = anchors[bmConfig.id] || anchors.msci_world;
-          const interp = (dateStr) => {
-            if (dateStr <= pts[0][0]) return pts[0][1];
-            if (dateStr >= pts[pts.length - 1][0]) return pts[pts.length - 1][1];
-            for (let i = 0; i < pts.length - 1; i++) {
-              const [d0, v0] = pts[i];
-              const [d1, v1] = pts[i + 1];
-              if (dateStr >= d0 && dateStr <= d1) {
-                const t0 = new Date(d0 + 'T12:00:00').getTime();
-                const t1 = new Date(d1 + 'T12:00:00').getTime();
-                const tc = new Date(dateStr + 'T12:00:00').getTime();
-                const ratio = (t1 > t0) ? (tc - t0) / (t1 - t0) : 0;
-                return v0 + ratio * (v1 - v0);
+          labels.forEach(d => {
+            let p = dateToPrice[d];
+            if (!p) {
+              for (let i = allDates.length - 1; i >= 0; i--) {
+                if (allDates[i] <= d && dateToPrice[allDates[i]]) {
+                  p = dateToPrice[allDates[i]];
+                  break;
+                }
               }
             }
-            return pts[pts.length - 1][1];
-          };
+            if (p && p > 0) {
+              lastPrice = p;
+              if (basePrice === null) basePrice = p;
+            }
+            if (basePrice !== null && lastPrice !== null) {
+              result.push(parseFloat((((lastPrice / basePrice) - 1) * 100).toFixed(2)));
+            } else {
+              result.push(0);
+            }
+          });
 
-          const baseVal = interp(labels[0]);
-          return labels.map(d => parseFloat((((interp(d) / baseVal) - 1) * 100).toFixed(2)));
+          return basePrice !== null ? result : null;
+        },
+
+        hasBenchmarkHistory(bm) {
+          if (!this.historyData || !this.historyData.prices) return false;
+          const candidateTickers = Array.isArray(bm.tickers) && bm.tickers.length > 0
+            ? bm.tickers
+            : (bm.ticker ? [bm.ticker] : []);
+          return candidateTickers.some(t => {
+            const s = this.getHistoricalPricesForTicker(t);
+            return s && s.length > 0 && s.some(v => v > 0);
+          });
+        },
+
+        saveBenchmarkToSheet(bm) {
+          const ticker = String(bm.ticker || '').trim();
+          const label = String(bm.label || ticker).trim();
+          const currency = String(bm.currency || 'EUR').trim().toUpperCase();
+          const color = String(bm.color || '#38bdf8').trim();
+          const id = bm.id || ('bm_' + Date.now());
+          if (!ticker || !label) {
+            alert('Vul zowel een naam als een Google Finance ticker in voor de benchmark.');
+            return;
+          }
+
+          bm.id = id;
+          bm.label = label;
+          bm.ticker = ticker;
+          bm.tickers = [ticker];
+          bm.currency = currency;
+          bm.color = color;
+
+          localStorage.setItem('pat_benchmarks', JSON.stringify(this.benchmarkConfigs));
+          this.syncStatus = `Benchmark ${label} opslaan...`;
+
+          fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'saveBenchmark',
+              id: id,
+              label: label,
+              ticker: ticker,
+              currency: currency,
+              color: color,
+              enabled: Boolean(bm.enabled)
+            })
+          }).then(() => {
+            this.syncStatus = `Benchmark opgeslagen: ${label}`;
+            this.uploadMessage = `Benchmark '${label}' (${ticker}) opgeslagen in de backend. Klik op 'Sync Sheet' om historische koersen op te halen.`;
+            if (this.activeTab === 'twr') this.updateTwrView();
+          }).catch(err => {
+            console.error('Fout bij opslaan benchmark:', err);
+            this.syncStatus = 'Fout bij opslaan benchmark';
+          });
+        },
+
+        addBenchmark() {
+          const label = String(this.newBenchmark.label || '').trim();
+          const ticker = String(this.newBenchmark.ticker || '').trim();
+          if (!label || !ticker) {
+            alert('Vul een naam en Google Finance ticker in.');
+            return;
+          }
+          const bm = {
+            id: 'bm_' + Date.now(),
+            label: label,
+            ticker: ticker,
+            tickers: [ticker],
+            currency: String(this.newBenchmark.currency || 'EUR').trim().toUpperCase(),
+            color: this.newBenchmark.color || '#38bdf8',
+            enabled: Boolean(this.newBenchmark.enabled)
+          };
+          this.benchmarkConfigs.push(bm);
+          this.newBenchmark = { label: '', ticker: '', currency: 'EUR', color: '#38bdf8', enabled: true };
+          this.saveBenchmarkToSheet(bm);
+        },
+
+        removeBenchmark(index) {
+          const bm = this.benchmarkConfigs[index];
+          if (!bm) return;
+          this.benchmarkConfigs.splice(index, 1);
+          localStorage.setItem('pat_benchmarks', JSON.stringify(this.benchmarkConfigs));
+          if (this.activeTab === 'twr') this.updateTwrView();
+
+          fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'deleteBenchmark',
+              id: bm.id,
+              ticker: bm.ticker
+            })
+          }).catch(err => console.error('Fout bij verwijderen benchmark:', err));
         },
 
         updateTwrView() {
@@ -3095,21 +3276,23 @@
           this.benchmarkConfigs.forEach((bm, idx) => {
             if (bm.enabled) {
               const bmData = this.getBenchmarkReturnSeries(bm, labels);
-              datasets.push({
-                type: 'line',
-                label: `${bm.label} (%)`,
-                data: bmData,
-                yAxisID: 'yTwr',
-                borderColor: bm.color,
-                backgroundColor: bm.color,
-                borderWidth: 2,
-                borderDash: [5, 4],
-                fill: false,
-                tension: 0.25,
-                pointRadius: 0,
-                pointHoverRadius: 4,
-                order: 2 + idx
-              });
+              if (bmData && bmData.length > 0) {
+                datasets.push({
+                  type: 'line',
+                  label: `${bm.label} (%)`,
+                  data: bmData,
+                  yAxisID: 'yTwr',
+                  borderColor: bm.color,
+                  backgroundColor: bm.color,
+                  borderWidth: 2,
+                  borderDash: [5, 4],
+                  fill: false,
+                  tension: 0.25,
+                  pointRadius: 0,
+                  pointHoverRadius: 4,
+                  order: 2 + idx
+                });
+              }
             }
           });
 
@@ -3512,6 +3695,25 @@
           this.editingDetailMetadata = false;
         },
 
+        destroyTabCharts(nextTab) {
+          if (nextTab !== 'assetDetail' && this.detailChartInstance) {
+            this.detailChartInstance.destroy();
+            this.detailChartInstance = null;
+          }
+          if (nextTab !== 'twr' && this.chartInstance) {
+            this.chartInstance.destroy();
+            this.chartInstance = null;
+          }
+          if (nextTab !== 'dashboard') {
+            if (this.allocationChartInstance) { this.allocationChartInstance.destroy(); this.allocationChartInstance = null; }
+            if (this.costsChartInstance) { this.costsChartInstance.destroy(); this.costsChartInstance = null; }
+          }
+          if (nextTab !== 'dividenden') {
+            if (this.dividendTimelineChartInstance) { this.dividendTimelineChartInstance.destroy(); this.dividendTimelineChartInstance = null; }
+            if (this.dividendAssetChartInstance) { this.dividendAssetChartInstance.destroy(); this.dividendAssetChartInstance = null; }
+          }
+        },
+
         openAssetDetail(isin) {
           this.destroyTabCharts('assetDetail');
           const opts = this.detailDropdownAssets;
@@ -3552,7 +3754,6 @@
           return isFinite(cagr) ? cagr : cumulativeReturnPct;
         },
 
-        // Dagelijkse bezitshistorie en koop/verkoop-events (inclusief predecessor ISINs vóór een merger en splitsingen)
         getAssetHoldingAndTrades(isin) {
           const relatedIsins = this.getRelatedIsins(isin);
           let sortedTx = [...this.transactions].sort((a, b) => {
@@ -3650,7 +3851,6 @@
           const earliestDate = allDates.length > 0 ? allDates[0] : '2023-12-27';
           const startDate = this.getHorizonStartDate(this.detailHorizon, endDate, earliestDate);
 
-          // Koersreeks in EUR opbouwen (inclusief FX conversie)
           const histPrices = this.getHistoricalPricesForTicker(ticker);
           const fxTicker = (ccy === 'GBX') ? 'CURRENCY:GBPEUR' : `CURRENCY:${ccy}EUR`;
 
@@ -3737,7 +3937,6 @@
           const isShortHorizon = (this.detailHorizon === '1D' || this.detailHorizon === '1W' || daysCount < 14);
           const annReturnPct = this.computeAnnualizedCagr(cumReturnPct, daysCount);
 
-          // Portefeuille Benchmark over exact dezelfde periode [actualStart, actualEnd]
           let portCumPct = 0;
           const portTimeline = this.buildDailyPortfolioTimeline(this.historyData.dates || []);
           if (portTimeline.length > 0) {
@@ -3772,7 +3971,6 @@
             avgPrice: pos ? pos.avgPrice : 0
           };
 
-          // Aankoop- (groen driehoekje omhoog) & verkoopmarkers (rood driehoekje omlaag, 180° gedraaid)
           const pointStyles = [];
           const pointRotations = [];
           const pointRadii = [];
@@ -3907,11 +4105,71 @@
                   grid: { color: 'rgba(27, 43, 82, 0.45)' }
                 },
                 y: {
-                  ticks: { color: '#94a3b8', callback: (val) => (val >= 0 ? '+' : '') + val + '%' },
+                  ticks: {
+                    color: '#94a3b8',
+                    callback: (val) => (val >= 0 ? '+' : '') + val + '%'
+                  },
                   grid: { color: 'rgba(27, 43, 82, 0.45)' }
                 }
               }
             }
+          });
+        },
+
+        get portfolioReturnsSummary() {
+          const horizons = [
+            { key: '1W', label: '1W', fullLabel: '1 Week', subLabel: '7 dagen' },
+            { key: '1M', label: '1M', fullLabel: '1 Maand', subLabel: '1 maand' },
+            { key: '3M', label: '3M', fullLabel: '3 Maanden', subLabel: '3 maanden' },
+            { key: '6M', label: '6M', fullLabel: '6 Maanden', subLabel: '6 maanden' },
+            { key: 'YTD', label: 'YTD', fullLabel: 'Year-to-Date', subLabel: 'Dit jaar' },
+            { key: '1Y', label: '1J', fullLabel: '1 Jaar', subLabel: '12 maanden' }
+          ];
+
+          const firstTx = this.transactions
+            .filter(t => this.getVal(t, 'Transaction Category') === 'deposits')
+            .sort((a, b) => this.getVal(a, 'Transaction Time (CET)').localeCompare(this.getVal(b, 'Transaction Time (CET)')));
+          const firstDepDate = firstTx.length > 0
+            ? this.getVal(firstTx[0], 'Transaction Time (CET)').split(' ')[0]
+            : '2023-12-27';
+
+          const timeline = this.buildDailyPortfolioTimeline(this.historyData.dates || []);
+          const endDate = timeline.length > 0
+            ? timeline[timeline.length - 1].date
+            : new Date().toISOString().split('T')[0];
+
+          return horizons.map(h => {
+            const startDate = this.getHorizonStartDate(h.key, endDate, firstDepDate);
+            let returnPct = 0;
+
+            if (timeline.length > 0) {
+              let cumulativeTwrFactor = 1.0;
+              let prevVal = null;
+
+              timeline.forEach(pt => {
+                if (pt.date >= startDate && pt.date <= endDate) {
+                  if (prevVal !== null && prevVal > 0) {
+                    const subReturn = (pt.value - pt.cashFlow - prevVal) / prevVal;
+                    if (isFinite(subReturn) && subReturn > -0.95 && subReturn < 5) {
+                      cumulativeTwrFactor *= (1 + subReturn);
+                    }
+                  }
+                  prevVal = pt.value;
+                }
+              });
+
+              returnPct = (cumulativeTwrFactor - 1) * 100;
+            }
+
+            return {
+              key: h.key,
+              label: h.label,
+              fullLabel: h.fullLabel,
+              subLabel: h.subLabel,
+              startDate: startDate,
+              endDate: endDate,
+              returnPct: isFinite(returnPct) ? returnPct : 0
+            };
           });
         },
 
@@ -4057,6 +4315,7 @@
             currencies: this.currencies,
             rates: this.rates,
             history: this.historyData,
+            benchmarks: this.benchmarkConfigs,
             assetMetadata: this.assetMetadata,
             filename: this.loadedFileName
           };
@@ -4072,7 +4331,7 @@
           return Object.entries(this.assetMapping).filter(([isin]) => {
             if (DUMMY_ISINS.includes(isin)) return false;
             const isMergedSource = this.corporateActions.some(ca => ca.type === 'merger' && ca.fromIsin === isin) ||
-                         (this.mergerClosedPositions || []).some(mc => mc.isin === isin);
+                       (this.mergerClosedPositions || []).some(mc => mc.isin === isin);
             return !isMergedSource;
           });
         },
@@ -4081,7 +4340,7 @@
           return Object.keys(this.assetMapping).filter(isin => {
             if (DUMMY_ISINS.includes(isin)) return false;
             const isMergedSource = this.corporateActions.some(ca => ca.type === 'merger' && ca.fromIsin === isin) ||
-                         (this.mergerClosedPositions || []).some(mc => mc.isin === isin);
+                       (this.mergerClosedPositions || []).some(mc => mc.isin === isin);
             if (isMergedSource) return false;
             return !this.assetMapping[isin].ticker || this.assetMapping[isin].ticker.trim() === '';
           });
