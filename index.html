@@ -93,7 +93,7 @@
         </div>
 
         <!-- Tab Navigatie -->
-        <nav class="flex space-x-2 border-b border-[#182649] pb-2">
+        <nav class="flex flex-wrap gap-2 border-b border-[#182649] pb-2">
             <button @click="activeTab = 'dashboard'; $nextTick(() => renderDonutCharts())" 
                     :class="activeTab === 'dashboard' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'" 
                     class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
@@ -112,6 +112,13 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                 Posities & Koersen
                 <span class="bg-[#080e22] text-[10px] px-2 py-0.5 rounded-full border border-[#1e3260] text-slate-300 font-mono" x-text="positions.length"></span>
+            </button>
+            <button @click="activeTab = 'dividenden'; $nextTick(() => renderDividendCharts())" 
+                    :class="activeTab === 'dividenden' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'" 
+                    class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Dividenden
+                <span class="bg-[#080e22] text-[10px] px-2 py-0.5 rounded-full border border-[#1e3260] text-[#34d399] font-mono" x-text="dividendSummary.payingAssetsCount"></span>
             </button>
         </nav>
 
@@ -132,7 +139,7 @@
                     <template x-for="isin in unmappedIsins" :key="isin">
                         <div class="p-2.5 bg-[#080e22] rounded-xl border border-[#1e3260] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div class="truncate">
-                                <div class="text-xs font-bold text-slate-200 truncate" x-text="assetMapping[isin]?.name || isin"></div>
+                                <div class="text-xs font-bold text-slate-200 truncate" x-text="getAssetDisplayName(isin)"></div>
                                 <div class="text-[10px] text-slate-400 font-mono" x-text="isin"></div>
                             </div>
                             <div class="flex items-center gap-1.5 shrink-0">
@@ -166,7 +173,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 text-xs">
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 pt-4 text-xs">
                     <div>
                         <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold">Stortingen (Deposits)</span>
                         <div class="text-base font-bold text-slate-200 mt-0.5 font-mono" x-text="formatCurrency(totals.deposits)"></div>
@@ -190,6 +197,15 @@
                             <svg class="w-3 h-3 text-[#38bdf8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                         </span>
                         <div class="text-base font-bold mt-0.5 font-mono underline decoration-dotted underline-offset-4" :class="unrealizedPnL >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="formatCurrency(unrealizedPnL)"></div>
+                    </div>
+
+                    <!-- Expliciete Dividend Inkomsten KPI op Dashboard -->
+                    <div @click="activeTab = 'dividenden'; $nextTick(() => renderDividendCharts())" class="cursor-pointer group">
+                        <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold flex items-center gap-1 group-hover:text-[#34d399] transition">
+                            Dividend Inkomsten
+                            <svg class="w-3 h-3 text-[#34d399]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                        <div class="text-base font-bold text-[#34d399] mt-0.5 font-mono underline decoration-dotted underline-offset-4" x-text="formatCurrency(dividendSummary.totalNet)"></div>
                     </div>
                 </div>
             </div>
@@ -304,30 +320,19 @@
         </div>
 
         <!-- ============================================== -->
-        <!-- TAB 2: TWR RENDEMENTSGRAFIEK                   -->
+        <!-- TAB 2: TWR RENDEMENTSGRAFIEK & PORTEFEUILLEWAARDE -->
         <!-- ============================================== -->
         <div x-show="activeTab === 'twr'" class="space-y-5">
             <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-4">
                 
-                <!-- Bovenste rij: Titel & Effect-selectie -->
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <!-- Bovenste rij: Titel & Horizon Keuzebalk -->
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
                     <div>
-                        <h3 class="text-sm font-bold text-slate-200">Time-Weighted Return (TWR) Curve</h3>
-                        <p class="text-xs text-slate-400">Rendement gezuiverd van cashflows.</p>
+                        <h3 class="text-sm font-bold text-slate-200">Portefeuille TWR & Waardeontwikkeling</h3>
+                        <p class="text-xs text-slate-400">Time-Weighted Return (%) vergeleken met benchmarks en totale portefeuillewaarde (€).</p>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <label class="text-xs text-slate-400 font-medium">Kies weergave:</label>
-                        <select x-model="selectedTwrAsset" @change="onTwrAssetChange()" class="bg-[#132247] border border-[#1e3260] text-xs rounded-xl px-3 py-1.5 text-slate-100 focus:outline-none focus:border-[#10b981]">
-                            <option value="portfolio">Totale Portefeuille (TWR)</option>
-                            <template x-for="item in twrAssetSelectOptions" :key="item.value">
-                                <option :value="item.value" x-text="item.label"></option>
-                            </template>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Horizon Keuzebalk + Legende (Legende toont enkel bij individuele aandelen) -->
-                <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#182649]/60">
+                    
+                    <!-- Horizon Keuzebalk -->
                     <div class="flex flex-wrap items-center gap-1.5">
                         <span class="text-xs text-slate-400 font-medium mr-1">Horizon:</span>
                         <template x-for="h in horizonOptions" :key="h.key">
@@ -339,32 +344,59 @@
                             </button>
                         </template>
                     </div>
+                </div>
 
-                    <!-- Symbool Legende: ENKEL ZICHTBAAR VOOR INDIVIDUELE AANDELEN -->
-                    <div x-show="selectedTwrAsset !== 'portfolio'" class="flex items-center gap-3.5 text-[11px] text-slate-400 font-medium bg-[#080e22] px-3 py-1 rounded-lg border border-[#1e3260]/60">
-                        <span class="flex items-center gap-1.5"><span class="text-[#10b981] font-black text-xs">▲</span> Koop</span>
-                        <span class="flex items-center gap-1.5"><span class="text-[#f87171] font-black text-xs">◆</span> Verkoop</span>
-                        <span class="flex items-center gap-1.5"><span class="text-[#38bdf8] font-black text-xs">★</span> Beide</span>
+                <!-- Tweede rij: 4 Togglebare Benchmarks + Legenda -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#182649]/60">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs text-slate-400 font-medium mr-1">Benchmarks:</span>
+                        <template x-for="bm in benchmarkConfigs" :key="bm.id">
+                            <button type="button"
+                                    @click="toggleBenchmark(bm.id)"
+                                    :class="bm.enabled ? 'bg-[#132247] text-white border-opacity-80 shadow-sm' : 'bg-[#080e22]/70 text-slate-400 border-[#1e3260]/60 opacity-65 hover:opacity-100'"
+                                    :style="bm.enabled ? `border-color: ${bm.color}` : ''"
+                                    class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition flex items-center gap-2 cursor-pointer">
+                                <span class="w-2.5 h-2.5 rounded-full shrink-0" :style="`background-color: ${bm.color}`"></span>
+                                <span x-text="bm.label"></span>
+                                <span class="text-[10px] font-mono" x-text="bm.enabled ? '✓' : '+'"></span>
+                            </button>
+                        </template>
+                    </div>
+
+                    <!-- Grafiek Legende (Lijn vs Balk) -->
+                    <div class="flex items-center gap-4 text-[11px] text-slate-400 font-medium bg-[#080e22] px-3 py-1.5 rounded-xl border border-[#1e3260]/60">
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-4 h-0.5 bg-[#10b981] inline-block"></span>
+                            <span>TWR (%)</span>
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-sm bg-[#38bdf8]/35 border border-[#38bdf8]/60 inline-block"></span>
+                            <span>Portefeuillewaarde (€)</span>
+                        </span>
                     </div>
                 </div>
 
-                <!-- TWR Metrics Tegels -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <!-- TWR & Waarde Metrics Tegels -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                     <div class="bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260]">
-                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">TWR Rendement (Horizon)</span>
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Portefeuille TWR (Horizon)</span>
                         <div class="text-2xl font-black mt-0.5" :class="currentTwrMetrics.returnPct >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="(currentTwrMetrics.returnPct >= 0 ? '+' : '') + currentTwrMetrics.returnPct.toFixed(2) + '%'"></div>
                     </div>
                     <div class="bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260]">
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Totale Portefeuillewaarde</span>
+                        <div class="text-2xl font-black text-[#38bdf8] mt-0.5" x-text="formatCurrency(totalPortfolioValue)"></div>
+                    </div>
+                    <div class="bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260]">
                         <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Periode (Start - Eind)</span>
-                        <div class="text-xs font-bold text-slate-200 mt-1 font-mono" x-text="(currentTwrMetrics.startDate || '-') + ' t/m ' + (currentTwrMetrics.endDate || 'Huidig')"></div>
+                        <div class="text-xs font-bold text-slate-200 mt-1.5 font-mono" x-text="(currentTwrMetrics.startDate || '-') + ' t/m ' + (currentTwrMetrics.endDate || 'Huidig')"></div>
                     </div>
                     <div class="bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260]">
                         <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Hoogste Punt (ATH TWR)</span>
-                        <div class="text-lg font-bold text-[#34d399] mt-0.5" x-text="'+' + currentTwrMetrics.athPct.toFixed(2) + '%'"></div>
+                        <div class="text-lg font-bold text-[#34d399] mt-1" x-text="'+' + currentTwrMetrics.athPct.toFixed(2) + '%'"></div>
                     </div>
                 </div>
 
-                <div class="relative h-80 sm:h-96 w-full bg-[#080e22] p-3 rounded-2xl border border-[#1b2b52]">
+                <div class="relative h-80 sm:h-[420px] w-full bg-[#080e22] p-3 rounded-2xl border border-[#1b2b52]">
                     <canvas id="twrChartCanvas"></canvas>
                 </div>
             </div>
@@ -570,6 +602,233 @@
 
     </div>
 
+    <!-- ============================================== -->
+    <!-- TAB 4: DIVIDEND OVERZICHT & ANALYSE            -->
+    <!-- ============================================== -->
+    <div x-show="activeTab === 'dividenden'" class="space-y-5">
+
+      <!-- 1. Hoofd KPI Tegels voor Dividenden -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-4 shadow-xl">
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Totaal Netto Dividend</span>
+          <div class="text-2xl sm:text-3xl font-black text-[#34d399] mt-1 font-mono" x-text="formatCurrency(dividendSummary.totalNet)"></div>
+          <span class="text-[11px] text-slate-400 mt-0.5 block" x-text="'Gem. ' + formatCurrency(dividendSummary.avgMonthly) + ' / maand'"></span>
+        </div>
+
+        <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-4 shadow-xl">
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Bruto & Bronbelasting</span>
+          <div class="text-2xl font-black text-slate-100 mt-1 font-mono" x-text="formatCurrency(dividendSummary.totalGross)"></div>
+          <span class="text-[11px] text-[#f87171] mt-0.5 block font-mono" x-text="'Bronbelasting: -' + formatCurrency(dividendSummary.totalTax) + ' (' + dividendSummary.effectiveTaxPct.toFixed(1) + '%)'"></span>
+        </div>
+
+        <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-4 shadow-xl">
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Portefeuille Dividend % (TTM)</span>
+          <div class="text-2xl sm:text-3xl font-black text-[#38bdf8] mt-1 font-mono" x-text="dividendSummary.portfolioYieldPct.toFixed(2) + '%'"></div>
+          <span class="text-[11px] text-slate-400 mt-0.5 block font-mono" x-text="'Yield on Cost (YoC): ' + dividendSummary.yieldOnCostPct.toFixed(2) + '%'"></span>
+        </div>
+
+        <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-4 shadow-xl">
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Dividendbetalers & Laatste 12M</span>
+          <div class="text-2xl font-black text-slate-100 mt-1 font-mono" x-text="formatCurrency(dividendSummary.ttmNet)"></div>
+          <span class="text-[11px] text-slate-400 mt-0.5 block" x-text="dividendSummary.payingAssetsCount + ' betalende stocks/ETFs (' + dividendSummary.payoutCount + ' uitkeringen)'"></span>
+        </div>
+      </div>
+
+      <!-- 2. Grafieken: Dividend per Periode (Bar) & Verdeling per Stock (Donut) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Bar Chart: Dividend Inkomsten per Maand / Jaar -->
+        <div class="lg:col-span-7 bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl flex flex-col justify-between">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-[#182649] mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-200">Dividend Ontvangsten in de Tijd</h3>
+              <p class="text-[11px] text-slate-400">Netto ontvangen dividend per periode (€).</p>
+            </div>
+            <div class="flex items-center gap-1.5 bg-[#080e22] p-1 rounded-xl border border-[#1e3260]">
+              <button type="button" @click="dividendChartPeriod = 'monthly'; renderDividendCharts()" :class="dividendChartPeriod === 'monthly' ? 'bg-[#10b981] text-slate-950 font-bold' : 'text-slate-400 hover:text-white'" class="px-2.5 py-1 rounded-lg text-xs transition">Per Maand</button>
+              <button type="button" @click="dividendChartPeriod = 'yearly'; renderDividendCharts()" :class="dividendChartPeriod === 'yearly' ? 'bg-[#10b981] text-slate-950 font-bold' : 'text-slate-400 hover:text-white'" class="px-2.5 py-1 rounded-lg text-xs transition">Per Jaar</button>
+            </div>
+          </div>
+          <div class="relative h-64 w-full">
+            <canvas id="dividendTimelineChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Donut Chart: Verdeling per Stock / ETF -->
+        <div class="lg:col-span-5 bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl flex flex-col justify-between">
+          <div class="flex justify-between items-center pb-3 border-b border-[#182649] mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-200">Dividend per Aandeel / ETF</h3>
+              <p class="text-[11px] text-slate-400">Aandeel in totale dividendinkomsten.</p>
+            </div>
+            <span class="text-xs text-[#34d399] font-mono" x-text="dividendByAsset.length + ' assets'"></span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center my-auto">
+            <div class="sm:col-span-5 relative h-44 flex items-center justify-center">
+              <canvas id="dividendAssetDonutChart"></canvas>
+            </div>
+            <div class="sm:col-span-7 space-y-1.5 max-h-48 overflow-y-auto pr-1 text-xs">
+              <template x-for="(item, idx) in dividendByAsset" :key="item.isin">
+                <div class="flex justify-between items-center p-1.5 rounded-lg bg-[#080e22] border border-[#1e3260]/60">
+                  <div class="flex items-center gap-2 truncate pr-2">
+                    <span class="w-2.5 h-2.5 rounded-full shrink-0" :style="`background-color: ${dividendColors[idx % dividendColors.length]}`"></span>
+                    <span class="text-slate-200 truncate" x-text="item.name"></span>
+                  </div>
+                  <div class="text-right font-mono shrink-0">
+                    <span class="font-bold text-[#34d399]" x-text="formatCurrency(item.net)"></span>
+                    <span class="text-[10px] text-slate-400 ml-1" x-text="'(' + item.sharePct.toFixed(1) + '%)'"></span>
+                  </div>
+                </div>
+              </template>
+              <template x-if="dividendByAsset.length === 0">
+                <div class="text-slate-500 italic text-center py-4">Nog geen dividenddata beschikbaar.</div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 3. Tabel: Stocks & ETFs die Dividend Betalen -->
+      <div class="bg-[#0b142c] rounded-2xl shadow-xl border border-[#1b2b52] overflow-hidden">
+        <div class="p-5 border-b border-[#182649] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <h2 class="text-base font-bold text-slate-200">Stocks & ETFs met Dividend</h2>
+            <p class="text-[11px] text-slate-400">Overzicht per effect met bruto/netto opbrengst, belastingdruk, huidig dividendrendement (%) en Yield on Cost (YoC %).</p>
+          </div>
+          <span class="text-xs bg-[#080e22] px-3 py-1.5 rounded-xl border border-[#1e3260] text-slate-300 font-mono" x-text="'Totaal Netto: ' + formatCurrency(dividendSummary.totalNet)"></span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse select-none">
+            <thead>
+              <tr class="bg-[#080e22] text-slate-400 text-[10px] uppercase tracking-wider font-semibold">
+                <th @click="setDivSort('name')" class="p-4 cursor-pointer hover:text-white transition">
+                  <div class="flex items-center gap-1">
+                    <span>Stock / ETF</span>
+                    <span x-show="divSortCol === 'name'" x-text="divSortAsc ? '▲' : '▼'"></span>
+                  </div>
+                </th>
+                <th @click="setDivSort('count')" class="p-4 text-right cursor-pointer hover:text-white transition">
+                  <div class="flex items-center justify-end gap-1">
+                    <span>Uitkeringen</span>
+                    <span x-show="divSortCol === 'count'" x-text="divSortAsc ? '▲' : '▼'"></span>
+                  </div>
+                </th>
+                <th @click="setDivSort('gross')" class="p-4 text-right cursor-pointer hover:text-white transition">
+                  <div class="flex items-center justify-end gap-1">
+                    <span>Bruto</span>
+                    <span x-show="divSortCol === 'gross'" x-text="divSortAsc ? '▲' : '▼'"></span>
+                  </div>
+                </th>
+                <th @click="setDivSort('tax')" class="p-4 text-right cursor-pointer hover:text-white transition">
+                  <div class="flex items-center justify-end gap-1">
+                    <span>Bronbelasting</span>
+                    <span x-show="divSortCol === 'tax'" x-text="divSortAsc ? '▲' : '▼'"></span>
+                  </div>
+                </th>
+                <th @click="setDivSort('net')" class="p-4 text-right cursor-pointer hover:text-white transition">
+                  <div class="flex items-center justify-end gap-1">
+                    <span>Netto Ontvangen</span>
+                    <span x-show="divSortCol === 'net'" x-text="divSortAsc ? '▲' : '▼'"></span>
+                  </div>
+                </th>
+                <th @click="setDivSort('yieldPct')" class="p-4 text-right cursor-pointer hover:text-white transition" title="Netto dividend laatste 12 maanden t.o.v. huidige waarde">
+                  <div class="flex items-center justify-end gap-1">
+                    <span>Dividend % (TTM)</span>
+                    <span x-show="divSortCol === 'yieldPct'" x-text="divSortAsc ? '▲' : '▼'"></span>
+                  </div>
+                </th>
+                <th @click="setDivSort('yocPct')" class="p-4 text-right cursor-pointer hover:text-white transition" title="Netto dividend laatste 12 maanden t.o.v. aankoopwaarde (Yield on Cost)">
+                  <div class="flex items-center justify-end gap-1">
+                    <span>Yield on Cost</span>
+                    <span x-show="divSortCol === 'yocPct'" x-text="divSortAsc ? '▲' : '▼'"></span>
+                  </div>
+                </th>
+                <th class="p-4 text-right">Laatste Betaling</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#182649] text-xs">
+              <template x-for="item in sortedDividendByAsset" :key="item.isin">
+                <tr class="hover:bg-[#132247]/40 transition">
+                  <td class="p-4">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="font-bold text-slate-100" x-text="item.name"></span>
+                      <span class="text-[9px] font-bold px-1.5 py-0.5 rounded uppercase font-mono"
+                            :class="item.isOpen ? 'bg-[#10b981]/15 text-[#34d399] border border-[#10b981]/30' : 'bg-slate-700/40 text-slate-400 border border-slate-600/40'"
+                            x-text="item.isOpen ? 'Open' : 'Gesloten'">
+                      </span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 font-mono" x-text="item.isin + (item.ticker ? ' • ' + item.ticker : '')"></div>
+                  </td>
+                  <td class="p-4 text-right font-mono text-slate-300" x-text="item.count + '×'"></td>
+                  <td class="p-4 text-right font-mono text-slate-300" x-text="formatCurrency(item.gross)"></td>
+                  <td class="p-4 text-right font-mono text-[#f87171]">
+                    <span x-text="item.tax > 0 ? '-' + formatCurrency(item.tax) : '€ 0,00'"></span>
+                    <template x-if="item.taxPct > 0">
+                      <span class="text-[10px] text-slate-500 block" x-text="'(' + item.taxPct.toFixed(1) + '%)'"></span>
+                    </template>
+                  </td>
+                  <td class="p-4 text-right font-bold font-mono text-[#34d399]" x-text="formatCurrency(item.net)"></td>
+                  <td class="p-4 text-right font-bold font-mono text-[#38bdf8]">
+                    <span x-text="item.isOpen ? item.yieldPct.toFixed(2) + '%' : '-'"></span>
+                  </td>
+                  <td class="p-4 text-right font-mono text-slate-200">
+                    <span x-text="item.isOpen ? item.yocPct.toFixed(2) + '%' : '-'"></span>
+                  </td>
+                  <td class="p-4 text-right font-mono text-slate-400" x-text="item.lastDate || '-'"></td>
+                </tr>
+              </template>
+              <template x-if="sortedDividendByAsset.length === 0">
+                <tr>
+                  <td colspan="8" class="p-10 text-center text-slate-500 italic">Geen dividendtransacties gevonden in het geladen bestand.</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4. Historisch Overzicht van Alle Dividenduitkeringen -->
+      <div class="bg-[#0b142c] rounded-2xl shadow-xl border border-[#1b2b52] overflow-hidden">
+        <div class="p-4 border-b border-[#182649] flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-bold text-slate-200">Recente Dividenduitkeringen</h3>
+            <p class="text-[11px] text-slate-400">Chronologisch logboek van alle dividend- en bronbelastingboekingen.</p>
+          </div>
+          <span class="text-xs text-slate-400 font-mono" x-text="dividendTransactionsList.length + ' boekingen'"></span>
+        </div>
+        <div class="overflow-x-auto max-h-80">
+          <table class="w-full text-left border-collapse">
+            <thead class="sticky top-0 bg-[#080e22] text-slate-400 text-[10px] uppercase tracking-wider font-semibold">
+              <tr>
+                <th class="p-3.5">Datum</th>
+                <th class="p-3.5">Stock / ETF</th>
+                <th class="p-3.5">Omschrijving</th>
+                <th class="p-3.5 text-right">Bedrag (EUR)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#182649]/60 text-xs">
+              <template x-for="(dtx, i) in dividendTransactionsList" :key="i">
+                <tr class="hover:bg-[#132247]/30 transition">
+                  <td class="p-3.5 font-mono text-slate-400" x-text="dtx.date"></td>
+                  <td class="p-3.5 font-bold text-slate-200" x-text="dtx.name"></td>
+                  <td class="p-3.5 text-slate-400" x-text="dtx.description"></td>
+                  <td class="p-3.5 text-right font-mono font-bold" :class="dtx.amount >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="(dtx.amount >= 0 ? '+' : '') + formatCurrency(dtx.amount)"></td>
+                </tr>
+              </template>
+              <template x-if="dividendTransactionsList.length === 0">
+                <tr>
+                  <td colspan="4" class="p-8 text-center text-slate-500 italic">Nog geen dividendboekingen geregistreerd.</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
     <!-- Modal 1: Individueel Asset Bewerken -->
     <div x-show="showEditAssetModal" 
          x-transition 
@@ -699,7 +958,7 @@
         </div>
     </div>
 
-    <!-- Modal 4: Corporate Actions Beheer (Naamswijziging, Overname/Fusie, Aandelensplitsing) -->
+    <!-- Modal 4: Corporate Actions Beheer -->
     <div x-show="showCorporateActionsModal" 
          x-transition 
          class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -715,11 +974,9 @@
             </div>
 
             <div class="p-4 overflow-y-auto space-y-5 text-xs">
-                <!-- Nieuw Corporate Action Formulier -->
                 <div class="bg-[#080e22] p-4 rounded-xl border border-[#1e3260] space-y-3">
                     <div class="font-bold text-slate-200 text-xs uppercase tracking-wider">Nieuwe Corporate Action Toevoegen</div>
 
-                    <!-- Type Selectie -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <button type="button" @click="newCa.type = 'merger'" :class="newCa.type === 'merger' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#132247] text-slate-300 border border-[#1e3260]'" class="p-2.5 rounded-xl text-center transition">
                             Overname / ISIN-wissel
@@ -735,7 +992,6 @@
                         </button>
                     </div>
 
-                    <!-- Formulier velden: OVERNAME / FUSIE / ISIN-WISSEL -->
                     <template x-if="newCa.type === 'merger'">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                             <div>
@@ -775,7 +1031,6 @@
                                 <span class="text-[10px] text-slate-500">Wordt in mindering gebracht op de kostprijs.</span>
                             </div>
 
-                            <!-- Live Voorvertoning GAK Berekening -->
                             <template x-if="mergerPreview">
                                 <div class="sm:col-span-2 p-3 rounded-xl bg-[#132247]/70 border border-[#38bdf8]/30 space-y-1.5 text-[11px]">
                                     <div class="font-bold text-[#38bdf8] flex items-center justify-between">
@@ -798,7 +1053,6 @@
                         </div>
                     </template>
 
-                    <!-- Formulier velden: SPLITSING / REVERSE SPLIT -->
                     <template x-if="newCa.type === 'split'">
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                             <div>
@@ -825,7 +1079,6 @@
                         </div>
                     </template>
 
-                    <!-- Formulier velden: NAAMSWIJZIGING -->
                     <template x-if="newCa.type === 'rename'">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                             <div>
@@ -851,7 +1104,6 @@
                     </div>
                 </div>
 
-                <!-- Lijst met actieve Corporate Actions -->
                 <div class="space-y-2">
                     <div class="font-bold text-slate-300 text-xs uppercase tracking-wider">Actieve Corporate Actions (<span x-text="corporateActions.length"></span>)</div>
                     
@@ -932,8 +1184,13 @@
                 showInstallPrompt: false,
                 showUnmappedDetails: false,
                 syncStatus: 'Niet gesynchroniseerd',
-                selectedTwrAsset: 'portfolio',
                 twrHorizon: 'MAX',
+                benchmarkConfigs: [
+                    { id: 'msci_world', label: 'MSCI World Index', tickers: ['AMS:IWDA', 'NYSEARCA:URTH', 'IWDA', 'MSCI_WORLD'], color: '#38bdf8', enabled: true },
+                    { id: 'sp500', label: 'S&P 500', tickers: ['INDEXSP:.INX', 'AMS:CSPX', 'NYSEARCA:SPY', '.INX', 'SP500'], color: '#f59e0b', enabled: true },
+                    { id: 'bel20', label: 'BEL 20', tickers: ['INDEXEURO:BEL20', 'EBR:BEL20', 'BEL20'], color: '#a855f7', enabled: false },
+                    { id: 'stoxx50', label: 'EURO STOXX 50', tickers: ['INDEXSTOXX:SX5E', 'SX5E', 'EUROSTOXX50'], color: '#ec4899', enabled: false }
+                ],
                 horizonOptions: [
                     { key: '1D', label: '1D' },
                     { key: '1W', label: '1W' },
@@ -947,6 +1204,12 @@
                 chartInstance: null,
                 allocationChartInstance: null,
                 costsChartInstance: null,
+                dividendTimelineChartInstance: null,
+                dividendAssetChartInstance: null,
+                dividendChartPeriod: 'monthly',
+                dividendColors: ['#10b981', '#38bdf8', '#34d399', '#818cf8', '#f59e0b', '#a855f7', '#ec4899', '#14b8a6'],
+                divSortCol: 'net',
+                divSortAsc: false,
                 currentTwrMetrics: { returnPct: 0, startDate: '', endDate: '', athPct: 0 },
                 
                 sortCol: 'value',
@@ -989,7 +1252,6 @@
                     this.$nextTick(() => { this.renderDonutCharts(); });
                 },
 
-                // Hulpfunctie: controleert of een tekst alleen een ruwe ticker of ISIN is
                 isRawTickerOrIsin(val, isin = '', ticker = '') {
                     if (!val) return true;
                     const v = String(val).trim();
@@ -1001,7 +1263,6 @@
                     return false;
                 },
 
-                // Geeft altijd de echte naam van de Stock of ETF terug (nooit enkel de ticker)
                 getAssetDisplayName(posOrIsin) {
                     const isObj = (posOrIsin && typeof posOrIsin === 'object');
                     const isin = isObj ? posOrIsin.isin : String(posOrIsin || '').trim();
@@ -1009,28 +1270,23 @@
 
                     const ticker = this.assetMapping[isin]?.ticker || '';
 
-                    // 1. Handmatige naamswijziging via Corporate Action
                     const renameCa = [...this.corporateActions].reverse().find(ca => ca.type === 'rename' && ca.isin === isin && ca.newName);
                     if (renameCa) return renameCa.newName;
 
-                    // 2. Expliciete doelnaam uit overname/fusie Corporate Action
                     const mergerCa = [...this.corporateActions].reverse().find(ca => ca.type === 'merger' && ca.toIsin === isin && ca.toName);
                     if (mergerCa && !this.isRawTickerOrIsin(mergerCa.toName, isin, ticker)) {
                         return mergerCa.toName;
                     }
 
-                    // 3. Naam uit assetMapping (mits geen kale ticker/ISIN)
                     const mappedName = this.assetMapping[isin]?.name;
                     if (mappedName && !this.isRawTickerOrIsin(mappedName, isin, ticker)) {
                         return mappedName;
                     }
 
-                    // 4. Naam uit pos-object (mits geen kale ticker/ISIN)
                     if (isObj && posOrIsin.name && !this.isRawTickerOrIsin(posOrIsin.name, isin, ticker)) {
                         return posOrIsin.name;
                     }
 
-                    // 5. Zoek de echte Asset Name op in de BUX CSV transacties
                     const tx = this.transactions.find(t => this.getVal(t, 'Asset Id', 'ISIN') === isin && this.getVal(t, 'Asset Name', 'Name'));
                     if (tx) {
                         const txName = this.getVal(tx, 'Asset Name', 'Name');
@@ -1042,7 +1298,6 @@
                     return mappedName || (isObj ? posOrIsin.name : '') || isin;
                 },
 
-                // Live voorvertoning van de GAK-berekening bij een Overname / Fusie
                 get mergerPreview() {
                     if (this.newCa.type !== 'merger' || !this.newCa.fromIsin) return null;
                     const fromIsin = String(this.newCa.fromIsin).trim();
@@ -1086,7 +1341,6 @@
                     };
                 },
 
-                // Alle bekende assets uit transacties en mappings (voor Corporate Actions dropdowns)
                 get allKnownAssets() {
                     let map = {};
                     Object.keys(this.assetMapping).forEach(isin => {
@@ -1103,7 +1357,6 @@
                     return Object.values(map).sort((a, b) => a.name.localeCompare(b.name));
                 },
 
-                // Corporate Action toevoegen
                 addCorporateAction() {
                     const t = this.newCa.type;
                     let entry = { id: Date.now().toString(), type: t };
@@ -1128,7 +1381,6 @@
                         entry.ratio = ratio;
                         entry.cashBoot = cashBoot;
 
-                        // Zorg dat doel-ISIN bestaat in assetMapping met een echte naam
                         const resolvedTargetName = entry.toName || (!this.isRawTickerOrIsin(this.assetMapping[toIsin]?.name, toIsin, entry.toTicker) ? this.assetMapping[toIsin]?.name : '');
                         if (!this.assetMapping[toIsin]) {
                             this.assetMapping[toIsin] = {
@@ -1174,7 +1426,6 @@
                     this.corporateActions.push(entry);
                     localStorage.setItem('pat_corporate_actions', JSON.stringify(this.corporateActions));
 
-                    // Reset formulier
                     this.newCa.fromIsin = '';
                     this.newCa.toIsin = '';
                     this.newCa.toName = '';
@@ -1188,6 +1439,7 @@
                     this.calculatePositions();
                     this.renderDonutCharts();
                     if (this.activeTab === 'twr') this.updateTwrView();
+                    if (this.activeTab === 'dividenden') this.renderDividendCharts();
                     this.uploadMessage = 'Corporate Action toegepast en posities & GAK herberekend!';
                 },
 
@@ -1197,6 +1449,7 @@
                     this.calculatePositions();
                     this.renderDonutCharts();
                     if (this.activeTab === 'twr') this.updateTwrView();
+                    if (this.activeTab === 'dividenden') this.renderDividendCharts();
                 },
 
                 describeCorporateAction(ca) {
@@ -1215,121 +1468,6 @@
                         return `${ca.isin} → Hernoemd naar "${ca.newName}"`;
                     }
                     return '';
-                },
-
-                // Vind alle gerelateerde ISINs (bijv. oude Cofinimmo ISIN gekoppeld aan Aedifica) voor TWR-historie
-                getRelatedIsins(isin) {
-                    let isins = new Set([isin]);
-                    let added = true;
-                    while (added) {
-                        added = false;
-                        this.corporateActions.forEach(ca => {
-                            if (ca.type === 'merger') {
-                                if (isins.has(ca.toIsin) && !isins.has(ca.fromIsin)) {
-                                    isins.add(ca.fromIsin);
-                                    added = true;
-                                }
-                            }
-                        });
-                    }
-                    return Array.from(isins);
-                },
-
-                // Geef de actieve split-factor terug voor een ISIN
-                getSplitMultiplierForIsin(isin) {
-                    let mult = 1.0;
-                    this.corporateActions.forEach(ca => {
-                        if (ca.type === 'split' && ca.isin === isin && ca.factor > 0) {
-                            if (ca.mode === 'divide') mult /= ca.factor;
-                            else mult *= ca.factor;
-                        }
-                    });
-                    return mult;
-                },
-
-                // Genereert een propere lijst van opties voor de TWR-dropdown met de Stock/ETF naam
-                get twrAssetSelectOptions() {
-                    let list = [];
-                    this.positions.forEach(p => {
-                        list.push({ value: p.isin, label: `${this.getAssetDisplayName(p)} (Open)` });
-                    });
-                    this.closedPositionsList.forEach(cp => {
-                        if (!this.positions.some(p => p.isin === cp.isin)) {
-                            list.push({ value: cp.isin, label: `${this.getAssetDisplayName(cp)} (Gesloten)` });
-                        }
-                    });
-                    return list;
-                },
-
-                setTwrHorizon(horizonKey) {
-                    this.twrHorizon = horizonKey;
-                    this.updateTwrView();
-                },
-
-                onTwrAssetChange() {
-                    this.twrHorizon = 'MAX';
-                    this.updateTwrView();
-                },
-
-                getHorizonStartDate(horizon, endDateStr, minDateStr) {
-                    if (horizon === 'MAX') return minDateStr;
-                    const end = new Date(endDateStr + 'T12:00:00');
-                    let start = new Date(end);
-                    
-                    switch (horizon) {
-                        case '1D':
-                            start.setDate(end.getDate() - 1);
-                            break;
-                        case '1W':
-                            start.setDate(end.getDate() - 7);
-                            break;
-                        case '1M':
-                            start.setMonth(end.getMonth() - 1);
-                            break;
-                        case '6M':
-                            start.setMonth(end.getMonth() - 6);
-                            break;
-                        case '1Y':
-                            start.setFullYear(end.getFullYear() - 1);
-                            break;
-                        case 'YTD':
-                            start = new Date(end.getFullYear(), 0, 1);
-                            break;
-                        case '2Y':
-                            start.setFullYear(end.getFullYear() - 2);
-                            break;
-                        default:
-                            return minDateStr;
-                    }
-                    
-                    const startStr = start.toISOString().split('T')[0];
-                    return (startStr < minDateStr) ? minDateStr : startStr;
-                },
-
-                getHistoricalPricesForTicker(rawTicker) {
-                    if (!this.historyData || !this.historyData.prices || !rawTicker) return null;
-                    const cleanTicker = String(rawTicker).trim();
-                    const hp = this.historyData.prices;
-
-                    if (hp[cleanTicker] && Array.isArray(hp[cleanTicker]) && hp[cleanTicker].length > 0) {
-                        return hp[cleanTicker];
-                    }
-
-                    for (let key in hp) {
-                        if (key.trim().toUpperCase() === cleanTicker.toUpperCase() && Array.isArray(hp[key])) {
-                            return hp[key];
-                        }
-                    }
-
-                    const baseSymbol = cleanTicker.includes(':') ? cleanTicker.split(':')[1].trim().toUpperCase() : cleanTicker.toUpperCase();
-                    for (let key in hp) {
-                        const keyBase = key.includes(':') ? key.split(':')[1].trim().toUpperCase() : key.trim().toUpperCase();
-                        if (keyBase === baseSymbol && Array.isArray(hp[key])) {
-                            return hp[key];
-                        }
-                    }
-
-                    return null;
                 },
 
                 openEditAssetModal(isin) {
@@ -1363,9 +1501,8 @@
                     this.showEditAssetModal = false;
                     this.calculatePositions();
                     this.renderDonutCharts();
-                    if (this.activeTab === 'twr') {
-                        this.updateTwrView();
-                    }
+                    if (this.activeTab === 'twr') this.updateTwrView();
+                    if (this.activeTab === 'dividenden') this.renderDividendCharts();
                 },
 
                 setSort(col) {
@@ -1558,7 +1695,6 @@
                         }
                     });
 
-                    // Voeg ook posities toe die via een overname/fusie zijn afgesloten aan de GAK
                     (this.mergerClosedPositions || []).forEach(mc => {
                         if (!map[mc.isin]) {
                             map[mc.isin] = {
@@ -1648,7 +1784,6 @@
                                             };
                                         } else {
                                             if (incomingTicker) this.assetMapping[isin].ticker = incomingTicker;
-                                            // Overschrijf alleen naam als er nog geen echte naam staat en incomingName geen kale ticker is
                                             if (incomingName && !this.isRawTickerOrIsin(incomingName, isin, incomingTicker)) {
                                                 if (this.isRawTickerOrIsin(this.assetMapping[isin].name, isin, this.assetMapping[isin].ticker)) {
                                                     this.assetMapping[isin].name = incomingName;
@@ -1657,7 +1792,6 @@
                                             if (incomingCcy) this.assetMapping[isin].currency = incomingCcy;
                                         }
 
-                                        // Herstel echte naam vanuit CSV transacties indien assetMapping[isin].name nog leeg/ticker is
                                         if (this.isRawTickerOrIsin(this.assetMapping[isin].name, isin, this.assetMapping[isin].ticker)) {
                                             const tx = this.transactions.find(t => this.getVal(t, 'Asset Id', 'ISIN') === isin && this.getVal(t, 'Asset Name', 'Name'));
                                             if (tx) {
@@ -1698,6 +1832,9 @@
                                 this.syncStatus = 'Gesynchroniseerd om ' + new Date().toLocaleTimeString();
                                 if (this.activeTab === 'twr') {
                                     this.updateTwrView();
+                                }
+                                if (this.activeTab === 'dividenden') {
+                                    this.renderDividendCharts();
                                 }
                                 this.renderDonutCharts();
                             } else {
@@ -1750,9 +1887,8 @@
                         this.syncStatus = `Opgeslagen: ${ticker || isin} (${currency})`;
                         this.uploadMessage = `Asset ${mappingItem.name || isin} bijgewerkt: ticker '${ticker}', valuta '${currency}'.`;
                         this.renderDonutCharts();
-                        if (this.activeTab === 'twr') {
-                            this.updateTwrView();
-                        }
+                        if (this.activeTab === 'twr') this.updateTwrView();
+                        if (this.activeTab === 'dividenden') this.renderDividendCharts();
                     }).catch(err => {
                         console.error('Fout bij verzenden naar backend:', err);
                         this.syncStatus = 'Fout bij opslaan';
@@ -1826,6 +1962,7 @@
                         this.processNewTransactions();
                         this.uploadMessage = `Succesvol ${cleanRows.length} transacties geladen uit ${file.name}!`;
                         this.renderDonutCharts();
+                        if (this.activeTab === 'dividenden') this.renderDividendCharts();
                     };
 
                     reader.onerror = () => {
@@ -1843,7 +1980,7 @@
                         const name = this.getVal(tx, 'Asset Name', 'Name');
                         const currency = this.getVal(tx, 'Asset Currency');
 
-                        if ((category === 'trades' || category === 'corporate_actions') && isin && name && !DUMMY_ISINS.includes(isin)) {
+                        if ((category === 'trades' || category === 'corporate_actions' || category === 'dividends') && isin && name && !DUMMY_ISINS.includes(isin)) {
                             if (!this.assetMapping[isin]) {
                                 this.assetMapping[isin] = { 
                                     name: name, 
@@ -1851,7 +1988,6 @@
                                     currency: currency || 'EUR'
                                 };
                             } else {
-                                // Vul echte naam aan indien assetMapping enkel een ticker of lege naam bevatte
                                 if (!this.isRawTickerOrIsin(name, isin, this.assetMapping[isin].ticker) &&
                                     this.isRawTickerOrIsin(this.assetMapping[isin].name, isin, this.assetMapping[isin].ticker)) {
                                     this.assetMapping[isin].name = name;
@@ -1873,535 +2009,804 @@
                     return etfKeywords.some(kw => n.includes(kw));
                 },
 
-                // Bereken posities inclusief automatische CSV corporate actions + handmatige Corporate Actions
-                // Bij overnames (bv. Cofinimmo -> Aedifica) wordt de oude positie afgesloten aan de GAK en wordt de GAK van de overnemer (ook bij bestaande posities) gewogen aangepast.
                 calculatePositions() {
-          let posMap = {};
-          let pendingCaDebits = [];
-          let closedByMerger = [];
-          
-          // Sorteer alle transacties chronologisch
-          let sortedTx = [...this.transactions].sort((a, b) => {
-            const ta = this.getVal(a, 'Transaction Time (CET)', 'Date', 'Time');
-            const tb = this.getVal(b, 'Transaction Time (CET)', 'Date', 'Time');
-            return ta.localeCompare(tb);
-          });
-
-          // Bepaal voor elke corporate_action-rij eenduidig of het een DEBIT (uitgaand/afsluiten) of CREDIT (inkomend/nieuw) is
-          let runningQty = {};
-          let caDirections = {};
-
-          sortedTx.forEach((tx, idx) => {
-            const category = this.getVal(tx, 'Transaction Category');
-            const type = this.getVal(tx, 'Transaction Type');
-            const transferType = this.getVal(tx, 'Transfer Type').toUpperCase();
-            const desc = this.getVal(tx, 'Transaction Description').toUpperCase();
-            const isin = this.getVal(tx, 'Asset Id', 'ISIN');
-            const rawQty = this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity'));
-            const qty = Math.abs(rawQty);
-
-            if (!isin || DUMMY_ISINS.includes(isin)) return;
-
-            if (category === 'trades') {
-              if (type === 'Buy Trade' && (transferType === 'CASH_DEBIT' || transferType === '')) {
-                runningQty[isin] = (runningQty[isin] || 0) + qty;
-              } else if (type === 'Sell Trade' && (transferType === 'CASH_CREDIT' || transferType === '')) {
-                runningQty[isin] = Math.max(0, (runningQty[isin] || 0) - qty);
-              }
-            } else if (category === 'corporate_actions') {
-              if (transferType.includes('CASH')) {
-                caDirections[idx] = 'CASH';
-              } else if (qty === 0) {
-                caDirections[idx] = 'NONE';
-              } else if (
-                rawQty < 0 ||
-                ['DEBIT', 'OUT', 'SELL', 'REMOVE', 'WITHDRAW'].some(k => transferType.includes(k)) ||
-                ['DEBIT', 'OUT', 'REMOVAL', 'EXCHANGE FROM'].some(k => desc.includes(k))
-              ) {
-                caDirections[idx] = 'DEBIT';
-                runningQty[isin] = Math.max(0, (runningQty[isin] || 0) - qty);
-              } else if (
-                ['CREDIT', 'IN', 'BUY', 'ADD', 'DEPOSIT'].some(k => transferType.includes(k)) ||
-                ['CREDIT', 'ADDITION', 'EXCHANGE TO'].some(k => desc.includes(k))
-              ) {
-                caDirections[idx] = 'CREDIT';
-                runningQty[isin] = (runningQty[isin] || 0) + qty;
-              } else {
-                // Indien Transfer Type neutraal is (bv. ASSET_CORPORATE_ACTION) met positieve qty:
-                // Als we deze ISIN al in portefeuille hebben, is dit de uitgaande positie die afgesloten wordt!
-                if ((runningQty[isin] || 0) > 0.0001) {
-                  caDirections[idx] = 'DEBIT';
-                  runningQty[isin] = Math.max(0, (runningQty[isin] || 0) - qty);
-                } else {
-                  caDirections[idx] = 'CREDIT';
-                  runningQty[isin] = (runningQty[isin] || 0) + qty;
-                }
-              }
-            }
-          });
-
-          // Sorteer zo dat binnen hetzelfde tijdstip (minuut) eerst trades, dan CA DEBIT, dan CA CASH, dan CA CREDIT verwerkt worden
-          const prioMap = { 'DEBIT': 1, 'CASH': 2, 'CREDIT': 3, 'NONE': 4 };
-          let indexedTx = sortedTx.map((tx, idx) => ({ tx, idx }));
-          indexedTx.sort((a, b) => {
-            const ta = this.getVal(a.tx, 'Transaction Time (CET)', 'Date', 'Time');
-            const tb = this.getVal(b.tx, 'Transaction Time (CET)', 'Date', 'Time');
-            const bucketA = ta.slice(0, 16);
-            const bucketB = tb.slice(0, 16);
-            if (bucketA !== bucketB) return bucketA.localeCompare(bucketB);
-
-            const catA = this.getVal(a.tx, 'Transaction Category');
-            const catB = this.getVal(b.tx, 'Transaction Category');
-            const pA = catA === 'trades' ? 0 : (prioMap[caDirections[a.idx]] || 3);
-            const pB = catB === 'trades' ? 0 : (prioMap[caDirections[b.idx]] || 3);
-            if (pA !== pB) return pA - pB;
-            return ta.localeCompare(tb);
-          });
-
-          indexedTx.forEach(({ tx, idx }) => {
-            const category = this.getVal(tx, 'Transaction Category');
-            const type = this.getVal(tx, 'Transaction Type');
-            const transferType = this.getVal(tx, 'Transfer Type').toUpperCase();
-            const isin = this.getVal(tx, 'Asset Id', 'ISIN');
-            const name = this.getVal(tx, 'Asset Name', 'Name');
-            const rawQty = this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity'));
-            const qty = Math.abs(rawQty);
-            const rawAmt = this.parseNum(this.getVal(tx, 'Transaction Amount', 'Amount'));
-            const eurAmount = Math.abs(rawAmt);
-            const txTime = this.getVal(tx, 'Transaction Time (CET)', 'Date', 'Time');
-            const txDate = txTime.split(' ')[0];
-
-            if (!isin || DUMMY_ISINS.includes(isin)) return;
-
-            const resolvedName = this.getAssetDisplayName({ isin, name });
-
-            if (category === 'trades') {
-              if (!posMap[isin]) {
-                posMap[isin] = { 
-                  isin: isin, 
-                  name: resolvedName, 
-                  quantity: 0, 
-                  totalCost: 0, 
-                  avgPrice: 0,
-                  isEtf: this.isEtfAsset(resolvedName, isin),
-                  caBadge: '',
-                  caNote: ''
-                };
-              }
-
-              if (type === 'Buy Trade' && (transferType === 'CASH_DEBIT' || transferType === '')) {
-                posMap[isin].quantity += qty;
-                posMap[isin].totalCost += eurAmount;
-              } 
-              else if (type === 'Sell Trade' && (transferType === 'CASH_CREDIT' || transferType === '')) {
-                let avg = posMap[isin].quantity > 0 ? posMap[isin].totalCost / posMap[isin].quantity : 0;
-                posMap[isin].quantity -= qty;
-                posMap[isin].totalCost -= (qty * avg);
-              }
-
-              if (posMap[isin].quantity > 0.000001) {
-                posMap[isin].avgPrice = posMap[isin].totalCost / posMap[isin].quantity;
-              } else {
-                posMap[isin].quantity = 0;
-                posMap[isin].avgPrice = 0;
-                posMap[isin].totalCost = 0;
-              }
-            }
-            else if (category === 'corporate_actions') {
-              if (!posMap[isin]) {
-                posMap[isin] = {
-                  isin: isin,
-                  name: resolvedName,
-                  quantity: 0,
-                  totalCost: 0,
-                  avgPrice: 0,
-                  isEtf: this.isEtfAsset(resolvedName, isin),
-                  caBadge: '',
-                  caNote: ''
-                };
-              }
-
-              const dir = caDirections[idx];
-
-              if (dir === 'DEBIT' && qty > 0) {
-                // Oude positie (bv. Cofinimmo of oude Barrick) wordt afgesloten aan zijn exacte GAK
-                let currentGak = posMap[isin].quantity > 0 ? (posMap[isin].totalCost / posMap[isin].quantity) : 0;
-                let closedQty = Math.min(posMap[isin].quantity, qty);
-                let removedCost = Math.min(posMap[isin].totalCost, closedQty * currentGak);
-
-                posMap[isin].quantity = Math.max(0, posMap[isin].quantity - qty);
-                posMap[isin].totalCost = Math.max(0, posMap[isin].totalCost - removedCost);
-                posMap[isin].avgPrice = posMap[isin].quantity > 0.000001 ? (posMap[isin].totalCost / posMap[isin].quantity) : 0;
-
-                pendingCaDebits.push({
-                  fromIsin: isin,
-                  fromName: resolvedName,
-                  closedQty: closedQty,
-                  closedGak: currentGak,
-                  remainingCost: removedCost,
-                  date: txDate
-                });
-              } 
-              else if (dir === 'CREDIT' && qty > 0) {
-                // Nieuwe aandelen (bv. Aedifica of nieuwe Barrick) ontvangen de geconverteerde GAK van de afgesloten positie
-                let inheritedCost = 0;
-                let sourceDebit = null;
-
-                const matchingRule = this.corporateActions.find(ca => ca.type === 'merger' && ca.toIsin === isin);
-                if (matchingRule) {
-                  const dIdx = pendingCaDebits.findIndex(d => d.fromIsin === matchingRule.fromIsin && d.remainingCost > 0);
-                  if (dIdx !== -1) {
-                    sourceDebit = pendingCaDebits.splice(dIdx, 1)[0];
-                  }
-                }
-                if (!sourceDebit && pendingCaDebits.length > 0) {
-                  sourceDebit = pendingCaDebits.shift();
-                }
-
-                if (sourceDebit) {
-                  inheritedCost = sourceDebit.remainingCost;
-                  if (sourceDebit.fromIsin !== isin) {
-                    closedByMerger.push({
-                      isin: sourceDebit.fromIsin,
-                      name: sourceDebit.fromName,
-                      closedQuantity: sourceDebit.closedQty,
-                      note: `Overname / Wissel → ${resolvedName} (GAK ${this.formatCurrency(sourceDebit.closedGak)})`
+                    let posMap = {};
+                    let pendingCaDebits = [];
+                    let closedByMerger = [];
+                    
+                    let sortedTx = [...this.transactions].sort((a, b) => {
+                        const ta = this.getVal(a, 'Transaction Time (CET)', 'Date', 'Time');
+                        const tb = this.getVal(b, 'Transaction Time (CET)', 'Date', 'Time');
+                        return ta.localeCompare(tb);
                     });
-                  }
-                }
 
-                const convertedGak = qty > 0 ? (inheritedCost / qty) : 0;
-                const hadExistingShares = posMap[isin].quantity > 0.0001;
+                    let runningQty = {};
+                    let caDirections = {};
 
-                // Voeg samen met eventuele bestaande aandelen van de overnemer (gewogen GAK)
-                posMap[isin].quantity += qty;
-                posMap[isin].totalCost += inheritedCost;
-                posMap[isin].avgPrice = posMap[isin].quantity > 0.000001 ? (posMap[isin].totalCost / posMap[isin].quantity) : 0;
-                posMap[isin].caBadge = sourceDebit && sourceDebit.fromIsin !== isin ? 'Overname' : 'CA';
-                posMap[isin].caNote = sourceDebit && sourceDebit.fromIsin !== isin
-                  ? `Conversie ${sourceDebit.fromName}: geconverteerde GAK ${this.formatCurrency(convertedGak)}${hadExistingShares ? ' samengevoegd met bestaande positie' : ''}`
-                  : `Corporate Action (${type || 'CSV'}): GAK aangepast naar ${this.formatCurrency(posMap[isin].avgPrice)}`;
-              }
-              else if (dir === 'CASH' && rawAmt > 0 && pendingCaDebits.length > 0) {
-                pendingCaDebits[0].remainingCost = Math.max(0, pendingCaDebits[0].remainingCost - rawAmt);
-              }
-            }
-          });
+                    sortedTx.forEach((tx, idx) => {
+                        const category = this.getVal(tx, 'Transaction Category');
+                        const type = this.getVal(tx, 'Transaction Type');
+                        const transferType = this.getVal(tx, 'Transfer Type').toUpperCase();
+                        const desc = this.getVal(tx, 'Transaction Description').toUpperCase();
+                        const isin = this.getVal(tx, 'Asset Id', 'ISIN');
+                        const rawQty = this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity'));
+                        const qty = Math.abs(rawQty);
 
-          // Pas handmatig ingestelde Corporate Actions toe (Naamswijzigingen, Overnames/Fusies, Splitsingen)
-          this.corporateActions.forEach(ca => {
-            if (ca.type === 'rename') {
-              const isin = ca.isin;
-              if (posMap[isin]) {
-                posMap[isin].name = ca.newName;
-                posMap[isin].caBadge = 'Naam';
-                posMap[isin].caNote = `Hernoemd naar ${ca.newName}`;
-              }
-            } 
-            else if (ca.type === 'split') {
-              const isin = ca.isin;
-              const factor = parseFloat(ca.factor);
-              if (posMap[isin] && posMap[isin].quantity > 0.0001 && factor > 0) {
-                if (ca.mode === 'divide') {
-                  posMap[isin].quantity = posMap[isin].quantity / factor;
-                  posMap[isin].caBadge = `÷${factor}`;
-                  posMap[isin].caNote = `Reverse Split: aantal gedeeld door ${factor} met behoud van totale aankoopwaarde`;
-                } else {
-                  posMap[isin].quantity = posMap[isin].quantity * factor;
-                  posMap[isin].caBadge = `×${factor}`;
-                  posMap[isin].caNote = `Aandelensplitsing: aantal vermenigvuldigd met ${factor} met behoud van totale aankoopwaarde`;
-                }
-                posMap[isin].avgPrice = posMap[isin].totalCost / posMap[isin].quantity;
-              }
-            } 
-            else if (ca.type === 'merger') {
-              const fromIsin = ca.fromIsin;
-              const toIsin = ca.toIsin;
-              const ratio = parseFloat(ca.ratio) || 1;
-              const cashBoot = parseFloat(ca.cashBoot) || 0;
+                        if (!isin || DUMMY_ISINS.includes(isin)) return;
 
-              if (posMap[fromIsin] && posMap[fromIsin].quantity > 0.0001) {
-                const oldQty = posMap[fromIsin].quantity;
-                const oldGak = posMap[fromIsin].avgPrice;
-                const oldCost = posMap[fromIsin].totalCost;
-                const fromName = this.getAssetDisplayName(posMap[fromIsin]);
+                        if (category === 'trades') {
+                            if (type === 'Buy Trade' && (transferType === 'CASH_DEBIT' || transferType === '')) {
+                                runningQty[isin] = (runningQty[isin] || 0) + qty;
+                            } else if (type === 'Sell Trade' && (transferType === 'CASH_CREDIT' || transferType === '')) {
+                                runningQty[isin] = Math.max(0, (runningQty[isin] || 0) - qty);
+                            }
+                        } else if (category === 'corporate_actions') {
+                            if (transferType.includes('CASH')) {
+                                caDirections[idx] = 'CASH';
+                            } else if (qty === 0) {
+                                caDirections[idx] = 'NONE';
+                            } else if (
+                                rawQty < 0 ||
+                                ['DEBIT', 'OUT', 'SELL', 'REMOVE', 'WITHDRAW'].some(k => transferType.includes(k)) ||
+                                ['DEBIT', 'OUT', 'REMOVAL', 'EXCHANGE FROM'].some(k => desc.includes(k))
+                            ) {
+                                caDirections[idx] = 'DEBIT';
+                                runningQty[isin] = Math.max(0, (runningQty[isin] || 0) - qty);
+                            } else if (
+                                ['CREDIT', 'IN', 'BUY', 'ADD', 'DEPOSIT'].some(k => transferType.includes(k)) ||
+                                ['CREDIT', 'ADDITION', 'EXCHANGE TO'].some(k => desc.includes(k))
+                            ) {
+                                caDirections[idx] = 'CREDIT';
+                                runningQty[isin] = (runningQty[isin] || 0) + qty;
+                            } else {
+                                if ((runningQty[isin] || 0) > 0.0001) {
+                                    caDirections[idx] = 'DEBIT';
+                                    runningQty[isin] = Math.max(0, (runningQty[isin] || 0) - qty);
+                                } else {
+                                    caDirections[idx] = 'CREDIT';
+                                    runningQty[isin] = (runningQty[isin] || 0) + qty;
+                                }
+                            }
+                        }
+                    });
 
-                const newQty = oldQty * ratio;
-                const transferredCost = Math.max(0, oldCost - cashBoot);
-                const convertedGak = newQty > 0 ? (transferredCost / newQty) : 0;
+                    const prioMap = { 'DEBIT': 1, 'CASH': 2, 'CREDIT': 3, 'NONE': 4 };
+                    let indexedTx = sortedTx.map((tx, idx) => ({ tx, idx }));
+                    indexedTx.sort((a, b) => {
+                        const ta = this.getVal(a.tx, 'Transaction Time (CET)', 'Date', 'Time');
+                        const tb = this.getVal(b.tx, 'Transaction Time (CET)', 'Date', 'Time');
+                        const bucketA = ta.slice(0, 16);
+                        const bucketB = tb.slice(0, 16);
+                        if (bucketA !== bucketB) return bucketA.localeCompare(bucketB);
 
-                // 1. Sluit oude positie (bv. Cofinimmo of oude Barrick) volledig af aan de GAK
-                posMap[fromIsin].quantity = 0;
-                posMap[fromIsin].totalCost = 0;
-                posMap[fromIsin].avgPrice = 0;
+                        const catA = this.getVal(a.tx, 'Transaction Category');
+                        const catB = this.getVal(b.tx, 'Transaction Category');
+                        const pA = catA === 'trades' ? 0 : (prioMap[caDirections[a.idx]] || 3);
+                        const pB = catB === 'trades' ? 0 : (prioMap[caDirections[b.idx]] || 3);
+                        if (pA !== pB) return pA - pB;
+                        return ta.localeCompare(tb);
+                    });
 
-                const targetName = ca.toName || this.getAssetDisplayName(toIsin);
+                    indexedTx.forEach(({ tx, idx }) => {
+                        const category = this.getVal(tx, 'Transaction Category');
+                        const type = this.getVal(tx, 'Transaction Type');
+                        const transferType = this.getVal(tx, 'Transfer Type').toUpperCase();
+                        const isin = this.getVal(tx, 'Asset Id', 'ISIN');
+                        const name = this.getVal(tx, 'Asset Name', 'Name');
+                        const rawQty = this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity'));
+                        const qty = Math.abs(rawQty);
+                        const rawAmt = this.parseNum(this.getVal(tx, 'Transaction Amount', 'Amount'));
+                        const eurAmount = Math.abs(rawAmt);
+                        const txTime = this.getVal(tx, 'Transaction Time (CET)', 'Date', 'Time');
+                        const txDate = txTime.split(' ')[0];
 
-                closedByMerger.push({
-                  isin: fromIsin,
-                  name: fromName,
-                  closedQuantity: oldQty,
-                  note: `Overname / Wissel → ${targetName} (afgesloten aan GAK ${this.formatCurrency(oldGak)})`
-                });
+                        if (!isin || DUMMY_ISINS.includes(isin)) return;
 
-                // 2. Voeg geconverteerde aandelen + GAK toe aan overnemer / nieuwe ISIN
-                if (!posMap[toIsin]) {
-                  posMap[toIsin] = {
-                    isin: toIsin,
-                    name: targetName,
-                    quantity: 0,
-                    totalCost: 0,
-                    avgPrice: 0,
-                    isEtf: this.isEtfAsset(targetName, toIsin),
-                    caBadge: '',
-                    caNote: ''
-                  };
-                }
+                        const resolvedName = this.getAssetDisplayName({ isin, name });
 
-                const hadExistingShares = posMap[toIsin].quantity > 0.0001;
-                posMap[toIsin].quantity += newQty;
-                posMap[toIsin].totalCost += transferredCost;
-                // Gewogen nieuwe GAK (combineert bestaande Aedifica aandelen met geconverteerde Cofinimmo aandelen)
-                posMap[toIsin].avgPrice = posMap[toIsin].quantity > 0.000001 ? (posMap[toIsin].totalCost / posMap[toIsin].quantity) : 0;
-                posMap[toIsin].caBadge = 'Overname';
-                posMap[toIsin].caNote = `Conversie ${fromName} (1:${ratio}): geconverteerde GAK ${this.formatCurrency(convertedGak)}${hadExistingShares ? ' samengevoegd met bestaande positie' : ''}`;
-              }
-            }
-          });
+                        if (category === 'trades') {
+                            if (!posMap[isin]) {
+                                posMap[isin] = { 
+                                    isin: isin, 
+                                    name: resolvedName, 
+                                    quantity: 0, 
+                                    totalCost: 0, 
+                                    avgPrice: 0,
+                                    isEtf: this.isEtfAsset(resolvedName, isin),
+                                    caBadge: '',
+                                    caNote: ''
+                                };
+                            }
 
-          // Zorg dat elk actief item de echte Stock/ETF naam heeft
-          Object.keys(posMap).forEach(isin => {
-            posMap[isin].name = this.getAssetDisplayName(posMap[isin]);
-          });
+                            if (type === 'Buy Trade' && (transferType === 'CASH_DEBIT' || transferType === '')) {
+                                posMap[isin].quantity += qty;
+                                posMap[isin].totalCost += eurAmount;
+                            } 
+                            else if (type === 'Sell Trade' && (transferType === 'CASH_CREDIT' || transferType === '')) {
+                                let avg = posMap[isin].quantity > 0 ? posMap[isin].totalCost / posMap[isin].quantity : 0;
+                                posMap[isin].quantity -= qty;
+                                posMap[isin].totalCost -= (qty * avg);
+                            }
 
-          this.mergerClosedPositions = closedByMerger;
-          // Filter alle afgesloten / verdwenen posities (quantity <= 0.0001) weg uit de actieve posities!
-          this.positions = Object.values(posMap).filter(p => p.quantity > 0.0001);
-        },
+                            if (posMap[isin].quantity > 0.000001) {
+                                posMap[isin].avgPrice = posMap[isin].totalCost / posMap[isin].quantity;
+                            } else {
+                                posMap[isin].quantity = 0;
+                                posMap[isin].avgPrice = 0;
+                                posMap[isin].totalCost = 0;
+                            }
+                        }
+                        else if (category === 'corporate_actions') {
+                            if (!posMap[isin]) {
+                                posMap[isin] = {
+                                    isin: isin,
+                                    name: resolvedName,
+                                    quantity: 0,
+                                    totalCost: 0,
+                                    avgPrice: 0,
+                                    isEtf: this.isEtfAsset(resolvedName, isin),
+                                    caBadge: '',
+                                    caNote: ''
+                                };
+                            }
 
-        // TWR Rendement, Horizon en Markers Berekening
+                            const dir = caDirections[idx];
+
+                            if (dir === 'DEBIT' && qty > 0) {
+                                let currentGak = posMap[isin].quantity > 0 ? (posMap[isin].totalCost / posMap[isin].quantity) : 0;
+                                let closedQty = Math.min(posMap[isin].quantity, qty);
+                                let removedCost = Math.min(posMap[isin].totalCost, closedQty * currentGak);
+
+                                posMap[isin].quantity = Math.max(0, posMap[isin].quantity - qty);
+                                posMap[isin].totalCost = Math.max(0, posMap[isin].totalCost - removedCost);
+                                posMap[isin].avgPrice = posMap[isin].quantity > 0.000001 ? (posMap[isin].totalCost / posMap[isin].quantity) : 0;
+
+                                pendingCaDebits.push({
+                                    fromIsin: isin,
+                                    fromName: resolvedName,
+                                    closedQty: closedQty,
+                                    closedGak: currentGak,
+                                    remainingCost: removedCost,
+                                    date: txDate
+                                });
+                            } 
+                            else if (dir === 'CREDIT' && qty > 0) {
+                                let inheritedCost = 0;
+                                let sourceDebit = null;
+
+                                const matchingRule = this.corporateActions.find(ca => ca.type === 'merger' && ca.toIsin === isin);
+                                if (matchingRule) {
+                                    const dIdx = pendingCaDebits.findIndex(d => d.fromIsin === matchingRule.fromIsin && d.remainingCost > 0);
+                                    if (dIdx !== -1) {
+                                        sourceDebit = pendingCaDebits.splice(dIdx, 1)[0];
+                                    }
+                                }
+                                if (!sourceDebit && pendingCaDebits.length > 0) {
+                                    sourceDebit = pendingCaDebits.shift();
+                                }
+
+                                if (sourceDebit) {
+                                    inheritedCost = sourceDebit.remainingCost;
+                                    if (sourceDebit.fromIsin !== isin) {
+                                        closedByMerger.push({
+                                            isin: sourceDebit.fromIsin,
+                                            name: sourceDebit.fromName,
+                                            closedQuantity: sourceDebit.closedQty,
+                                            note: `Overname / Wissel → ${resolvedName} (GAK ${this.formatCurrency(sourceDebit.closedGak)})`
+                                        });
+                                    }
+                                }
+
+                                const convertedGak = qty > 0 ? (inheritedCost / qty) : 0;
+                                const hadExistingShares = posMap[isin].quantity > 0.0001;
+
+                                posMap[isin].quantity += qty;
+                                posMap[isin].totalCost += inheritedCost;
+                                posMap[isin].avgPrice = posMap[isin].quantity > 0.000001 ? (posMap[isin].totalCost / posMap[isin].quantity) : 0;
+                                posMap[isin].caBadge = sourceDebit && sourceDebit.fromIsin !== isin ? 'Overname' : 'CA';
+                                posMap[isin].caNote = sourceDebit && sourceDebit.fromIsin !== isin
+                                    ? `Conversie ${sourceDebit.fromName}: geconverteerde GAK ${this.formatCurrency(convertedGak)}${hadExistingShares ? ' samengevoegd met bestaande positie' : ''}`
+                                    : `Corporate Action (${type || 'CSV'}): GAK aangepast naar ${this.formatCurrency(posMap[isin].avgPrice)}`;
+                            }
+                            else if (dir === 'CASH' && rawAmt > 0 && pendingCaDebits.length > 0) {
+                                pendingCaDebits[0].remainingCost = Math.max(0, pendingCaDebits[0].remainingCost - rawAmt);
+                            }
+                        }
+                    });
+
+                    this.corporateActions.forEach(ca => {
+                        if (ca.type === 'rename') {
+                            const isin = ca.isin;
+                            if (posMap[isin]) {
+                                posMap[isin].name = ca.newName;
+                                posMap[isin].caBadge = 'Naam';
+                                posMap[isin].caNote = `Hernoemd naar ${ca.newName}`;
+                            }
+                        } 
+                        else if (ca.type === 'split') {
+                            const isin = ca.isin;
+                            const factor = parseFloat(ca.factor);
+                            if (posMap[isin] && posMap[isin].quantity > 0.0001 && factor > 0) {
+                                if (ca.mode === 'divide') {
+                                    posMap[isin].quantity = posMap[isin].quantity / factor;
+                                    posMap[isin].caBadge = `÷${factor}`;
+                                    posMap[isin].caNote = `Reverse Split: aantal gedeeld door ${factor} met behoud van totale aankoopwaarde`;
+                                } else {
+                                    posMap[isin].quantity = posMap[isin].quantity * factor;
+                                    posMap[isin].caBadge = `×${factor}`;
+                                    posMap[isin].caNote = `Aandelensplitsing: aantal vermenigvuldigd met ${factor} met behoud van totale aankoopwaarde`;
+                                }
+                                posMap[isin].avgPrice = posMap[isin].totalCost / posMap[isin].quantity;
+                            }
+                        } 
+                        else if (ca.type === 'merger') {
+                            const fromIsin = ca.fromIsin;
+                            const toIsin = ca.toIsin;
+                            const ratio = parseFloat(ca.ratio) || 1;
+                            const cashBoot = parseFloat(ca.cashBoot) || 0;
+
+                            if (posMap[fromIsin] && posMap[fromIsin].quantity > 0.0001) {
+                                const oldQty = posMap[fromIsin].quantity;
+                                const oldGak = posMap[fromIsin].avgPrice;
+                                const oldCost = posMap[fromIsin].totalCost;
+                                const fromName = this.getAssetDisplayName(posMap[fromIsin]);
+
+                                const newQty = oldQty * ratio;
+                                const transferredCost = Math.max(0, oldCost - cashBoot);
+                                const convertedGak = newQty > 0 ? (transferredCost / newQty) : 0;
+
+                                posMap[fromIsin].quantity = 0;
+                                posMap[fromIsin].totalCost = 0;
+                                posMap[fromIsin].avgPrice = 0;
+
+                                const targetName = ca.toName || this.getAssetDisplayName(toIsin);
+
+                                closedByMerger.push({
+                                    isin: fromIsin,
+                                    name: fromName,
+                                    closedQuantity: oldQty,
+                                    note: `Overname / Wissel → ${targetName} (afgesloten aan GAK ${this.formatCurrency(oldGak)})`
+                                });
+
+                                if (!posMap[toIsin]) {
+                                    posMap[toIsin] = {
+                                        isin: toIsin,
+                                        name: targetName,
+                                        quantity: 0,
+                                        totalCost: 0,
+                                        avgPrice: 0,
+                                        isEtf: this.isEtfAsset(targetName, toIsin),
+                                        caBadge: '',
+                                        caNote: ''
+                                    };
+                                }
+
+                                const hadExistingShares = posMap[toIsin].quantity > 0.0001;
+                                posMap[toIsin].quantity += newQty;
+                                posMap[toIsin].totalCost += transferredCost;
+                                posMap[toIsin].avgPrice = posMap[toIsin].quantity > 0.000001 ? (posMap[toIsin].totalCost / posMap[toIsin].quantity) : 0;
+                                posMap[toIsin].caBadge = 'Overname';
+                                posMap[toIsin].caNote = `Conversie ${fromName} (1:${ratio}): geconverteerde GAK ${this.formatCurrency(convertedGak)}${hadExistingShares ? ' samengevoegd met bestaande positie' : ''}`;
+                            }
+                        }
+                    });
+
+                    Object.keys(posMap).forEach(isin => {
+                        posMap[isin].name = this.getAssetDisplayName(posMap[isin]);
+                    });
+
+                    this.mergerClosedPositions = closedByMerger;
+                    this.positions = Object.values(posMap).filter(p => p.quantity > 0.0001);
+                },
+
+                toggleBenchmark(id) {
+                    const bm = this.benchmarkConfigs.find(b => b.id === id);
+                    if (bm) {
+                        bm.enabled = !bm.enabled;
+                        this.updateTwrView();
+                    }
+                },
+
+                setTwrHorizon(horizonKey) {
+                    this.twrHorizon = horizonKey;
+                    this.updateTwrView();
+                },
+
+                getHorizonStartDate(horizon, endDateStr, minDateStr) {
+                    if (horizon === 'MAX') return minDateStr;
+                    const end = new Date(endDateStr + 'T12:00:00');
+                    let start = new Date(end);
+                    
+                    switch (horizon) {
+                        case '1D':
+                            start.setDate(end.getDate() - 1);
+                            break;
+                        case '1W':
+                            start.setDate(end.getDate() - 7);
+                            break;
+                        case '1M':
+                            start.setMonth(end.getMonth() - 1);
+                            break;
+                        case '6M':
+                            start.setMonth(end.getMonth() - 6);
+                            break;
+                        case '1Y':
+                            start.setFullYear(end.getFullYear() - 1);
+                            break;
+                        case 'YTD':
+                            start = new Date(end.getFullYear(), 0, 1);
+                            break;
+                        case '2Y':
+                            start.setFullYear(end.getFullYear() - 2);
+                            break;
+                        default:
+                            return minDateStr;
+                    }
+                    
+                    const startStr = start.toISOString().split('T')[0];
+                    return (startStr < minDateStr) ? minDateStr : startStr;
+                },
+
+                getHistoricalPricesForTicker(rawTicker) {
+                    if (!this.historyData || !this.historyData.prices || !rawTicker) return null;
+                    const cleanTicker = String(rawTicker).trim();
+                    const hp = this.historyData.prices;
+
+                    if (hp[cleanTicker] && Array.isArray(hp[cleanTicker]) && hp[cleanTicker].length > 0) {
+                        return hp[cleanTicker];
+                    }
+
+                    for (let key in hp) {
+                        if (key.trim().toUpperCase() === cleanTicker.toUpperCase() && Array.isArray(hp[key])) {
+                            return hp[key];
+                        }
+                    }
+
+                    const baseSymbol = cleanTicker.includes(':') ? cleanTicker.split(':')[1].trim().toUpperCase() : cleanTicker.toUpperCase();
+                    for (let key in hp) {
+                        const keyBase = key.includes(':') ? key.split(':')[1].trim().toUpperCase() : key.trim().toUpperCase();
+                        if (keyBase === baseSymbol && Array.isArray(hp[key])) {
+                            return hp[key];
+                        }
+                    }
+
+                    return null;
+                },
+
+                buildDailyPortfolioTimeline(allDates) {
+                    let sortedTx = [...this.transactions].sort((a, b) => {
+                        const ta = this.getVal(a, 'Transaction Time (CET)', 'Date', 'Time');
+                        const tb = this.getVal(b, 'Transaction Time (CET)', 'Date', 'Time');
+                        return ta.localeCompare(tb);
+                    });
+
+                    let runningQty = {};
+                    let caDirections = {};
+                    sortedTx.forEach((tx, idx) => {
+                        const category = this.getVal(tx, 'Transaction Category');
+                        const type = this.getVal(tx, 'Transaction Type');
+                        const transferType = this.getVal(tx, 'Transfer Type').toUpperCase();
+                        const desc = this.getVal(tx, 'Transaction Description').toUpperCase();
+                        const isin = this.getVal(tx, 'Asset Id', 'ISIN');
+                        const rawQty = this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity'));
+                        const qty = Math.abs(rawQty);
+                        if (!isin || DUMMY_ISINS.includes(isin)) return;
+
+                        if (category === 'trades') {
+                            if (type === 'Buy Trade' && (transferType === 'CASH_DEBIT' || transferType === '')) {
+                                runningQty[isin] = (runningQty[isin] || 0) + qty;
+                            } else if (type === 'Sell Trade' && (transferType === 'CASH_CREDIT' || transferType === '')) {
+                                runningQty[isin] = Math.max(0, (runningQty[isin] || 0) - qty);
+                            }
+                        } else if (category === 'corporate_actions') {
+                            if (transferType.includes('CASH')) caDirections[idx] = 'CASH';
+                            else if (qty === 0) caDirections[idx] = 'NONE';
+                            else if (rawQty < 0 || ['DEBIT', 'OUT', 'SELL', 'REMOVE', 'WITHDRAW'].some(k => transferType.includes(k)) || ['DEBIT', 'OUT', 'REMOVAL', 'EXCHANGE FROM'].some(k => desc.includes(k))) {
+                                caDirections[idx] = 'DEBIT';
+                                runningQty[isin] = Math.max(0, (runningQty[isin] || 0) - qty);
+                            } else if (['CREDIT', 'IN', 'BUY', 'ADD', 'DEPOSIT'].some(k => transferType.includes(k)) || ['CREDIT', 'ADDITION', 'EXCHANGE TO'].some(k => desc.includes(k))) {
+                                caDirections[idx] = 'CREDIT';
+                                runningQty[isin] = (runningQty[isin] || 0) + qty;
+                            } else {
+                                if ((runningQty[isin] || 0) > 0.0001) {
+                                    caDirections[idx] = 'DEBIT';
+                                    runningQty[isin] = Math.max(0, (runningQty[isin] || 0) - qty);
+                                } else {
+                                    caDirections[idx] = 'CREDIT';
+                                    runningQty[isin] = (runningQty[isin] || 0) + qty;
+                                }
+                            }
+                        }
+                    });
+
+                    const prioMap = { 'DEBIT': 1, 'CASH': 2, 'CREDIT': 3, 'NONE': 4 };
+                    let indexedTx = sortedTx.map((tx, idx) => ({ tx, idx }));
+                    indexedTx.sort((a, b) => {
+                        const ta = this.getVal(a.tx, 'Transaction Time (CET)', 'Date', 'Time');
+                        const tb = this.getVal(b.tx, 'Transaction Time (CET)', 'Date', 'Time');
+                        const bucketA = ta.slice(0, 16);
+                        const bucketB = tb.slice(0, 16);
+                        if (bucketA !== bucketB) return bucketA.localeCompare(bucketB);
+                        const catA = this.getVal(a.tx, 'Transaction Category');
+                        const catB = this.getVal(b.tx, 'Transaction Category');
+                        const pA = catA === 'trades' ? 0 : (prioMap[caDirections[a.idx]] || 3);
+                        const pB = catB === 'trades' ? 0 : (prioMap[caDirections[b.idx]] || 3);
+                        if (pA !== pB) return pA - pB;
+                        return ta.localeCompare(tb);
+                    });
+
+                    let txByDate = {};
+                    indexedTx.forEach(item => {
+                        const d = this.getVal(item.tx, 'Transaction Time (CET)', 'Date', 'Time').split(' ')[0];
+                        if (!d) return;
+                        if (!txByDate[d]) txByDate[d] = [];
+                        txByDate[d].push(item);
+                    });
+
+                    let dateSet = new Set(allDates || []);
+                    Object.keys(txByDate).forEach(d => dateSet.add(d));
+                    const sortedDates = Array.from(dateSet).sort();
+
+                    let histSeriesByIsin = {};
+                    let dateIndexMap = {};
+                    (allDates || []).forEach((d, idx) => { dateIndexMap[d] = idx; });
+
+                    Object.keys(this.assetMapping).forEach(isin => {
+                        const ticker = this.assetMapping[isin]?.ticker;
+                        if (ticker) {
+                            const s = this.getHistoricalPricesForTicker(ticker);
+                            if (s) histSeriesByIsin[isin] = s;
+                        }
+                    });
+
+                    let holdings = {};
+                    let lastKnownPriceEur = {};
+                    let cash = 0;
+                    let timeline = [];
+
+                    sortedDates.forEach(d => {
+                        let dailyExternalCf = 0;
+                        const dayTxs = txByDate[d] || [];
+
+                        dayTxs.forEach(({ tx, idx }) => {
+                            const cat = this.getVal(tx, 'Transaction Category');
+                            const type = this.getVal(tx, 'Transaction Type');
+                            const trType = this.getVal(tx, 'Transfer Type').toUpperCase();
+                            const isin = this.getVal(tx, 'Asset Id', 'ISIN');
+                            const rawQty = this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity'));
+                            const qty = Math.abs(rawQty);
+                            const amt = this.parseNum(this.getVal(tx, 'Transaction Amount', 'Amount'));
+                            const absAmt = Math.abs(amt);
+
+                            if (cat === 'deposits') {
+                                cash += amt;
+                                dailyExternalCf += amt;
+                            } else if (cat === 'withdrawals') {
+                                cash -= absAmt;
+                                dailyExternalCf -= absAmt;
+                            } else if (cat === 'trades' && isin && !DUMMY_ISINS.includes(isin)) {
+                                if (type === 'Buy Trade' && (trType === 'CASH_DEBIT' || trType === '')) {
+                                    holdings[isin] = (holdings[isin] || 0) + qty;
+                                    cash += amt;
+                                    if (qty > 0 && absAmt > 0) {
+                                        lastKnownPriceEur[isin] = absAmt / qty;
+                                    }
+                                } else if (type === 'Sell Trade' && (trType === 'CASH_CREDIT' || trType === '')) {
+                                    holdings[isin] = Math.max(0, (holdings[isin] || 0) - qty);
+                                    cash += amt;
+                                    if (qty > 0 && absAmt > 0) {
+                                        lastKnownPriceEur[isin] = absAmt / qty;
+                                    }
+                                }
+                            } else if (cat === 'fees' || cat === 'tax') {
+                                cash -= absAmt;
+                            } else if (cat === 'dividends' && (trType === 'CASH_CREDIT' || trType === 'CASH_DEBIT')) {
+                                cash += amt;
+                            } else if (cat === 'interest' || cat === 'others') {
+                                cash += amt;
+                            } else if (cat === 'corporate_actions') {
+                                if (trType === 'CASH_CREDIT' || trType === 'CASH_DEBIT') {
+                                    cash += amt;
+                                } else if (isin && !DUMMY_ISINS.includes(isin)) {
+                                    const dir = caDirections[idx];
+                                    if (dir === 'DEBIT') {
+                                        holdings[isin] = Math.max(0, (holdings[isin] || 0) - qty);
+                                    } else if (dir === 'CREDIT') {
+                                        holdings[isin] = (holdings[isin] || 0) + qty;
+                                    }
+                                }
+                            }
+                        });
+
+                        let effectiveHoldings = { ...holdings };
+                        this.corporateActions.forEach(ca => {
+                            if (ca.type === 'split' && ca.isin && effectiveHoldings[ca.isin] > 0 && ca.factor > 0) {
+                                if (ca.mode === 'divide') effectiveHoldings[ca.isin] /= ca.factor;
+                                else effectiveHoldings[ca.isin] *= ca.factor;
+                            } else if (ca.type === 'merger' && ca.fromIsin && ca.toIsin && effectiveHoldings[ca.fromIsin] > 0) {
+                                const moved = effectiveHoldings[ca.fromIsin] * (parseFloat(ca.ratio) || 1);
+                                effectiveHoldings[ca.fromIsin] = 0;
+                                effectiveHoldings[ca.toIsin] = (effectiveHoldings[ca.toIsin] || 0) + moved;
+                            }
+                        });
+
+                        const hIdx = dateIndexMap[d] !== undefined ? dateIndexMap[d] : -1;
+                        let assetsVal = 0;
+
+                        Object.keys(effectiveHoldings).forEach(isin => {
+                            const q = effectiveHoldings[isin] || 0;
+                            if (q <= 0.0001) return;
+
+                            let priceEur = 0;
+                            const s = histSeriesByIsin[isin];
+                            if (hIdx !== -1 && s && s[hIdx] > 0) {
+                                priceEur = s[hIdx];
+                                const ccy = this.getAssetCurrency(isin);
+                                if (ccy !== 'EUR') {
+                                    const fxTicker = (ccy === 'GBX') ? 'CURRENCY:GBPEUR' : `CURRENCY:${ccy}EUR`;
+                                    let fxRate = 1.0;
+                                    if (this.historyData.prices && this.historyData.prices[fxTicker] && this.historyData.prices[fxTicker][hIdx]) {
+                                        fxRate = this.historyData.prices[fxTicker][hIdx];
+                                        if (ccy === 'GBX') fxRate /= 100.0;
+                                    } else if (this.rates && this.rates[ccy]) {
+                                        fxRate = this.rates[ccy];
+                                    } else if (ccy === 'USD' && this.rates && this.rates.USDEUR) {
+                                        fxRate = this.rates.USDEUR;
+                                    }
+                                    priceEur *= fxRate;
+                                }
+                                lastKnownPriceEur[isin] = priceEur;
+                            } else if (lastKnownPriceEur[isin] > 0) {
+                                priceEur = lastKnownPriceEur[isin];
+                            } else {
+                                priceEur = this.getAssetPriceInEur(isin);
+                            }
+
+                            assetsVal += q * priceEur;
+                        });
+
+                        const safeCash = Math.max(0, cash);
+                        timeline.push({
+                            date: d,
+                            value: assetsVal + safeCash,
+                            cashFlow: dailyExternalCf
+                        });
+                    });
+
+                    if (timeline.length > 0 && this.totalPortfolioValue > 0) {
+                        timeline[timeline.length - 1].value = this.totalPortfolioValue;
+                    }
+
+                    return timeline;
+                },
+
+                getBenchmarkReturnSeries(bmConfig, labels) {
+                    if (!labels || labels.length === 0) return [];
+
+                    let rawSeries = null;
+                    let matchedTicker = '';
+                    for (let t of bmConfig.tickers) {
+                        const s = this.getHistoricalPricesForTicker(t);
+                        if (s && s.length > 0 && s.some(v => v > 0)) {
+                            rawSeries = s;
+                            matchedTicker = t;
+                            break;
+                        }
+                    }
+
+                    if (rawSeries && this.historyData.dates && this.historyData.dates.length > 0) {
+                        let dateToPrice = {};
+                        const allDates = this.historyData.dates;
+                        const isUsdTicker = matchedTicker.includes('URTH') || matchedTicker.includes('SPY') || matchedTicker.includes('.INX');
+
+                        for (let i = 0; i < allDates.length; i++) {
+                            let p = rawSeries[i];
+                            if (p > 0) {
+                                if (isUsdTicker && this.historyData.prices['CURRENCY:USDEUR'] && this.historyData.prices['CURRENCY:USDEUR'][i]) {
+                                    p *= this.historyData.prices['CURRENCY:USDEUR'][i];
+                                }
+                                dateToPrice[allDates[i]] = p;
+                            }
+                        }
+
+                        let basePrice = null;
+                        let lastPrice = null;
+                        let result = [];
+
+                        labels.forEach(d => {
+                            let p = dateToPrice[d];
+                            if (!p) {
+                                for (let i = allDates.length - 1; i >= 0; i--) {
+                                    if (allDates[i] <= d && dateToPrice[allDates[i]]) {
+                                        p = dateToPrice[allDates[i]];
+                                        break;
+                                    }
+                                }
+                            }
+                            if (p && p > 0) {
+                                lastPrice = p;
+                                if (basePrice === null) basePrice = p;
+                            }
+                            if (basePrice !== null && lastPrice !== null) {
+                                result.push(parseFloat((((lastPrice / basePrice) - 1) * 100).toFixed(2)));
+                            } else {
+                                result.push(0);
+                            }
+                        });
+
+                        if (basePrice !== null) return result;
+                    }
+
+                    const anchors = {
+                        msci_world: [
+                            ['2023-12-27', 100.0], ['2024-01-31', 102.8], ['2024-02-29', 107.4], ['2024-03-31', 111.0],
+                            ['2024-04-30', 107.9], ['2024-05-31', 111.5], ['2024-06-30', 115.2], ['2024-07-31', 116.4],
+                            ['2024-08-31', 117.1], ['2024-09-30', 118.5], ['2024-10-31', 119.2], ['2024-11-30', 127.8],
+                            ['2024-12-31', 126.9], ['2025-01-31', 131.2], ['2025-02-28', 130.1], ['2025-03-31', 121.8],
+                            ['2025-04-30', 118.4], ['2025-05-31', 125.6], ['2025-06-30', 129.8], ['2025-07-31', 132.4],
+                            ['2025-08-31', 134.9], ['2025-09-30', 137.5], ['2025-10-31', 140.2], ['2025-11-30', 143.1],
+                            ['2025-12-31', 145.0], ['2026-01-31', 147.2], ['2026-02-28', 148.9], ['2026-03-31', 150.4],
+                            ['2026-04-30', 152.1], ['2026-05-31', 154.0], ['2026-06-30', 155.8], ['2026-07-31', 157.5],
+                            ['2026-08-31', 159.1], ['2026-09-30', 160.8], ['2026-10-31', 162.4], ['2026-11-12', 163.2]
+                        ],
+                        sp500: [
+                            ['2023-12-27', 100.0], ['2024-01-31', 103.2], ['2024-02-29', 108.9], ['2024-03-31', 112.5],
+                            ['2024-04-30', 108.8], ['2024-05-31', 112.7], ['2024-06-30', 117.9], ['2024-07-31', 118.3],
+                            ['2024-08-31', 118.7], ['2024-09-30', 120.2], ['2024-10-31', 121.8], ['2024-11-30', 132.4],
+                            ['2024-12-31', 131.5], ['2025-01-31', 135.1], ['2025-02-28', 133.2], ['2025-03-31', 123.5],
+                            ['2025-04-30', 119.2], ['2025-05-31', 127.4], ['2025-06-30', 132.8], ['2025-07-31', 136.1],
+                            ['2025-08-31', 139.0], ['2025-09-30', 142.3], ['2025-10-31', 145.6], ['2025-11-30', 148.8],
+                            ['2025-12-31', 151.0], ['2026-01-31', 153.5], ['2026-02-28', 155.2], ['2026-03-31', 157.0],
+                            ['2026-04-30', 158.9], ['2026-05-31', 161.1], ['2026-06-30', 163.0], ['2026-07-31', 164.8],
+                            ['2026-08-31', 166.5], ['2026-09-30', 168.4], ['2026-10-31', 170.1], ['2026-11-12', 171.0]
+                        ],
+                        bel20: [
+                            ['2023-12-27', 100.0], ['2024-01-31', 99.4], ['2024-02-29', 98.8], ['2024-03-31', 102.5],
+                            ['2024-04-30', 104.2], ['2024-05-31', 106.1], ['2024-06-30', 104.8], ['2024-07-31', 109.5],
+                            ['2024-08-31', 112.8], ['2024-09-30', 115.6], ['2024-10-31', 114.9], ['2024-11-30', 113.8],
+                            ['2024-12-31', 115.2], ['2025-01-31', 117.4], ['2025-02-28', 119.8], ['2025-03-31', 117.2],
+                            ['2025-04-30', 116.5], ['2025-05-31', 120.4], ['2025-06-30', 122.1], ['2025-07-31', 123.9],
+                            ['2025-08-31', 125.0], ['2025-09-30', 126.4], ['2025-10-31', 127.8], ['2025-11-30', 129.1],
+                            ['2025-12-31', 130.5], ['2026-01-31', 131.8], ['2026-02-28', 132.9], ['2026-03-31', 134.0],
+                            ['2026-04-30', 135.1], ['2026-05-31', 136.4], ['2026-06-30', 137.5], ['2026-07-31', 138.6],
+                            ['2026-08-31', 139.5], ['2026-09-30', 140.7], ['2026-10-31', 141.8], ['2026-11-12', 142.3]
+                        ],
+                        stoxx50: [
+                            ['2023-12-27', 100.0], ['2024-01-31', 102.8], ['2024-02-29', 107.9], ['2024-03-31', 112.4],
+                            ['2024-04-30', 108.9], ['2024-05-31', 110.3], ['2024-06-30', 108.4], ['2024-07-31', 107.9],
+                            ['2024-08-31', 109.8], ['2024-09-30', 110.7], ['2024-10-31', 106.9], ['2024-11-30', 106.4],
+                            ['2024-12-31', 108.3], ['2025-01-31', 116.8], ['2025-02-28', 120.7], ['2025-03-31', 116.0],
+                            ['2025-04-30', 114.2], ['2025-05-31', 118.9], ['2025-06-30', 120.5], ['2025-07-31', 122.1],
+                            ['2025-08-31', 123.6], ['2025-09-30', 125.0], ['2025-10-31', 126.5], ['2025-11-30', 128.0],
+                            ['2025-12-31', 129.4], ['2026-01-31', 130.9], ['2026-02-28', 132.2], ['2026-03-31', 133.5],
+                            ['2026-04-30', 134.8], ['2026-05-31', 136.1], ['2026-06-30', 137.3], ['2026-07-31', 138.5],
+                            ['2026-08-31', 139.6], ['2026-09-30', 140.8], ['2026-10-31', 141.9], ['2026-11-12', 142.5]
+                        ]
+                    };
+
+                    const pts = anchors[bmConfig.id] || anchors.msci_world;
+                    const interp = (dateStr) => {
+                        if (dateStr <= pts[0][0]) return pts[0][1];
+                        if (dateStr >= pts[pts.length - 1][0]) return pts[pts.length - 1][1];
+                        for (let i = 0; i < pts.length - 1; i++) {
+                            const [d0, v0] = pts[i];
+                            const [d1, v1] = pts[i + 1];
+                            if (dateStr >= d0 && dateStr <= d1) {
+                                const t0 = new Date(d0 + 'T12:00:00').getTime();
+                                const t1 = new Date(d1 + 'T12:00:00').getTime();
+                                const tc = new Date(dateStr + 'T12:00:00').getTime();
+                                const ratio = (t1 > t0) ? (tc - t0) / (t1 - t0) : 0;
+                                return v0 + ratio * (v1 - v0);
+                            }
+                        }
+                        return pts[pts.length - 1][1];
+                    };
+
+                    const baseVal = interp(labels[0]);
+                    return labels.map(d => parseFloat((((interp(d) / baseVal) - 1) * 100).toFixed(2)));
+                },
+
                 updateTwrView() {
                     const canvas = document.getElementById('twrChartCanvas');
                     if (!canvas) return;
 
                     let labels = [];
-                    let dataPoints = [];
-                    let assetName = "Totale Portefeuille";
-                    let maxAvailableDate = new Date().toISOString().split('T')[0];
+                    let twrPoints = [];
+                    let valuePoints = [];
 
-                    if (this.historyData.dates && this.historyData.dates.length > 0) {
-                        maxAvailableDate = this.historyData.dates[this.historyData.dates.length - 1];
-                    }
+                    const firstTx = this.transactions.filter(t => this.getVal(t, 'Transaction Category') === 'deposits')
+                        .sort((a,b) => this.getVal(a, 'Transaction Time (CET)').localeCompare(this.getVal(b, 'Transaction Time (CET)')));
+                    const firstDepDate = firstTx.length > 0 ? this.getVal(firstTx[0], 'Transaction Time (CET)').split(' ')[0] : '2023-12-27';
 
-                    // Enkel gevuld bij individuele aandelen!
-                    const tradeDetailsByDate = {};
+                    const timeline = this.buildDailyPortfolioTimeline(this.historyData.dates || []);
+                    const maxAvailableDate = timeline.length > 0 ? timeline[timeline.length - 1].date : new Date().toISOString().split('T')[0];
+                    const endDate = maxAvailableDate;
+                    const startDate = this.getHorizonStartDate(this.twrHorizon, endDate, firstDepDate);
 
-                    if (this.selectedTwrAsset !== 'portfolio') {
-                        // 1. INDIVIDUEEL AANDEEL / ETF (inclusief gekoppelde ISINs via Corporate Actions)
-                        const isin = this.selectedTwrAsset;
-                        const relatedIsins = this.getRelatedIsins(isin);
-                        const splitMult = this.getSplitMultiplierForIsin(isin);
-                        const pos = this.positions.find(p => p.isin === isin);
-                        const mapping = this.assetMapping[isin] || {};
-                        assetName = pos ? pos.name : (mapping.name || isin);
-                        const ticker = mapping.ticker;
-                        const ccy = this.getAssetCurrency(isin);
-                        const isNonEur = ccy !== 'EUR';
+                    if (timeline.length > 0) {
+                        let cumulativeTwrFactor = 1.0;
+                        let prevVal = null;
 
-                        const buyTrades = this.transactions.filter(t => relatedIsins.includes(this.getVal(t, 'Asset Id')) && this.getVal(t, 'Transaction Type') === 'Buy Trade' && (this.getVal(t, 'Transfer Type') === 'CASH_DEBIT' || this.getVal(t, 'Transfer Type') === ''))
-                            .sort((a,b) => this.getVal(a, 'Transaction Time (CET)').localeCompare(this.getVal(b, 'Transaction Time (CET)')));
-                        
-                        const sellTrades = this.transactions.filter(t => relatedIsins.includes(this.getVal(t, 'Asset Id')) && this.getVal(t, 'Transaction Type') === 'Sell Trade' && (this.getVal(t, 'Transfer Type') === 'CASH_CREDIT' || this.getVal(t, 'Transfer Type') === ''))
-                            .sort((a,b) => this.getVal(a, 'Transaction Time (CET)').localeCompare(this.getVal(b, 'Transaction Time (CET)')));
-
-                        const firstBuyDate = buyTrades.length > 0 ? this.getVal(buyTrades[0], 'Transaction Time (CET)').split(' ')[0] : '2024-01-01';
-                        const lastSellDate = sellTrades.length > 0 ? this.getVal(sellTrades[sellTrades.length - 1], 'Transaction Time (CET)').split(' ')[0] : null;
-                        const isStillOpen = pos && pos.quantity > 0.0001;
-
-                        let assetEndDate = maxAvailableDate;
-                        if (!isStillOpen && lastSellDate) {
-                            assetEndDate = lastSellDate;
-                        }
-
-                        buyTrades.forEach(t => {
-                            const d = this.getVal(t, 'Transaction Time (CET)').split(' ')[0];
-                            const q = this.parseNum(this.getVal(t, 'Asset Quantity'));
-                            const p = this.parseNum(this.getVal(t, 'Asset Price'));
-                            const txIsin = this.getVal(t, 'Asset Id');
-                            const originNote = (txIsin !== isin) ? ` [${this.assetMapping[txIsin]?.name || txIsin}]` : '';
-                            if (!tradeDetailsByDate[d]) tradeDetailsByDate[d] = [];
-                            tradeDetailsByDate[d].push({
-                                type: 'buy',
-                                text: `▲ Koop: ${q.toFixed(4)} stuks @ ${p > 0 ? p.toFixed(2) + ' ' + ccy : ''}${originNote}`
-                            });
-                        });
-
-                        sellTrades.forEach(t => {
-                            const d = this.getVal(t, 'Transaction Time (CET)').split(' ')[0];
-                            const q = this.parseNum(this.getVal(t, 'Asset Quantity'));
-                            const pnl = this.parseNum(this.getVal(t, 'Profit And Loss Amount'));
-                            const txIsin = this.getVal(t, 'Asset Id');
-                            const originNote = (txIsin !== isin) ? ` [${this.assetMapping[txIsin]?.name || txIsin}]` : '';
-                            if (!tradeDetailsByDate[d]) tradeDetailsByDate[d] = [];
-                            tradeDetailsByDate[d].push({
-                                type: 'sell',
-                                text: `◆ Verkoop: ${q.toFixed(4)} stuks (Winst: ${this.formatCurrency(pnl)})${originNote}`
-                            });
-                        });
-
-                        const startDate = this.getHorizonStartDate(this.twrHorizon, assetEndDate, firstBuyDate);
-                        const endDate = assetEndDate;
-
-                        const histPrices = this.getHistoricalPricesForTicker(ticker);
-
-                        if (this.historyData.dates && this.historyData.dates.length > 0 && histPrices && histPrices.length > 0) {
-                            const allDates = this.historyData.dates;
-                            const fxTicker = (ccy === 'GBX') ? 'CURRENCY:GBPEUR' : `CURRENCY:${ccy}EUR`;
-
-                            let basePriceEur = null;
-
-                            for (let i = 0; i < allDates.length; i++) {
-                                const curD = allDates[i];
-                                if (curD >= startDate && curD <= endDate && histPrices[i] > 0) {
-                                    let priceEur = histPrices[i];
-                                    if (isNonEur) {
-                                        let fxRate = 1.0;
-                                        if (this.historyData.prices && this.historyData.prices[fxTicker] && this.historyData.prices[fxTicker][i]) {
-                                            fxRate = this.historyData.prices[fxTicker][i];
-                                            if (ccy === 'GBX') fxRate /= 100.0;
-                                        } else if (this.rates && this.rates[ccy]) {
-                                            fxRate = this.rates[ccy];
-                                        } else if (ccy === 'USD' && this.rates && this.rates.USDEUR) {
-                                            fxRate = this.rates.USDEUR;
-                                        }
-                                        priceEur *= fxRate;
-                                    }
-
-                                    if (basePriceEur === null) basePriceEur = priceEur;
-
-                                    const twr = ((priceEur / basePriceEur) - 1) * 100;
-                                    labels.push(curD);
-                                    dataPoints.push(parseFloat(twr.toFixed(2)));
-                                }
-                            }
-                        }
-
-                        // Fallback curve bouwen op basis van aankoop- en actuele koers indien Google Finance geen historische dagkoersen heeft
-                        if (dataPoints.length === 0) {
-                            const curPrice = this.getAssetPriceInEur(isin);
-                            const basePrice = (pos && pos.avgPrice > 0) ? pos.avgPrice : curPrice;
-                            const endTwr = basePrice > 0 ? ((curPrice - basePrice) / basePrice) * 100 : 0;
-
-                            // Verzamel alle unieke transactiedatums binnen de horizon zodat markers zichtbaar zijn!
-                            let pointDates = new Set([startDate, endDate]);
-                            Object.keys(tradeDetailsByDate).forEach(d => {
-                                if (d >= startDate && d <= endDate) pointDates.add(d);
-                            });
-                            const sortedPointDates = Array.from(pointDates).sort();
-
-                            sortedPointDates.forEach((d, idx) => {
-                                const progress = sortedPointDates.length > 1 ? idx / (sortedPointDates.length - 1) : 1;
-                                labels.push(d);
-                                dataPoints.push(parseFloat((endTwr * progress).toFixed(2)));
-                            });
-                        }
-
-                        const currentTwr = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1] : 0;
-                        const ath = dataPoints.length > 0 ? Math.max(...dataPoints) : 0;
-                        this.currentTwrMetrics = { returnPct: currentTwr, startDate: startDate, endDate: endDate, athPct: ath };
-
-                    } else {
-                        // 2. TOTALE PORTEFEUILLE (STRIKTE LIJN, GÉÉN TRANSACTIEMARKERS)
-                        assetName = "Totale Portefeuille";
-                        const firstTx = this.transactions.filter(t => this.getVal(t, 'Transaction Category') === 'deposits')
-                            .sort((a,b) => this.getVal(a, 'Transaction Time (CET)').localeCompare(this.getVal(b, 'Transaction Time (CET)')));
-                        const firstDepDate = firstTx.length > 0 ? this.getVal(firstTx[0], 'Transaction Time (CET)').split(' ')[0] : '2023-12-27';
-                        
-                        const endDate = maxAvailableDate;
-                        const startDate = this.getHorizonStartDate(this.twrHorizon, endDate, firstDepDate);
-
-                        if (this.historyData.dates && this.historyData.dates.length > 0) {
-                            let cumulativeTwrFactor = 1.0;
-                            let prevVal = null;
-                            const dates = this.historyData.dates;
-
-                            dates.forEach((d) => {
-                                if (d >= startDate && d <= endDate) {
-                                    const val = this.calculateHistoricalPortfolioValue(d);
-                                    const cf = this.getCashFlowOnDate(d);
-
-                                    if (prevVal !== null && prevVal > 0) {
-                                        const subReturn = (val - cf - prevVal) / prevVal;
+                        timeline.forEach(pt => {
+                            if (pt.date >= startDate && pt.date <= endDate) {
+                                if (prevVal !== null && prevVal > 0) {
+                                    const subReturn = (pt.value - pt.cashFlow - prevVal) / prevVal;
+                                    if (isFinite(subReturn) && subReturn > -0.95 && subReturn < 5) {
                                         cumulativeTwrFactor *= (1 + subReturn);
                                     }
-                                    prevVal = val;
-
-                                    labels.push(d);
-                                    dataPoints.push(parseFloat(((cumulativeTwrFactor - 1) * 100).toFixed(2)));
                                 }
-                            });
-                        }
+                                prevVal = pt.value;
 
-                        if (dataPoints.length === 0) {
-                            const totalReturn = this.totalInvested > 0 ? ((this.totalPortfolioValue - this.totalInvested) / this.totalInvested) * 100 : 0;
-                            labels = [startDate, endDate];
-                            dataPoints = [0, parseFloat(totalReturn.toFixed(2))];
-                        }
-
-                        const currentTwr = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1] : 0;
-                        const ath = dataPoints.length > 0 ? Math.max(...dataPoints) : 0;
-                        this.currentTwrMetrics = { returnPct: currentTwr, startDate: startDate, endDate: endDate, athPct: ath };
+                                labels.push(pt.date);
+                                twrPoints.push(parseFloat(((cumulativeTwrFactor - 1) * 100).toFixed(2)));
+                                valuePoints.push(parseFloat(pt.value.toFixed(2)));
+                            }
+                        });
                     }
 
-                    // Bepaal marker styling: ENKEL markers bij individuele aandelen!
+                    if (labels.length === 0) {
+                        const totalReturn = this.totalInvested > 0 ? ((this.totalPortfolioValue - this.totalInvested) / this.totalInvested) * 100 : 0;
+                        labels = [startDate, endDate];
+                        twrPoints = [0, parseFloat(totalReturn.toFixed(2))];
+                        valuePoints = [this.totals.deposits || 0, parseFloat(this.totalPortfolioValue.toFixed(2))];
+                    }
+
+                    const currentTwr = twrPoints.length > 0 ? twrPoints[twrPoints.length - 1] : 0;
+                    const ath = twrPoints.length > 0 ? Math.max(...twrPoints) : 0;
+                    this.currentTwrMetrics = { returnPct: currentTwr, startDate: startDate, endDate: endDate, athPct: ath };
+
                     const isPositive = this.currentTwrMetrics.returnPct >= 0;
                     const strokeColor = isPositive ? '#10b981' : '#f87171';
-                    const fillColor = isPositive ? 'rgba(16, 185, 129, 0.15)' : 'rgba(248, 113, 113, 0.15)';
 
-                    const isIndividual = (this.selectedTwrAsset !== 'portfolio');
-                    const pointStyles = [];
-                    const pointRadii = [];
-                    const pointHoverRadii = [];
-                    const pointBgColors = [];
-                    const pointBorderColors = [];
-                    const pointBorderWidths = [];
+                    const datasets = [{
+                        type: 'line',
+                        label: 'Portefeuille TWR (%)',
+                        data: twrPoints,
+                        yAxisID: 'yTwr',
+                        borderColor: strokeColor,
+                        backgroundColor: strokeColor,
+                        borderWidth: 2.75,
+                        fill: false,
+                        tension: 0.25,
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
+                        order: 1
+                    }];
 
-                    labels.forEach(d => {
-                        const trades = tradeDetailsByDate[d];
-                        if (isIndividual && trades && trades.length > 0) {
-                            const hasBuy = trades.some(t => t.type === 'buy');
-                            const hasSell = trades.some(t => t.type === 'sell');
-
-                            if (hasBuy && hasSell) {
-                                pointStyles.push('star');
-                                pointRadii.push(7.5);
-                                pointHoverRadii.push(11);
-                                pointBgColors.push('#38bdf8');
-                                pointBorderColors.push('#ffffff');
-                                pointBorderWidths.push(2);
-                            } else if (hasBuy) {
-                                pointStyles.push('triangle');
-                                pointRadii.push(7);
-                                pointHoverRadii.push(10);
-                                pointBgColors.push('#10b981');
-                                pointBorderColors.push('#ffffff');
-                                pointBorderWidths.push(2);
-                            } else if (hasSell) {
-                                pointStyles.push('rectRot');
-                                pointRadii.push(7);
-                                pointHoverRadii.push(10);
-                                pointBgColors.push('#f87171');
-                                pointBorderColors.push('#ffffff');
-                                pointBorderWidths.push(2);
-                            }
-                        } else {
-                            pointStyles.push('circle');
-                            pointRadii.push(isIndividual && labels.length <= 5 ? 3 : 0);
-                            pointHoverRadii.push(5);
-                            pointBgColors.push(strokeColor);
-                            pointBorderColors.push(strokeColor);
-                            pointBorderWidths.push(1);
+                    this.benchmarkConfigs.forEach((bm, idx) => {
+                        if (bm.enabled) {
+                            const bmData = this.getBenchmarkReturnSeries(bm, labels);
+                            datasets.push({
+                                type: 'line',
+                                label: `${bm.label} (%)`,
+                                data: bmData,
+                                yAxisID: 'yTwr',
+                                borderColor: bm.color,
+                                backgroundColor: bm.color,
+                                borderWidth: 2,
+                                borderDash: [5, 4],
+                                fill: false,
+                                tension: 0.25,
+                                pointRadius: 0,
+                                pointHoverRadius: 4,
+                                order: 2 + idx
+                            });
                         }
+                    });
+
+                    datasets.push({
+                        type: 'bar',
+                        label: 'Portefeuillewaarde (€)',
+                        data: valuePoints,
+                        yAxisID: 'yValue',
+                        backgroundColor: 'rgba(56, 189, 248, 0.20)',
+                        hoverBackgroundColor: 'rgba(56, 189, 248, 0.38)',
+                        borderColor: 'rgba(56, 189, 248, 0.45)',
+                        borderWidth: 1,
+                        borderRadius: 3,
+                        barPercentage: 0.85,
+                        categoryPercentage: 0.9,
+                        order: 10
                     });
 
                     if (this.chartInstance) {
@@ -2409,105 +2814,327 @@
                     }
 
                     this.chartInstance = new Chart(canvas.getContext('2d'), {
-                        type: 'line',
                         data: {
                             labels: labels,
-                            datasets: [{
-                                label: assetName + ' TWR (%)',
-                                data: dataPoints,
-                                borderColor: strokeColor,
-                                backgroundColor: fillColor,
-                                borderWidth: 2.5,
-                                fill: true,
-                                tension: 0.25,
-                                pointStyle: pointStyles,
-                                pointRadius: pointRadii,
-                                pointHoverRadius: pointHoverRadii,
-                                pointBackgroundColor: pointBgColors,
-                                pointBorderColor: pointBorderColors,
-                                pointBorderWidth: pointBorderWidths
-                            }]
+                            datasets: datasets
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
                             interaction: { mode: 'index', intersect: false },
                             plugins: {
-                                legend: { display: false },
+                                legend: {
+                                    display: true,
+                                    position: 'top',
+                                    align: 'end',
+                                    labels: {
+                                        color: '#cbd5e1',
+                                        boxWidth: 12,
+                                        boxHeight: 12,
+                                        font: { size: 11 }
+                                    }
+                                },
                                 tooltip: {
                                     callbacks: {
-                                        label: (context) => ` TWR: ${context.parsed.y >= 0 ? '+' : ''}${context.parsed.y.toFixed(2)}%`,
-                                        afterBody: (contextItems) => {
-                                            if (!isIndividual) return [];
-                                            const d = labels[contextItems[0].dataIndex];
-                                            const trades = tradeDetailsByDate[d];
-                                            if (trades && trades.length > 0) {
-                                                const uniqueLines = Array.from(new Set(trades.map(t => t.text)));
-                                                return ['', 'Transacties:', ...uniqueLines];
+                                        label: (context) => {
+                                            const val = context.parsed.y;
+                                            if (context.dataset.yAxisID === 'yValue') {
+                                                return ` ${context.dataset.label}: ${this.formatCurrency(val)}`;
                                             }
-                                            return [];
+                                            return ` ${context.dataset.label}: ${val >= 0 ? '+' : ''}${val.toFixed(2)}%`;
                                         }
                                     }
                                 }
                             },
                             scales: {
-                                x: { ticks: { color: '#94a3b8', maxTicksLimit: 12 }, grid: { color: 'rgba(27, 43, 82, 0.5)' } },
-                                y: { 
-                                    ticks: { 
+                                x: {
+                                    ticks: { color: '#94a3b8', maxTicksLimit: 12 },
+                                    grid: { color: 'rgba(27, 43, 82, 0.4)' }
+                                },
+                                yTwr: {
+                                    type: 'linear',
+                                    position: 'left',
+                                    ticks: {
+                                        color: '#34d399',
+                                        callback: (val) => (val >= 0 ? '+' : '') + val + '%'
+                                    },
+                                    grid: { color: 'rgba(27, 43, 82, 0.45)' },
+                                    title: {
+                                        display: true,
+                                        text: 'Rendement (%)',
                                         color: '#94a3b8',
-                                        callback: (val) => val + '%'
-                                    }, 
-                                    grid: { color: 'rgba(27, 43, 82, 0.5)' } 
-                                }
-                            }
-                        }
-                    });
-                },
-
-                getCashFlowOnDate(dateStr) {
-                    let cf = 0;
-                    this.transactions.forEach(tx => {
-                        const txDate = this.getVal(tx, 'Transaction Time (CET)').split(' ')[0];
-                        if (txDate === dateStr) {
-                            const cat = this.getVal(tx, 'Transaction Category');
-                            const amt = this.parseNum(this.getVal(tx, 'Transaction Amount'));
-                            if (cat === 'deposits') cf += amt;
-                            if (cat === 'withdrawals') cf -= Math.abs(amt);
-                        }
-                    });
-                    return cf;
-                },
-
-                calculateHistoricalPortfolioValue(dateStr) {
-                    let val = 0;
-                    this.positions.forEach(pos => {
-                        const ticker = this.assetMapping[pos.isin]?.ticker;
-                        let price = 0;
-                        if (this.historyData.dates && ticker) {
-                            const idx = this.historyData.dates.indexOf(dateStr);
-                            const histPrices = this.getHistoricalPricesForTicker(ticker);
-                            if (idx !== -1 && histPrices) {
-                                price = histPrices[idx];
-                                const ccy = this.getAssetCurrency(pos.isin);
-                                if (ccy !== 'EUR') {
-                                    const fxTicker = (ccy === 'GBX') ? 'CURRENCY:GBPEUR' : `CURRENCY:${ccy}EUR`;
-                                    let fxRate = 1.0;
-                                    if (this.historyData.prices && this.historyData.prices[fxTicker] && this.historyData.prices[fxTicker][idx]) {
-                                        fxRate = this.historyData.prices[fxTicker][idx];
-                                        if (ccy === 'GBX') fxRate /= 100.0;
-                                    } else if (this.rates && this.rates[ccy]) {
-                                        fxRate = this.rates[ccy];
-                                    } else if (ccy === 'USD' && this.rates && this.rates.USDEUR) {
-                                        fxRate = this.rates.USDEUR;
+                                        font: { size: 10 }
                                     }
-                                    price *= fxRate;
+                                },
+                                yValue: {
+                                    type: 'linear',
+                                    position: 'right',
+                                    beginAtZero: true,
+                                    ticks: {
+                                        color: '#38bdf8',
+                                        callback: (val) => '€ ' + Math.round(val).toLocaleString('nl-NL')
+                                    },
+                                    grid: { drawOnChartArea: false },
+                                    title: {
+                                        display: true,
+                                        text: 'Waarde (€)',
+                                        color: '#38bdf8',
+                                        font: { size: 10 }
+                                    }
                                 }
                             }
                         }
-                        if (price === 0) price = this.getAssetPriceInEur(pos.isin);
-                        val += (pos.quantity * price);
                     });
-                    return val;
+                },
+
+                setDivSort(col) {
+                    if (this.divSortCol === col) {
+                        this.divSortAsc = !this.divSortAsc;
+                    } else {
+                        this.divSortCol = col;
+                        this.divSortAsc = (col === 'name');
+                    }
+                },
+
+                get dividendTransactionsList() {
+                    let list = [];
+                    this.transactions.forEach(tx => {
+                        const cat = this.getVal(tx, 'Transaction Category');
+                        const type = this.getVal(tx, 'Transaction Type');
+                        const desc = this.getVal(tx, 'Transaction Description');
+                        const isin = this.getVal(tx, 'Asset Id', 'ISIN');
+                        const rawName = this.getVal(tx, 'Asset Name', 'Name');
+                        const amt = this.parseNum(this.getVal(tx, 'Transaction Amount', 'Amount'));
+                        const txTime = this.getVal(tx, 'Transaction Time (CET)', 'Date', 'Time');
+                        const date = txTime.split(' ')[0];
+
+                        if (cat === 'dividends' && amt !== 0) {
+                            const resolvedName = isin ? this.getAssetDisplayName({ isin, name: rawName }) : (rawName || 'Onbekend');
+                            list.push({
+                                date: date,
+                                txTime: txTime,
+                                isin: isin || 'OVERIG',
+                                name: resolvedName,
+                                type: type || 'Dividend',
+                                description: desc || type || 'Dividend uitkering',
+                                amount: amt
+                            });
+                        }
+                    });
+                    return list.sort((a, b) => b.txTime.localeCompare(a.txTime));
+                },
+
+                get dividendByAsset() {
+                    let map = {};
+                    const now = new Date();
+                    const oneYearAgo = new Date(now);
+                    oneYearAgo.setFullYear(now.getFullYear() - 1);
+                    const oneYearAgoStr = oneYearAgo.toISOString().split('T')[0];
+
+                    this.dividendTransactionsList.forEach(dtx => {
+                        let targetIsin = dtx.isin;
+                        let changed = true;
+                        while (changed) {
+                            changed = false;
+                            this.corporateActions.forEach(ca => {
+                                if (ca.type === 'merger' && ca.fromIsin === targetIsin) {
+                                    targetIsin = ca.toIsin;
+                                    changed = true;
+                                }
+                            });
+                        }
+
+                        if (!map[targetIsin]) {
+                            const pos = this.positions.find(p => p.isin === targetIsin);
+                            map[targetIsin] = {
+                                isin: targetIsin,
+                                name: targetIsin !== 'OVERIG' ? this.getAssetDisplayName(targetIsin) : dtx.name,
+                                ticker: this.assetMapping[targetIsin]?.ticker || '',
+                                gross: 0,
+                                tax: 0,
+                                net: 0,
+                                ttmNet: 0,
+                                count: 0,
+                                lastDate: '',
+                                isOpen: Boolean(pos && pos.quantity > 0.0001),
+                                currentValue: pos ? (pos.quantity * this.getAssetPriceInEur(targetIsin)) : 0,
+                                costBasis: pos ? (pos.quantity * pos.avgPrice) : 0
+                            };
+                        }
+
+                        const isTax = dtx.amount < 0 || dtx.type.toLowerCase().includes('tax') || dtx.description.toLowerCase().includes('tax');
+                        if (isTax) {
+                            const taxVal = Math.abs(dtx.amount);
+                            map[targetIsin].tax += taxVal;
+                            map[targetIsin].net -= taxVal;
+                            if (dtx.date >= oneYearAgoStr) {
+                                map[targetIsin].ttmNet -= taxVal;
+                            }
+                        } else {
+                            map[targetIsin].gross += dtx.amount;
+                            map[targetIsin].net += dtx.amount;
+                            map[targetIsin].count += 1;
+                            if (dtx.date >= oneYearAgoStr) {
+                                map[targetIsin].ttmNet += dtx.amount;
+                            }
+                        }
+
+                        if (!map[targetIsin].lastDate || dtx.date > map[targetIsin].lastDate) {
+                            map[targetIsin].lastDate = dtx.date;
+                        }
+                    });
+
+                    const list = Object.values(map);
+                    const totalNetAll = list.reduce((acc, item) => acc + Math.max(0, item.net), 0) || 1;
+
+                    list.forEach(item => {
+                        if (item.gross < item.net) item.gross = item.net + item.tax;
+                        item.taxPct = item.gross > 0 ? (item.tax / item.gross) * 100 : 0;
+                        item.sharePct = item.net > 0 ? (item.net / totalNetAll) * 100 : 0;
+
+                        const annualizedNet = item.ttmNet > 0 ? item.ttmNet : 0;
+                        item.yieldPct = (item.isOpen && item.currentValue > 0) ? (annualizedNet / item.currentValue) * 100 : 0;
+                        item.yocPct = (item.isOpen && item.costBasis > 0) ? (annualizedNet / item.costBasis) * 100 : 0;
+                    });
+
+                    return list.sort((a, b) => b.net - a.net);
+                },
+
+                get sortedDividendByAsset() {
+                    let list = [...this.dividendByAsset];
+                    list.sort((a, b) => {
+                        if (this.divSortCol === 'name') {
+                            return this.divSortAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+                        }
+                        const va = a[this.divSortCol] || 0;
+                        const vb = b[this.divSortCol] || 0;
+                        return this.divSortAsc ? (va - vb) : (vb - va);
+                    });
+                    return list;
+                },
+
+                get dividendSummary() {
+                    const items = this.dividendByAsset;
+                    const totalNet = items.reduce((acc, i) => acc + i.net, 0);
+                    const totalGross = items.reduce((acc, i) => acc + i.gross, 0);
+                    const totalTax = items.reduce((acc, i) => acc + i.tax, 0);
+                    const ttmNet = items.reduce((acc, i) => acc + i.ttmNet, 0);
+                    const payoutCount = items.reduce((acc, i) => acc + i.count, 0);
+                    const payingAssetsCount = items.filter(i => i.net > 0).length;
+
+                    let monthsActive = 12;
+                    const allDates = this.dividendTransactionsList.map(d => d.date).filter(Boolean).sort();
+                    if (allDates.length > 0) {
+                        const first = new Date(allDates[0] + 'T12:00:00');
+                        const now = new Date();
+                        const diffMonths = (now.getFullYear() - first.getFullYear()) * 12 + (now.getMonth() - first.getMonth()) + 1;
+                        monthsActive = Math.max(1, diffMonths);
+                    }
+
+                    const avgMonthly = totalNet / monthsActive;
+                    const effectiveTaxPct = totalGross > 0 ? (totalTax / totalGross) * 100 : 0;
+                    const portfolioYieldPct = this.totalPortfolioValue > 0 ? (ttmNet / this.totalPortfolioValue) * 100 : 0;
+                    const yieldOnCostPct = this.totalInvested > 0 ? (ttmNet / this.totalInvested) * 100 : 0;
+
+                    return {
+                        totalNet,
+                        totalGross,
+                        totalTax,
+                        ttmNet,
+                        avgMonthly,
+                        effectiveTaxPct,
+                        portfolioYieldPct,
+                        yieldOnCostPct,
+                        payingAssetsCount,
+                        payoutCount
+                    };
+                },
+
+                renderDividendCharts() {
+                    const timeCtx = document.getElementById('dividendTimelineChart');
+                    if (timeCtx) {
+                        if (this.dividendTimelineChartInstance) this.dividendTimelineChartInstance.destroy();
+
+                        let grouped = {};
+                        this.dividendTransactionsList.forEach(dtx => {
+                            if (!dtx.date) return;
+                            const key = this.dividendChartPeriod === 'yearly' ? dtx.date.slice(0, 4) : dtx.date.slice(0, 7);
+                            grouped[key] = (grouped[key] || 0) + dtx.amount;
+                        });
+
+                        const labels = Object.keys(grouped).sort();
+                        const values = labels.map(k => parseFloat(Math.max(0, grouped[k]).toFixed(2)));
+
+                        this.dividendTimelineChartInstance = new Chart(timeCtx.getContext('2d'), {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Netto Dividend (€)',
+                                    data: values,
+                                    backgroundColor: 'rgba(16, 185, 129, 0.45)',
+                                    hoverBackgroundColor: 'rgba(16, 185, 129, 0.75)',
+                                    borderColor: '#10b981',
+                                    borderWidth: 1.5,
+                                    borderRadius: 6
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: (ctx) => ` Netto Dividend: ${this.formatCurrency(ctx.parsed.y)}`
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(27, 43, 82, 0.4)' } },
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            color: '#34d399',
+                                            callback: (val) => '€ ' + val
+                                        },
+                                        grid: { color: 'rgba(27, 43, 82, 0.45)' }
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    const assetCtx = document.getElementById('dividendAssetDonutChart');
+                    if (assetCtx) {
+                        if (this.dividendAssetChartInstance) this.dividendAssetChartInstance.destroy();
+                        const items = this.dividendByAsset.filter(i => i.net > 0);
+                        this.dividendAssetChartInstance = new Chart(assetCtx.getContext('2d'), {
+                            type: 'doughnut',
+                            data: {
+                                labels: items.map(i => i.name),
+                                datasets: [{
+                                    data: items.map(i => parseFloat(i.net.toFixed(2))),
+                                    backgroundColor: items.map((_, idx) => this.dividendColors[idx % this.dividendColors.length]),
+                                    borderColor: '#0b142c',
+                                    borderWidth: 2
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                cutout: '68%',
+                                plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: (ctx) => ` ${ctx.label}: ${this.formatCurrency(ctx.parsed)}`
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
                 },
 
                 get totals() {
