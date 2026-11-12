@@ -371,7 +371,7 @@
         </div>
 
         <!-- ============================================== -->
-        <!-- TAB 3: POSITIES & KOERSEN (MET SORTEREN & FX)  -->
+        <!-- TAB 3: POSITIES & KOERSEN (MET SORTEREN & CA)  -->
         <!-- ============================================== -->
         <div x-show="activeTab === 'posities'" class="space-y-6">
             
@@ -402,19 +402,26 @@
                     </div>
                 </div>
 
-                <!-- Posities Tabel met Sorteren en Labels -->
+                <!-- Posities Tabel met Sorteren, Labels & Corporate Actions -->
                 <div :class="unmappedIsins.length > 0 ? 'lg:col-span-3' : 'lg:col-span-4'" class="bg-[#0b142c] rounded-2xl shadow-xl border border-[#1b2b52] overflow-hidden">
                     <div class="p-5 border-b border-[#182649] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div>
                             <h2 class="text-base font-bold text-slate-200">Openstaande Posities</h2>
-                            <p class="text-[11px] text-slate-400">Klik op een kolomkop om te sorteren. Klik op ✏️ om de ticker of valuta aan te passen.</p>
+                            <p class="text-[11px] text-slate-400">Klik op een kolomkop om te sorteren. Klik op ✏️ voor ticker/valuta of beheer Corporate Actions.</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
+                            <!-- Corporate Actions Knop -->
+                            <button @click="showCorporateActionsModal = true" class="bg-[#132247] text-amber-300 border border-amber-500/30 hover:bg-[#18274f] px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                                <span>Corporate Actions</span>
+                                <span x-show="corporateActions.length > 0" class="bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded-full text-[10px] font-mono" x-text="corporateActions.length"></span>
+                            </button>
+
                             <button @click="showManageMappingsModal = true" class="bg-[#132247] text-slate-200 border border-[#1e3260] hover:bg-[#18274f] px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
                                 <svg class="w-3.5 h-3.5 text-[#38bdf8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
-                                <span>Tickers & Valuta Beheren</span>
+                                <span>Tickers & Valuta</span>
                             </button>
-                            <button @click="fetchGoogleSheetData()" class="bg-[#132247] text-[#38bdf8] border border-[#1e3260] hover:bg-[#18274f] px-3 py-1.5 rounded-xl text-xs font-semibold transition">Koersen Vernieuwen</button>
+                            <button @click="fetchGoogleSheetData()" class="bg-[#132247] text-[#38bdf8] border border-[#1e3260] hover:bg-[#18274f] px-3 py-1.5 rounded-xl text-xs font-semibold transition">Vernieuwen</button>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
@@ -484,11 +491,17 @@
                                     <tr class="hover:bg-[#132247]/40 transition group">
                                         
                                         <td class="p-4">
-                                            <div class="flex items-center gap-1.5">
+                                            <div class="flex items-center gap-1.5 flex-wrap">
                                                 <span class="font-bold text-slate-100" x-text="pos.name"></span>
                                                 <template x-if="getAssetCurrency(pos.isin) !== 'EUR'">
                                                     <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-[#38bdf8] border border-blue-500/30 uppercase font-mono" 
                                                           x-text="getAssetCurrency(pos.isin)">
+                                                    </span>
+                                                </template>
+                                                <template x-if="pos.caBadge">
+                                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono cursor-help" 
+                                                          :title="pos.caNote || 'Corporate Action toegepast'"
+                                                          x-text="pos.caBadge">
                                                     </span>
                                                 </template>
                                                 <button type="button" @click="openEditAssetModal(pos.isin)" title="Ticker & Valuta handmatig aanpassen" class="text-slate-500 hover:text-[#38bdf8] p-0.5 transition">
@@ -676,6 +689,171 @@
         </div>
     </div>
 
+    <!-- Modal 4: Corporate Actions Beheer (Naamswijziging, Overname/Fusie, Aandelensplitsing) -->
+    <div x-show="showCorporateActionsModal" 
+         x-transition 
+         class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-3xl max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-[#182649] flex justify-between items-center">
+                <div>
+                    <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                        <span class="text-amber-400">⇄</span> Corporate Actions Beheren
+                    </h3>
+                    <p class="text-[11px] text-slate-400">Verwerk naamswijzigingen (bv. Barrick), overnames/fusies (bv. Cofinimmo → Aedifica) of splitsingen (bv. ÷ 100) met behoud van aankoopwaarde.</p>
+                </div>
+                <button @click="showCorporateActionsModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+            </div>
+
+            <div class="p-4 overflow-y-auto space-y-5 text-xs">
+                <!-- Nieuw Corporate Action Formulier -->
+                <div class="bg-[#080e22] p-4 rounded-xl border border-[#1e3260] space-y-3">
+                    <div class="font-bold text-slate-200 text-xs uppercase tracking-wider">Nieuwe Corporate Action Toevoegen</div>
+
+                    <!-- Type Selectie -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <button type="button" @click="newCa.type = 'merger'" :class="newCa.type === 'merger' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#132247] text-slate-300 border border-[#1e3260]'" class="p-2.5 rounded-xl text-center transition">
+                            Overname / ISIN-wissel
+                            <span class="block text-[10px] opacity-80 font-normal">bv. Cofinimmo → Aedifica</span>
+                        </button>
+                        <button type="button" @click="newCa.type = 'split'" :class="newCa.type === 'split' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#132247] text-slate-300 border border-[#1e3260]'" class="p-2.5 rounded-xl text-center transition">
+                            Splitsing / Reverse Split
+                            <span class="block text-[10px] opacity-80 font-normal">bv. Aantal ÷ 100 of × 10</span>
+                        </button>
+                        <button type="button" @click="newCa.type = 'rename'" :class="newCa.type === 'rename' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#132247] text-slate-300 border border-[#1e3260]'" class="p-2.5 rounded-xl text-center transition">
+                            Naamswijziging
+                            <span class="block text-[10px] opacity-80 font-normal">bv. Barrick Gold → Mining</span>
+                        </button>
+                    </div>
+
+                    <!-- Formulier velden: OVERNAME / FUSIE / ISIN-WISSEL -->
+                    <template x-if="newCa.type === 'merger'">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <div>
+                                <label class="block text-slate-400 font-semibold mb-1">Oud Aandeel (Bron-ISIN)</label>
+                                <select x-model="newCa.fromIsin" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+                                    <option value="">-- Kies oud aandeel --</option>
+                                    <template x-for="item in allKnownAssets" :key="item.isin">
+                                        <option :value="item.isin" x-text="item.name + ' (' + item.isin + ')'"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 font-semibold mb-1">Nieuw Aandeel (Doel-ISIN)</label>
+                                <input type="text" x-model="newCa.toIsin" list="knownIsinsList" placeholder="bv. BE0003851681 (Aedifica)" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono uppercase">
+                                <datalist id="knownIsinsList">
+                                    <template x-for="item in allKnownAssets" :key="item.isin">
+                                        <option :value="item.isin" x-text="item.name"></option>
+                                    </template>
+                                </datalist>
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 font-semibold mb-1">Nieuwe Naam (optioneel)</label>
+                                <input type="text" x-model="newCa.toName" placeholder="bv. Aedifica" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 font-semibold mb-1">Nieuwe Google Ticker (optioneel)</label>
+                                <input type="text" x-model="newCa.toTicker" placeholder="bv. EBR:AED" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 font-semibold mb-1">Conversieratio (1 oud = X nieuw)</label>
+                                <input type="number" step="any" x-model="newCa.ratio" placeholder="1 (of bv. 1.185)" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+                                <span class="text-[10px] text-slate-500">Bij 1-op-1 wissel vul je <code>1</code> in.</span>
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 font-semibold mb-1">Ontvangen Cash-opleg (€, optioneel)</label>
+                                <input type="number" step="any" x-model="newCa.cashBoot" placeholder="0.00" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+                                <span class="text-[10px] text-slate-500">Wordt in mindering gebracht op de kostprijs.</span>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Formulier velden: SPLITSING / REVERSE SPLIT -->
+                    <template x-if="newCa.type === 'split'">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                            <div>
+                                <label class="block text-slate-400 font-semibold mb-1">Aandeel</label>
+                                <select x-model="newCa.isin" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+                                    <option value="">-- Kies aandeel --</option>
+                                    <template x-for="item in allKnownAssets" :key="item.isin">
+                                        <option :value="item.isin" x-text="item.name + ' (' + item.isin + ')'"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 font-semibold mb-1">Bewerking op Aantal</label>
+                                <select x-model="newCa.mode" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+                                    <option value="divide">Delen door (÷ Reverse Split)</option>
+                                    <option value="multiply">Vermenigvuldigen met (× Split)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 font-semibold mb-1">Factor</label>
+                                <input type="number" step="any" x-model="newCa.factor" placeholder="bv. 100" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+                                <span class="text-[10px] text-slate-500">Voor delen door 100 vul je <code>100</code> in.</span>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Formulier velden: NAAMSWIJZIGING -->
+                    <template x-if="newCa.type === 'rename'">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <div>
+                                <label class="block text-slate-400 font-semibold mb-1">Aandeel</label>
+                                <select x-model="newCa.isin" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+                                    <option value="">-- Kies aandeel --</option>
+                                    <template x-for="item in allKnownAssets" :key="item.isin">
+                                        <option :value="item.isin" x-text="item.name + ' (' + item.isin + ')'"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 font-semibold mb-1">Nieuwe Weergavenaam</label>
+                                <input type="text" x-model="newCa.newName" placeholder="bv. Barrick Mining Corp" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+                            </div>
+                        </div>
+                    </template>
+
+                    <div class="flex justify-end pt-2">
+                        <button type="button" @click="addCorporateAction()" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition shadow">
+                            + Corporate Action Toepassen
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lijst met actieve Corporate Actions -->
+                <div class="space-y-2">
+                    <div class="font-bold text-slate-300 text-xs uppercase tracking-wider">Actieve Corporate Actions (<span x-text="corporateActions.length"></span>)</div>
+                    
+                    <template x-if="corporateActions.length === 0">
+                        <div class="p-4 bg-[#080e22]/60 rounded-xl border border-[#1e3260]/60 text-slate-500 italic text-center">
+                            Nog geen handmatige corporate actions ingesteld. (Eventuele corporate actions in je BUX CSV worden al automatisch verwerkt).
+                        </div>
+                    </template>
+
+                    <template x-for="(ca, idx) in corporateActions" :key="ca.id">
+                        <div class="p-3 bg-[#080e22] rounded-xl border border-[#1e3260] flex items-center justify-between gap-3">
+                            <div>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded uppercase mr-1.5"
+                                      :class="ca.type === 'merger' ? 'bg-blue-500/20 text-[#38bdf8]' : (ca.type === 'split' ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-[#34d399]')"
+                                      x-text="ca.type === 'merger' ? 'Overname / Wissel' : (ca.type === 'split' ? 'Splitsing' : 'Naamswijziging')">
+                                </span>
+                                <span class="font-semibold text-slate-200" x-text="describeCorporateAction(ca)"></span>
+                            </div>
+                            <button type="button" @click="removeCorporateAction(idx)" class="text-[#f87171] hover:text-white bg-[#800020]/20 hover:bg-[#800020]/40 px-2.5 py-1 rounded-lg text-xs font-semibold transition shrink-0">
+                                Verwijder
+                            </button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="p-3 border-t border-[#182649] flex justify-between items-center text-xs bg-[#080e22]">
+                <span class="text-slate-400">Automatische BUX CSV corporate actions worden ook meegenomen.</span>
+                <button @click="showCorporateActionsModal = false" class="bg-[#132247] hover:bg-[#18274f] text-slate-200 font-bold px-4 py-1.5 rounded-xl transition">Sluiten</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Script Application Logic -->
     <script>
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxTN8cNGXmyHRPm4XuSejOqTRFydugjHE0QDeFJaLkuLKK3iBcEhVk2SsedyPGjdotHQ/exec';
@@ -696,10 +874,25 @@
                 showClosedPositionsModal: false,
                 showEditAssetModal: false,
                 showManageMappingsModal: false,
+                showCorporateActionsModal: false,
                 editingAsset: { isin: '', name: '', ticker: '', currency: 'EUR' },
                 transactions: [],
                 positions: [],
                 assetMapping: {},
+                corporateActions: [],
+                newCa: {
+                    type: 'merger',
+                    fromIsin: '',
+                    toIsin: '',
+                    toName: '',
+                    toTicker: '',
+                    ratio: 1,
+                    cashBoot: 0,
+                    isin: '',
+                    mode: 'divide',
+                    factor: 100,
+                    newName: ''
+                },
                 latestPrices: {},
                 currencies: {},
                 rates: { USDEUR: 0.92, USD: 0.92, EUR: 1.0, GBP: 1.17, GBX: 0.0117, CHF: 1.05, CAD: 0.68 },
@@ -738,6 +931,7 @@
 
                     const savedTx = localStorage.getItem('pat_transactions');
                     const savedMap = localStorage.getItem('pat_mapping');
+                    const savedCa = localStorage.getItem('pat_corporate_actions');
                     const savedPrices = localStorage.getItem('pat_prices');
                     const savedCurrencies = localStorage.getItem('pat_currencies');
                     const savedRates = localStorage.getItem('pat_rates');
@@ -746,6 +940,7 @@
 
                     if (savedTx) this.transactions = JSON.parse(savedTx);
                     if (savedMap) this.assetMapping = JSON.parse(savedMap);
+                    if (savedCa) this.corporateActions = JSON.parse(savedCa);
                     if (savedPrices) this.latestPrices = JSON.parse(savedPrices);
                     if (savedCurrencies) this.currencies = JSON.parse(savedCurrencies);
                     if (savedRates) this.rates = JSON.parse(savedRates);
@@ -762,14 +957,171 @@
                     this.$nextTick(() => { this.renderDonutCharts(); });
                 },
 
+                // Alle bekende assets uit transacties en mappings (voor Corporate Actions dropdowns)
+                get allKnownAssets() {
+                    let map = {};
+                    Object.keys(this.assetMapping).forEach(isin => {
+                        if (!DUMMY_ISINS.includes(isin)) {
+                            map[isin] = { isin: isin, name: this.assetMapping[isin].name || isin };
+                        }
+                    });
+                    this.transactions.forEach(tx => {
+                        const isin = this.getVal(tx, 'Asset Id', 'ISIN');
+                        const name = this.getVal(tx, 'Asset Name', 'Name');
+                        if (isin && !DUMMY_ISINS.includes(isin) && !map[isin]) {
+                            map[isin] = { isin: isin, name: name || isin };
+                        }
+                    });
+                    return Object.values(map).sort((a, b) => a.name.localeCompare(b.name));
+                },
+
+                // Corporate Action toevoegen
+                addCorporateAction() {
+                    const t = this.newCa.type;
+                    let entry = { id: Date.now().toString(), type: t };
+
+                    if (t === 'merger') {
+                        const fromIsin = String(this.newCa.fromIsin || '').trim();
+                        const toIsin = String(this.newCa.toIsin || '').trim().toUpperCase();
+                        const ratio = parseFloat(this.newCa.ratio) || 1;
+                        const cashBoot = parseFloat(this.newCa.cashBoot) || 0;
+                        if (!fromIsin || !toIsin) {
+                            alert('Selecteer een oud aandeel en vul een nieuw doel-ISIN in.');
+                            return;
+                        }
+                        if (fromIsin === toIsin) {
+                            alert('Bron-ISIN en Doel-ISIN moeten verschillend zijn.');
+                            return;
+                        }
+                        entry.fromIsin = fromIsin;
+                        entry.toIsin = toIsin;
+                        entry.toName = String(this.newCa.toName || '').trim();
+                        entry.toTicker = String(this.newCa.toTicker || '').trim();
+                        entry.ratio = ratio;
+                        entry.cashBoot = cashBoot;
+
+                        // Zorg dat doel-ISIN bestaat in assetMapping
+                        if (!this.assetMapping[toIsin]) {
+                            this.assetMapping[toIsin] = {
+                                name: entry.toName || toIsin,
+                                ticker: entry.toTicker || '',
+                                currency: this.getAssetCurrency(fromIsin)
+                            };
+                        } else {
+                            if (entry.toName) this.assetMapping[toIsin].name = entry.toName;
+                            if (entry.toTicker) this.assetMapping[toIsin].ticker = entry.toTicker;
+                        }
+                        localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
+                        if (entry.toTicker) {
+                            this.saveMappingToSheet(toIsin);
+                        }
+                    } else if (t === 'split') {
+                        const isin = String(this.newCa.isin || '').trim();
+                        const factor = parseFloat(this.newCa.factor);
+                        if (!isin || !factor || factor <= 0) {
+                            alert('Kies een aandeel en een geldige factor groter dan 0.');
+                            return;
+                        }
+                        entry.isin = isin;
+                        entry.mode = this.newCa.mode || 'divide';
+                        entry.factor = factor;
+                    } else if (t === 'rename') {
+                        const isin = String(this.newCa.isin || '').trim();
+                        const newName = String(this.newCa.newName || '').trim();
+                        if (!isin || !newName) {
+                            alert('Kies een aandeel en vul een nieuwe naam in.');
+                            return;
+                        }
+                        entry.isin = isin;
+                        entry.newName = newName;
+                        if (this.assetMapping[isin]) {
+                            this.assetMapping[isin].name = newName;
+                            localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
+                        }
+                    }
+
+                    this.corporateActions.push(entry);
+                    localStorage.setItem('pat_corporate_actions', JSON.stringify(this.corporateActions));
+
+                    // Reset formulier
+                    this.newCa.fromIsin = '';
+                    this.newCa.toIsin = '';
+                    this.newCa.toName = '';
+                    this.newCa.toTicker = '';
+                    this.newCa.ratio = 1;
+                    this.newCa.cashBoot = 0;
+                    this.newCa.isin = '';
+                    this.newCa.factor = 100;
+                    this.newCa.newName = '';
+
+                    this.calculatePositions();
+                    this.renderDonutCharts();
+                    if (this.activeTab === 'twr') this.updateTwrView();
+                    this.uploadMessage = 'Corporate Action toegepast en posities herberekend!';
+                },
+
+                removeCorporateAction(index) {
+                    this.corporateActions.splice(index, 1);
+                    localStorage.setItem('pat_corporate_actions', JSON.stringify(this.corporateActions));
+                    this.calculatePositions();
+                    this.renderDonutCharts();
+                    if (this.activeTab === 'twr') this.updateTwrView();
+                },
+
+                describeCorporateAction(ca) {
+                    if (ca.type === 'merger') {
+                        const fromName = this.assetMapping[ca.fromIsin]?.name || ca.fromIsin;
+                        const toName = ca.toName || this.assetMapping[ca.toIsin]?.name || ca.toIsin;
+                        const cashTxt = ca.cashBoot > 0 ? ` (- €${ca.cashBoot.toFixed(2)} cash)` : '';
+                        return `${fromName} (${ca.fromIsin}) → ${toName} (${ca.toIsin}) • Ratio 1 : ${ca.ratio}${cashTxt}`;
+                    }
+                    if (ca.type === 'split') {
+                        const name = this.assetMapping[ca.isin]?.name || ca.isin;
+                        const op = ca.mode === 'divide' ? '÷' : '×';
+                        return `${name} (${ca.isin}) • Aantal ${op} ${ca.factor}`;
+                    }
+                    if (ca.type === 'rename') {
+                        return `${ca.isin} → Hernoemd naar "${ca.newName}"`;
+                    }
+                    return '';
+                },
+
+                // Vind alle gerelateerde ISINs (bijv. oude Cofinimmo ISIN gekoppeld aan Aedifica) voor TWR-historie
+                getRelatedIsins(isin) {
+                    let isins = new Set([isin]);
+                    let added = true;
+                    while (added) {
+                        added = false;
+                        this.corporateActions.forEach(ca => {
+                            if (ca.type === 'merger') {
+                                if (isins.has(ca.toIsin) && !isins.has(ca.fromIsin)) {
+                                    isins.add(ca.fromIsin);
+                                    added = true;
+                                }
+                            }
+                        });
+                    }
+                    return Array.from(isins);
+                },
+
+                // Geef de actieve split-factor terug voor een ISIN (zodat oude aankoopkoersen in TWR kloppen)
+                getSplitMultiplierForIsin(isin) {
+                    let mult = 1.0;
+                    this.corporateActions.forEach(ca => {
+                        if (ca.type === 'split' && ca.isin === isin && ca.factor > 0) {
+                            if (ca.mode === 'divide') mult /= ca.factor;
+                            else mult *= ca.factor;
+                        }
+                    });
+                    return mult;
+                },
+
                 // Genereert een propere lijst van opties voor de TWR-dropdown
                 get twrAssetSelectOptions() {
                     let list = [];
-                    // Openstaande posities
                     this.positions.forEach(p => {
                         list.push({ value: p.isin, label: `${p.name} (Open)` });
                     });
-                    // Gesloten posities
                     this.closedPositionsList.forEach(cp => {
                         if (!this.positions.some(p => p.isin === cp.isin)) {
                             list.push({ value: cp.isin, label: `${cp.name} (Gesloten)` });
@@ -823,25 +1175,21 @@
                     return (startStr < minDateStr) ? minDateStr : startStr;
                 },
 
-                // Flexibele zoeker voor historische koersen per ticker
                 getHistoricalPricesForTicker(rawTicker) {
                     if (!this.historyData || !this.historyData.prices || !rawTicker) return null;
                     const cleanTicker = String(rawTicker).trim();
                     const hp = this.historyData.prices;
 
-                    // 1. Directe match
                     if (hp[cleanTicker] && Array.isArray(hp[cleanTicker]) && hp[cleanTicker].length > 0) {
                         return hp[cleanTicker];
                     }
 
-                    // 2. Case-insensitive of whitespace match
                     for (let key in hp) {
                         if (key.trim().toUpperCase() === cleanTicker.toUpperCase() && Array.isArray(hp[key])) {
                             return hp[key];
                         }
                     }
 
-                    // 3. Match zonder beursvoorvoegsel (bv. ASML bij AMS:ASML)
                     const baseSymbol = cleanTicker.includes(':') ? cleanTicker.split(':')[1].trim().toUpperCase() : cleanTicker.toUpperCase();
                     for (let key in hp) {
                         const keyBase = key.includes(':') ? key.split(':')[1].trim().toUpperCase() : key.trim().toUpperCase();
@@ -1310,7 +1658,7 @@
                         const name = this.getVal(tx, 'Asset Name', 'Name');
                         const currency = this.getVal(tx, 'Asset Currency');
 
-                        if (category === 'trades' && isin && name && !DUMMY_ISINS.includes(isin)) {
+                        if ((category === 'trades' || category === 'corporate_actions') && isin && name && !DUMMY_ISINS.includes(isin)) {
                             if (!this.assetMapping[isin]) {
                                 this.assetMapping[isin] = { 
                                     name: name, 
@@ -1333,8 +1681,10 @@
                     return etfKeywords.some(kw => n.includes(kw));
                 },
 
+                // Bereken posities inclusief automatische CSV corporate actions + handmatige Corporate Actions
                 calculatePositions() {
                     let posMap = {};
+                    let caCostPool = {}; // Bewaart vrijgekomen kostprijs tijdens CSV corporate actions (splits/mergers)
                     
                     let sortedTx = [...this.transactions].sort((a, b) => {
                         const ta = this.getVal(a, 'Transaction Time (CET)', 'Date', 'Time');
@@ -1348,18 +1698,26 @@
                         const transferType = this.getVal(tx, 'Transfer Type');
                         const isin = this.getVal(tx, 'Asset Id', 'ISIN');
                         const name = this.getVal(tx, 'Asset Name', 'Name');
-                        const qty = this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity'));
-                        const eurAmount = Math.abs(this.parseNum(this.getVal(tx, 'Transaction Amount', 'Amount')));
+                        const rawQty = this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity'));
+                        const qty = Math.abs(rawQty);
+                        const rawAmt = this.parseNum(this.getVal(tx, 'Transaction Amount', 'Amount'));
+                        const eurAmount = Math.abs(rawAmt);
+                        const txTime = this.getVal(tx, 'Transaction Time (CET)', 'Date', 'Time');
+                        const timeBucket = txTime.slice(0, 16); // YYYY-MM-DD HH:MM
 
-                        if (category === 'trades' && isin && !DUMMY_ISINS.includes(isin)) {
+                        if (!isin || DUMMY_ISINS.includes(isin)) return;
+
+                        if (category === 'trades') {
                             if (!posMap[isin]) {
                                 posMap[isin] = { 
                                     isin: isin, 
-                                    name: name, 
+                                    name: this.assetMapping[isin]?.name || name, 
                                     quantity: 0, 
                                     totalCost: 0, 
                                     avgPrice: 0,
-                                    isEtf: this.isEtfAsset(name, isin)
+                                    isEtf: this.isEtfAsset(name, isin),
+                                    caBadge: '',
+                                    caNote: ''
                                 };
                             }
 
@@ -1380,6 +1738,128 @@
                                 posMap[isin].totalCost = 0;
                             }
                         }
+                        else if (category === 'corporate_actions') {
+                            // Automatische verwerking van corporate actions in BUX CSV (splits, reverse splits, mergers, ISIN-wissels)
+                            if (!posMap[isin]) {
+                                posMap[isin] = {
+                                    isin: isin,
+                                    name: this.assetMapping[isin]?.name || name,
+                                    quantity: 0,
+                                    totalCost: 0,
+                                    avgPrice: 0,
+                                    isEtf: this.isEtfAsset(name, isin),
+                                    caBadge: '',
+                                    caNote: ''
+                                };
+                            }
+
+                            const isAssetDebit = transferType.includes('DEBIT') && !transferType.includes('CASH') || (rawQty < 0 && !transferType.includes('CASH'));
+                            const isAssetCredit = transferType.includes('CREDIT') && !transferType.includes('CASH') || (rawQty > 0 && !transferType.includes('CASH'));
+
+                            if (isAssetDebit && qty > 0) {
+                                let avg = posMap[isin].quantity > 0 ? posMap[isin].totalCost / posMap[isin].quantity : 0;
+                                let removedCost = Math.min(posMap[isin].totalCost, qty * avg);
+                                posMap[isin].quantity = Math.max(0, posMap[isin].quantity - qty);
+                                posMap[isin].totalCost = Math.max(0, posMap[isin].totalCost - removedCost);
+                                posMap[isin].avgPrice = posMap[isin].quantity > 0 ? posMap[isin].totalCost / posMap[isin].quantity : 0;
+
+                                caCostPool[timeBucket] = (caCostPool[timeBucket] || 0) + removedCost;
+                            } 
+                            else if (isAssetCredit && qty > 0) {
+                                let inheritedCost = caCostPool[timeBucket] || 0;
+                                if (inheritedCost > 0) {
+                                    delete caCostPool[timeBucket];
+                                } else {
+                                    const keys = Object.keys(caCostPool);
+                                    if (keys.length > 0) {
+                                        const lastKey = keys[keys.length - 1];
+                                        inheritedCost = caCostPool[lastKey];
+                                        delete caCostPool[lastKey];
+                                    }
+                                }
+                                posMap[isin].quantity += qty;
+                                posMap[isin].totalCost += inheritedCost;
+                                posMap[isin].avgPrice = posMap[isin].quantity > 0 ? posMap[isin].totalCost / posMap[isin].quantity : 0;
+                                posMap[isin].caBadge = 'CA';
+                                posMap[isin].caNote = `Corporate Action (${type || 'CSV'}): kostprijs overgedragen`;
+                            }
+                            else if (transferType === 'CASH_CREDIT' && rawAmt > 0 && caCostPool[timeBucket]) {
+                                caCostPool[timeBucket] = Math.max(0, caCostPool[timeBucket] - rawAmt);
+                            }
+                        }
+                    });
+
+                    // Pas nu handmatig ingestelde Corporate Actions toe (Naamswijzigingen, Overnames/Fusies, Splitsingen)
+                    this.corporateActions.forEach(ca => {
+                        if (ca.type === 'rename') {
+                            const isin = ca.isin;
+                            if (posMap[isin]) {
+                                posMap[isin].name = ca.newName;
+                                posMap[isin].caBadge = 'Naam';
+                                posMap[isin].caNote = `Hernoemd naar ${ca.newName}`;
+                            }
+                        } 
+                        else if (ca.type === 'split') {
+                            const isin = ca.isin;
+                            const factor = parseFloat(ca.factor);
+                            if (posMap[isin] && posMap[isin].quantity > 0 && factor > 0) {
+                                if (ca.mode === 'divide') {
+                                    posMap[isin].quantity = posMap[isin].quantity / factor;
+                                    posMap[isin].caBadge = `÷${factor}`;
+                                    posMap[isin].caNote = `Reverse Split: aantal gedeeld door ${factor} met behoud van totale aankoopwaarde`;
+                                } else {
+                                    posMap[isin].quantity = posMap[isin].quantity * factor;
+                                    posMap[isin].caBadge = `×${factor}`;
+                                    posMap[isin].caNote = `Aandelensplitsing: aantal vermenigvuldigd met ${factor} met behoud van totale aankoopwaarde`;
+                                }
+                                posMap[isin].avgPrice = posMap[isin].totalCost / posMap[isin].quantity;
+                            }
+                        } 
+                        else if (ca.type === 'merger') {
+                            const fromIsin = ca.fromIsin;
+                            const toIsin = ca.toIsin;
+                            const ratio = parseFloat(ca.ratio) || 1;
+                            const cashBoot = parseFloat(ca.cashBoot) || 0;
+
+                            if (posMap[fromIsin] && posMap[fromIsin].quantity > 0.0001) {
+                                const oldQty = posMap[fromIsin].quantity;
+                                const oldCost = posMap[fromIsin].totalCost;
+                                const fromName = posMap[fromIsin].name;
+
+                                const newQty = oldQty * ratio;
+                                const transferredCost = Math.max(0, oldCost - cashBoot);
+
+                                posMap[fromIsin].quantity = 0;
+                                posMap[fromIsin].totalCost = 0;
+                                posMap[fromIsin].avgPrice = 0;
+
+                                const targetName = ca.toName || this.assetMapping[toIsin]?.name || toIsin;
+                                if (!posMap[toIsin]) {
+                                    posMap[toIsin] = {
+                                        isin: toIsin,
+                                        name: targetName,
+                                        quantity: 0,
+                                        totalCost: 0,
+                                        avgPrice: 0,
+                                        isEtf: this.isEtfAsset(targetName, toIsin),
+                                        caBadge: '',
+                                        caNote: ''
+                                    };
+                                }
+                                posMap[toIsin].quantity += newQty;
+                                posMap[toIsin].totalCost += transferredCost;
+                                posMap[toIsin].avgPrice = posMap[toIsin].quantity > 0 ? posMap[toIsin].totalCost / posMap[toIsin].quantity : 0;
+                                posMap[toIsin].caBadge = 'Overname';
+                                posMap[toIsin].caNote = `Overgenomen uit ${fromName} (ratio 1:${ratio})`;
+                            }
+                        }
+                    });
+
+                    // Pas altijd de meest recente mapping-naam toe indien aanwezig
+                    Object.keys(posMap).forEach(isin => {
+                        if (this.assetMapping[isin]?.name) {
+                            posMap[isin].name = this.assetMapping[isin].name;
+                        }
                     });
 
                     this.positions = Object.values(posMap).filter(p => p.quantity > 0.0001);
@@ -1399,12 +1879,13 @@
                         maxAvailableDate = this.historyData.dates[this.historyData.dates.length - 1];
                     }
 
-                    // Enkel gevuld bij individuele aandelen!
                     const tradeDetailsByDate = {};
 
                     if (this.selectedTwrAsset !== 'portfolio') {
-                        // 1. INDIVIDUEEL AANDEEL / ETF
+                        // 1. INDIVIDUEEL AANDEEL / ETF (inclusief gekoppelde ISINs via Corporate Actions)
                         const isin = this.selectedTwrAsset;
+                        const relatedIsins = this.getRelatedIsins(isin);
+                        const splitMult = this.getSplitMultiplierForIsin(isin);
                         const pos = this.positions.find(p => p.isin === isin);
                         const mapping = this.assetMapping[isin] || {};
                         assetName = pos ? pos.name : (mapping.name || isin);
@@ -1412,56 +1893,50 @@
                         const ccy = this.getAssetCurrency(isin);
                         const isNonEur = ccy !== 'EUR';
 
-                        const buyTrades = this.transactions.filter(t => this.getVal(t, 'Asset Id') === isin && this.getVal(t, 'Transaction Type') === 'Buy Trade' && (this.getVal(t, 'Transfer Type') === 'CASH_DEBIT' || this.getVal(t, 'Transfer Type') === ''))
+                        const buyTrades = this.transactions.filter(t => relatedIsins.includes(this.getVal(t, 'Asset Id')) && this.getVal(t, 'Transaction Type') === 'Buy Trade' && (this.getVal(t, 'Transfer Type') === 'CASH_DEBIT' || this.getVal(t, 'Transfer Type') === ''))
                             .sort((a,b) => this.getVal(a, 'Transaction Time (CET)').localeCompare(this.getVal(b, 'Transaction Time (CET)')));
                         
-                        const sellTrades = this.transactions.filter(t => this.getVal(t, 'Asset Id') === isin && this.getVal(t, 'Transaction Type') === 'Sell Trade' && (this.getVal(t, 'Transfer Type') === 'CASH_CREDIT' || this.getVal(t, 'Transfer Type') === ''))
+                        const sellTrades = this.transactions.filter(t => relatedIsins.includes(this.getVal(t, 'Asset Id')) && this.getVal(t, 'Transaction Type') === 'Sell Trade' && (this.getVal(t, 'Transfer Type') === 'CASH_CREDIT' || this.getVal(t, 'Transfer Type') === ''))
                             .sort((a,b) => this.getVal(a, 'Transaction Time (CET)').localeCompare(this.getVal(b, 'Transaction Time (CET)')));
 
-                        // Eerste buy date
                         const firstBuyDate = buyTrades.length > 0 ? this.getVal(buyTrades[0], 'Transaction Time (CET)').split(' ')[0] : '2024-01-01';
-                        
-                        // Laatste sell date
                         const lastSellDate = sellTrades.length > 0 ? this.getVal(sellTrades[sellTrades.length - 1], 'Transaction Time (CET)').split(' ')[0] : null;
-                        
-                        // Is de positie nog open of volledig verkocht?
                         const isStillOpen = pos && pos.quantity > 0.0001;
 
-                        // Als de positie gesloten is, loopt de horizon t/m laatste sell date. Anders t/m vandaag.
                         let assetEndDate = maxAvailableDate;
                         if (!isStillOpen && lastSellDate) {
                             assetEndDate = lastSellDate;
                         }
 
-                        // Registreer buy trades voor markers en tooltips (ENKEL bij individuele aandelen)
                         buyTrades.forEach(t => {
                             const d = this.getVal(t, 'Transaction Time (CET)').split(' ')[0];
                             const q = this.parseNum(this.getVal(t, 'Asset Quantity'));
                             const p = this.parseNum(this.getVal(t, 'Asset Price'));
+                            const txIsin = this.getVal(t, 'Asset Id');
+                            const originNote = (txIsin !== isin) ? ` [${this.assetMapping[txIsin]?.name || txIsin}]` : '';
                             if (!tradeDetailsByDate[d]) tradeDetailsByDate[d] = [];
                             tradeDetailsByDate[d].push({
                                 type: 'buy',
-                                text: `▲ Koop: ${q.toFixed(4)} stuks @ ${p > 0 ? p.toFixed(2) + ' ' + ccy : ''}`
+                                text: `▲ Koop: ${q.toFixed(4)} stuks @ ${p > 0 ? p.toFixed(2) + ' ' + ccy : ''}${originNote}`
                             });
                         });
 
-                        // Registreer sell trades voor markers en tooltips (ENKEL bij individuele aandelen)
                         sellTrades.forEach(t => {
                             const d = this.getVal(t, 'Transaction Time (CET)').split(' ')[0];
                             const q = this.parseNum(this.getVal(t, 'Asset Quantity'));
                             const pnl = this.parseNum(this.getVal(t, 'Profit And Loss Amount'));
+                            const txIsin = this.getVal(t, 'Asset Id');
+                            const originNote = (txIsin !== isin) ? ` [${this.assetMapping[txIsin]?.name || txIsin}]` : '';
                             if (!tradeDetailsByDate[d]) tradeDetailsByDate[d] = [];
                             tradeDetailsByDate[d].push({
                                 type: 'sell',
-                                text: `◆ Verkoop: ${q.toFixed(4)} stuks (Winst: ${this.formatCurrency(pnl)})`
+                                text: `◆ Verkoop: ${q.toFixed(4)} stuks (Winst: ${this.formatCurrency(pnl)})${originNote}`
                             });
                         });
 
-                        // Bepaal start- en einddatum op basis van gekozen horizon
                         const startDate = this.getHorizonStartDate(this.twrHorizon, assetEndDate, firstBuyDate);
                         const endDate = assetEndDate;
 
-                        // Zoek historische dagkoersen via de tolerante ticker-zoeker
                         const histPrices = this.getHistoricalPricesForTicker(ticker);
 
                         if (this.historyData.dates && this.historyData.dates.length > 0 && histPrices && histPrices.length > 0) {
@@ -1496,13 +1971,22 @@
                             }
                         }
 
-                        // Robuuste Fallback als Google Finance de historische slotkoersen (nog) niet heeft
                         if (dataPoints.length === 0) {
                             const curPrice = this.getAssetPriceInEur(isin);
                             const basePrice = (pos && pos.avgPrice > 0) ? pos.avgPrice : curPrice;
-                            const twr = basePrice > 0 ? ((curPrice - basePrice) / basePrice) * 100 : 0;
-                            labels = [startDate, endDate];
-                            dataPoints = [0, parseFloat(twr.toFixed(2))];
+                            const endTwr = basePrice > 0 ? ((curPrice - basePrice) / basePrice) * 100 : 0;
+
+                            let pointDates = new Set([startDate, endDate]);
+                            Object.keys(tradeDetailsByDate).forEach(d => {
+                                if (d >= startDate && d <= endDate) pointDates.add(d);
+                            });
+                            const sortedPointDates = Array.from(pointDates).sort();
+
+                            sortedPointDates.forEach((d, idx) => {
+                                const progress = sortedPointDates.length > 1 ? idx / (sortedPointDates.length - 1) : 1;
+                                labels.push(d);
+                                dataPoints.push(parseFloat((endTwr * progress).toFixed(2)));
+                            });
                         }
 
                         const currentTwr = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1] : 0;
@@ -1552,7 +2036,6 @@
                         this.currentTwrMetrics = { returnPct: currentTwr, startDate: startDate, endDate: endDate, athPct: ath };
                     }
 
-                    // Bepaal marker styling: ENKEL markers bij individuele aandelen!
                     const isPositive = this.currentTwrMetrics.returnPct >= 0;
                     const strokeColor = isPositive ? '#10b981' : '#f87171';
                     const fillColor = isPositive ? 'rgba(16, 185, 129, 0.15)' : 'rgba(248, 113, 113, 0.15)';
@@ -1594,9 +2077,8 @@
                                 pointBorderWidths.push(2);
                             }
                         } else {
-                            // Portefeuille TWR (of dagen zonder transactie): GEEN icoontjes, strakke curve
                             pointStyles.push('circle');
-                            pointRadii.push(labels.length > 60 ? 0 : 2);
+                            pointRadii.push(isIndividual && labels.length <= 5 ? 3 : 0);
                             pointHoverRadii.push(5);
                             pointBgColors.push(strokeColor);
                             pointBorderColors.push(strokeColor);
@@ -1604,7 +2086,6 @@
                         }
                     });
 
-                    // Render Chart.js
                     if (this.chartInstance) {
                         this.chartInstance.destroy();
                     }
@@ -1834,6 +2315,7 @@
                         this.transactions = [];
                         this.positions = [];
                         this.assetMapping = {};
+                        this.corporateActions = [];
                         this.latestPrices = {};
                         this.currencies = {};
                         this.historyData = { dates: [], tickers: [], prices: {} };
@@ -1847,6 +2329,7 @@
                     const data = {
                         transactions: this.transactions,
                         mapping: this.assetMapping,
+                        corporateActions: this.corporateActions,
                         prices: this.latestPrices,
                         currencies: this.currencies,
                         rates: this.rates,
@@ -1864,6 +2347,9 @@
                 get unmappedIsins() {
                     return Object.keys(this.assetMapping).filter(isin => {
                         if (DUMMY_ISINS.includes(isin)) return false;
+                        // Filter ook bron-ISINs uit die via een corporate action al zijn overgenomen door een nieuw ISIN
+                        const isMergedSource = this.corporateActions.some(ca => ca.type === 'merger' && ca.fromIsin === isin);
+                        if (isMergedSource) return false;
                         return !this.assetMapping[isin].ticker || this.assetMapping[isin].ticker.trim() === '';
                     });
                 },
