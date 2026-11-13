@@ -2262,17 +2262,32 @@
         },
 
         getAssetPriceInEur(isin) {
-          const ticker = this.assetMapping[isin]?.ticker;
-          let rawPrice = 0;
+          getAssetPriceInEur(isin) {
+  const ticker = this.assetMapping[isin]?.ticker;
+  let rawPrice = 0;
 
-          if (ticker && this.latestPrices[ticker] !== undefined) {
-            rawPrice = this.latestPrices[ticker];
-          } else if (this.latestPrices[isin] !== undefined) {
-            rawPrice = this.latestPrices[isin];
-          } else {
-            const pos = this.positions.find(p => p.isin === isin);
-            return pos ? pos.avgPrice : 0;
-          }
+  if (ticker && this.latestPrices[ticker] > 0) {
+    rawPrice = this.latestPrices[ticker];
+  } else if (this.latestPrices[isin] > 0) {
+    rawPrice = this.latestPrices[isin];
+  } else if (ticker) {
+    // Fallback: pak de laatst bekende geldige slotkoers uit historyData
+    const hist = this.getHistoricalPricesForTicker(ticker);
+    if (hist && hist.length > 0) {
+      for (let i = hist.length - 1; i >= 0; i--) {
+        if (hist[i] > 0) {
+          rawPrice = hist[i];
+          break;
+        }
+      }
+    }
+  }
+
+  // Laatste redmiddel: GAK (is al in EUR, dus direct returnen!)
+  if (rawPrice <= 0) {
+    const pos = this.positions.find(p => p.isin === isin);
+    return pos ? pos.avgPrice : 0;
+  }
 
           const ccy = this.getAssetCurrency(isin);
           if (ccy === 'EUR') return rawPrice;
@@ -2446,7 +2461,12 @@
                 }
 
                 if (data.prices) {
-                  this.latestPrices = data.prices;
+                  for (let key in data.prices) {
+                    const val = parseFloat(data.prices[key]);
+                    if (!isNaN(val) && val > 0) {
+                      this.latestPrices[key] = val;
+                    }
+                  }
                   localStorage.setItem('pat_prices', JSON.stringify(this.latestPrices));
                 }
 
