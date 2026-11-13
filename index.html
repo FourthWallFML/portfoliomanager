@@ -911,7 +911,7 @@
                 @change="onDetailAssetChange()"
                 class="bg-[#132247] border border-[#1e3260] text-sm font-bold rounded-xl px-3.5 py-2 text-slate-100 focus:outline-none focus:border-[#10b981] w-full sm:w-80 shadow">
               <template x-for="item in detailDropdownAssets" :key="item.isin">
-                <option :value="item.isin" x-text="item.name + (item.isOpen ? ' (Open)' : ' (Gesloten)')"></option>
+                <option :value="item.isin" x-text="item.name + ' (' + item.statusLabel + ')'"></option>
               </template>
             </select>
             <template x-if="selectedDetailIsin">
@@ -4089,28 +4089,48 @@ get detailDropdownAssets() {
             ...(this.mergerClosedPositions || []).map(mc => mc.isin)
           ]);
 
-          let combinedMap = {};
-          this.allKnownAssets.forEach(item => {
-            if (!mergedSources.has(item.isin)) {
-              combinedMap[item.isin] = {
-                isin: item.isin,
-                name: item.name,
-                isOpen: openSet.has(item.isin)
-              };
+          // 1. Verzamel alle ISIN's waarop ooit een transactie is geweest (of die nu open staan na een fusie)
+          const txIsinSet = new Set(openSet);
+          this.transactions.forEach(tx => {
+            const isin = this.getVal(tx, 'Asset Id', 'ISIN');
+            if (isin && !DUMMY_ISINS.includes(isin)) {
+              txIsinSet.add(isin);
             }
           });
 
+          // 2. Verzamel alle ISIN's uit de watchlist
+          const watchlistSet = new Set();
+          const watchlistNames = {};
           this.watchlist.forEach(w => {
-            if (w.isin && !combinedMap[w.isin] && !mergedSources.has(w.isin)) {
-              combinedMap[w.isin] = {
-                isin: w.isin,
-                name: w.company_name || w.isin,
-                isOpen: false
-              };
+            if (w.isin && !DUMMY_ISINS.includes(w.isin)) {
+              watchlistSet.add(w.isin);
+              if (w.company_name) watchlistNames[w.isin] = w.company_name;
             }
           });
 
-          return Object.values(combinedMap).sort((a, b) => a.name.localeCompare(b.name));
+          // 3. Combineer alleen transactie-assets en watchlist-assets
+          const eligibleIsins = new Set([...txIsinSet, ...watchlistSet]);
+          const result = [];
+
+          eligibleIsins.forEach(isin => {
+            if (mergedSources.has(isin)) return;
+
+            let statusLabel = 'Closed';
+            if (openSet.has(isin)) {
+              statusLabel = 'In portfolio';
+            } else if (watchlistSet.has(isin)) {
+              statusLabel = 'Watchlist';
+            }
+
+            result.push({
+              isin: isin,
+              name: this.getAssetDisplayName(isin) || watchlistNames[isin] || isin,
+              isOpen: openSet.has(isin),
+              statusLabel: statusLabel
+            });
+          });
+
+          return result.sort((a, b) => a.name.localeCompare(b.name));
         },
 
         get currentAssetMetadata() {
