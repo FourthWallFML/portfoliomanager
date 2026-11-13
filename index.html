@@ -469,7 +469,7 @@
       </div>
     </div>
 
-    <!-- ============================================== -->
+<!-- ============================================== -->
     <!-- TAB 3: POSITIES & KOERSEN (MET SORTEREN & CA)  -->
     <!-- ============================================== -->
     <div x-show="activeTab === 'posities'" class="space-y-6">
@@ -583,6 +583,8 @@
                       <span class="text-xs" x-show="sortCol === 'rendement'" x-text="sortAsc ? '▲' : '▼'"></span>
                     </div>
                   </th>
+
+                  <th class="p-4 text-center">Signaal</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-[#182649] text-xs">
@@ -652,11 +654,19 @@
                       :class="(pos.quantity * getAssetPriceInEur(pos.isin) - (pos.quantity * pos.avgPrice)) >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'"
                       x-text="formatCurrency((pos.quantity * getAssetPriceInEur(pos.isin)) - (pos.quantity * pos.avgPrice))">
                     </td>
+
+                    <td class="p-4 text-center" x-data="{ get sig() { return getAssetSignals(pos.isin).primary; } }">
+                      <span class="inline-block text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider font-mono cursor-help"
+                            :class="sig.badgeClass"
+                            :title="sig.reason"
+                            x-text="sig.label">
+                      </span>
+                    </td>
                   </tr>
                 </template>
                 <template x-if="positions.length === 0">
                   <tr>
-                    <td colspan="8" class="p-12 text-center text-slate-500 italic">Geen actieve posities gevonden.</td>
+                    <td colspan="9" class="p-12 text-center text-slate-500 italic">Geen actieve posities gevonden.</td>
                   </tr>
                 </template>
               </tbody>
@@ -894,7 +904,7 @@
 
     </div>
 
-    <!-- ============================================== -->
+   <!-- ============================================== -->
     <!-- TAB 5: ASSET DETAIL (INDIVIDUELE STOCKS/ETFs)  -->
     <!-- ============================================== -->
     <div x-show="activeTab === 'assetDetail'" class="space-y-5">
@@ -903,7 +913,7 @@
       <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-4 sm:p-5 shadow-xl space-y-4">
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
 
-          <!-- Dropdown Box met alle bekende assets uit allKnownAssets -->
+          <!-- Dropdown Box met transactie- en watchlist-assets -->
           <div class="flex flex-col sm:flex-row sm:items-center gap-2.5 w-full lg:w-auto">
             <label for="assetDetailSelect" class="text-xs text-slate-400 font-semibold uppercase tracking-wider shrink-0">Kies Asset:</label>
             <select id="assetDetailSelect"
@@ -953,7 +963,7 @@
         </div>
       </div>
 
-      <!-- Hoofd Grid: Grafiek & KPI's Links (lg:col-span-8) | Bedrijfsprofiel & Metadata Rechts (lg:col-span-4) -->
+      <!-- Hoofd Grid: Grafiek & KPI's Links (lg:col-span-8) | Signalen & Bedrijfsprofiel Rechts (lg:col-span-4) -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
         <!-- Linker Kolom (8/12): KPI Tegels + Interactieve Stock TWR Grafiek -->
@@ -1039,109 +1049,152 @@
 
         </div>
 
-        <!-- Rechter Kolom (4/12): Bedrijfsprofiel & Metadata Venster -->
-        <div class="lg:col-span-4 bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-4">
-          <div class="flex items-center justify-between border-b border-[#182649] pb-3">
-            <div>
-              <h3 class="text-sm font-bold text-slate-200">Bedrijfsprofiel & Kerngegevens</h3>
-              <p class="text-[10px] text-slate-400">Metadata van het geselecteerde effect</p>
+        <!-- Rechter Kolom (4/12): Technische Signalen & Bedrijfsprofiel -->
+        <div class="lg:col-span-4 space-y-5">
+
+          <!-- Technische Signalen Kaart -->
+          <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-3"
+               x-data="{ get sigData() { return getAssetSignals(selectedDetailIsin); } }">
+            <div class="flex items-center justify-between border-b border-[#182649] pb-2.5">
+              <div>
+                <h3 class="text-sm font-bold text-slate-200">Technische Signalen</h3>
+                <p class="text-[10px] text-slate-400">Automatische trend- & kruisingsanalyse</p>
+              </div>
+              <span class="text-xs font-black px-3 py-1 rounded-xl uppercase tracking-wider font-mono"
+                    :class="sigData.primary.badgeClass"
+                    x-text="sigData.primary.label"></span>
             </div>
-            <button type="button"
-                @click="editingDetailMetadata = !editingDetailMetadata"
-                class="text-xs bg-[#132247] hover:bg-[#18274f] text-[#38bdf8] border border-[#1e3260] px-2.5 py-1 rounded-lg font-semibold transition">
-              <span x-text="editingDetailMetadata ? 'Sluit' : 'Bewerk'"></span>
-            </button>
+
+            <template x-for="s in sigData.list" :key="s.id">
+              <div class="p-3 rounded-xl bg-[#080e22] border border-[#1e3260]/70 space-y-2 text-xs">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-slate-200" x-text="s.name"></span>
+                  <span class="text-[10px] font-black px-2 py-0.5 rounded uppercase font-mono"
+                        :class="s.badgeClass"
+                        x-text="s.label"></span>
+                </div>
+                <p class="text-[11px] text-slate-400 leading-relaxed" x-text="s.reason"></p>
+                <template x-if="s.smaFast !== null && s.smaSlow !== null">
+                  <div class="grid grid-cols-2 gap-2 pt-1.5 border-t border-[#182649] font-mono text-[11px]">
+                    <div>
+                      <span class="text-slate-500 block text-[10px]">SMA 10W (Fast)</span>
+                      <span class="font-bold text-slate-200" x-text="s.smaFast.toFixed(2)"></span>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-slate-500 block text-[10px]">SMA 40W (Slow)</span>
+                      <span class="font-bold text-slate-200" x-text="s.smaSlow.toFixed(2)"></span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </template>
           </div>
 
-          <!-- Weergavemodus met nette Fallback Placeholders -->
-          <template x-if="!editingDetailMetadata">
-            <div class="space-y-4 text-xs">
-              <!-- Korte Beschrijving bovenaan -->
-              <div class="p-3.5 rounded-xl bg-[#080e22] border border-[#1e3260]/70 space-y-1.5">
-                <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold block">Korte Beschrijving</span>
-                <p class="leading-relaxed"
-                 :class="currentAssetMetadata.description ? 'text-slate-200' : 'text-slate-400 italic'"
-                 x-text="currentAssetMetadata.description || ('Bedrijfsomschrijving wordt binnenkort toegevoegd voor ' + (getAssetDisplayName(selectedDetailIsin) || 'dit effect') + '...')">
-                </p>
-              </div>
-
-              <!-- Kerngegevens (Key-Value lijst) -->
-              <div class="divide-y divide-[#182649] bg-[#080e22] rounded-xl border border-[#1e3260]/70 px-3.5">
-                <div class="py-2.5 flex justify-between items-center gap-2">
-                  <span class="text-slate-400">Marktkapitalisatie</span>
-                  <span class="font-mono font-semibold" :class="currentAssetMetadata.marketCap ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.marketCap || '€ -- mld / N/A'"></span>
-                </div>
-                <div class="py-2.5 flex justify-between items-center gap-2">
-                  <span class="text-slate-400">Land</span>
-                  <span class="font-semibold" :class="currentAssetMetadata.country ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.country || 'Onbekend'"></span>
-                </div>
-                <div class="py-2.5 flex justify-between items-center gap-2">
-                  <span class="text-slate-400">Valuta</span>
-                  <span class="font-mono font-bold text-[#38bdf8]" x-text="selectedDetailIsin ? getAssetCurrency(selectedDetailIsin) : 'EUR'"></span>
-                </div>
-                <div class="py-2.5 flex justify-between items-center gap-2">
-                  <span class="text-slate-400">CEO</span>
-                  <span class="font-semibold" :class="currentAssetMetadata.ceo ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.ceo || 'N/A'"></span>
-                </div>
-                <div class="py-2.5 flex justify-between items-center gap-2">
-                  <span class="text-slate-400">Sector</span>
-                  <span class="font-semibold" :class="currentAssetMetadata.sector ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.sector || 'N/A'"></span>
-                </div>
-                <div class="py-2.5 flex justify-between items-center gap-2">
-                  <span class="text-slate-400">Aantal werknemers</span>
-                  <span class="font-mono font-semibold" :class="currentAssetMetadata.employees ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.employees || '--'"></span>
-                </div>
-                <div class="py-2.5 flex justify-between items-center gap-2">
-                  <span class="text-slate-400">Beurs</span>
-                  <span class="font-semibold" :class="currentAssetMetadata.exchange_name ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.exchange_name || 'N/A'"></span>
-                </div>
-                <div class="py-2.5 flex justify-between items-center gap-2">
-                  <span class="text-slate-400">Industrie</span>
-                  <span class="font-semibold text-right" :class="currentAssetMetadata.gind ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.gind || currentAssetMetadata.ggroup || 'N/A'"></span>
-                </div>
-                <div class="py-2.5 flex justify-between items-center gap-2">
-                  <span class="text-slate-400">IPO Datum</span>
-                  <span class="font-mono font-semibold" :class="currentAssetMetadata.ipo ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.ipo || 'N/A'"></span>
-                </div>
-              </div>
-            </div>
-          </template>
-
-          <!-- Bewerkmodus voor Metadata -->
-          <template x-if="editingDetailMetadata">
-            <div class="space-y-3 text-xs">
+          <!-- Bedrijfsprofiel & Metadata Venster -->
+          <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-4">
+            <div class="flex items-center justify-between border-b border-[#182649] pb-3">
               <div>
-                <label class="block text-slate-400 font-semibold mb-1">Korte Beschrijving</label>
-                <textarea rows="3" x-model="metadataForm.description" placeholder="Korte omschrijving van het bedrijf of de ETF..." class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-[#10b981]"></textarea>
+                <h3 class="text-sm font-bold text-slate-200">Bedrijfsprofiel & Kerngegevens</h3>
+                <p class="text-[10px] text-slate-400">Metadata van het geselecteerde effect</p>
               </div>
-              <div class="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">Marktkapitalisatie</label>
-                  <input type="text" x-model="metadataForm.marketCap" placeholder="bv. € 285 mld" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-2.5 py-1.5 text-slate-100">
-                </div>
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">Land</label>
-                  <input type="text" x-model="metadataForm.country" placeholder="bv. Nederland / VS" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-2.5 py-1.5 text-slate-100">
-                </div>
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">CEO</label>
-                  <input type="text" x-model="metadataForm.ceo" placeholder="bv. Christophe Fouquet" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-2.5 py-1.5 text-slate-100">
-                </div>
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">Sector</label>
-                  <input type="text" x-model="metadataForm.sector" placeholder="bv. Technologie" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-2.5 py-1.5 text-slate-100">
-                </div>
-                <div class="col-span-2">
-                  <label class="block text-slate-400 font-semibold mb-1">Aantal werknemers</label>
-                  <input type="text" x-model="metadataForm.employees" placeholder="bv. 42.000" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-2.5 py-1.5 text-slate-100 font-mono">
-                </div>
-              </div>
-              <div class="flex justify-end gap-2 pt-2">
-                <button type="button" @click="editingDetailMetadata = false" class="bg-[#132247] text-slate-300 px-3 py-1.5 rounded-xl font-semibold">Annuleren</button>
-                <button type="button" @click="saveAssetMetadata()" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-3.5 py-1.5 rounded-xl shadow">Opslaan</button>
-              </div>
+              <button type="button"
+                  @click="editingDetailMetadata = !editingDetailMetadata"
+                  class="text-xs bg-[#132247] hover:bg-[#18274f] text-[#38bdf8] border border-[#1e3260] px-2.5 py-1 rounded-lg font-semibold transition">
+                <span x-text="editingDetailMetadata ? 'Sluit' : 'Bewerk'"></span>
+              </button>
             </div>
-          </template>
+
+            <!-- Weergavemodus met nette Fallback Placeholders -->
+            <template x-if="!editingDetailMetadata">
+              <div class="space-y-4 text-xs">
+                <!-- Korte Beschrijving bovenaan -->
+                <div class="p-3.5 rounded-xl bg-[#080e22] border border-[#1e3260]/70 space-y-1.5">
+                  <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold block">Korte Beschrijving</span>
+                  <p class="leading-relaxed"
+                   :class="currentAssetMetadata.description ? 'text-slate-200' : 'text-slate-400 italic'"
+                   x-text="currentAssetMetadata.description || ('Bedrijfsomschrijving wordt binnenkort toegevoegd voor ' + (getAssetDisplayName(selectedDetailIsin) || 'dit effect') + '...')">
+                  </p>
+                </div>
+
+                <!-- Kerngegevens (Key-Value lijst) -->
+                <div class="divide-y divide-[#182649] bg-[#080e22] rounded-xl border border-[#1e3260]/70 px-3.5">
+                  <div class="py-2.5 flex justify-between items-center gap-2">
+                    <span class="text-slate-400">Marktkapitalisatie</span>
+                    <span class="font-mono font-semibold" :class="currentAssetMetadata.marketCap ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.marketCap || '€ -- mld / N/A'"></span>
+                  </div>
+                  <div class="py-2.5 flex justify-between items-center gap-2">
+                    <span class="text-slate-400">Land</span>
+                    <span class="font-semibold" :class="currentAssetMetadata.country ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.country || 'Onbekend'"></span>
+                  </div>
+                  <div class="py-2.5 flex justify-between items-center gap-2">
+                    <span class="text-slate-400">Valuta</span>
+                    <span class="font-mono font-bold text-[#38bdf8]" x-text="selectedDetailIsin ? getAssetCurrency(selectedDetailIsin) : 'EUR'"></span>
+                  </div>
+                  <div class="py-2.5 flex justify-between items-center gap-2">
+                    <span class="text-slate-400">CEO</span>
+                    <span class="font-semibold" :class="currentAssetMetadata.ceo ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.ceo || 'N/A'"></span>
+                  </div>
+                  <div class="py-2.5 flex justify-between items-center gap-2">
+                    <span class="text-slate-400">Sector</span>
+                    <span class="font-semibold" :class="currentAssetMetadata.sector ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.sector || 'N/A'"></span>
+                  </div>
+                  <div class="py-2.5 flex justify-between items-center gap-2">
+                    <span class="text-slate-400">Aantal werknemers</span>
+                    <span class="font-mono font-semibold" :class="currentAssetMetadata.employees ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.employees || '--'"></span>
+                  </div>
+                  <div class="py-2.5 flex justify-between items-center gap-2">
+                    <span class="text-slate-400">Beurs</span>
+                    <span class="font-semibold" :class="currentAssetMetadata.exchange_name ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.exchange_name || 'N/A'"></span>
+                  </div>
+                  <div class="py-2.5 flex justify-between items-center gap-2">
+                    <span class="text-slate-400">Industrie</span>
+                    <span class="font-semibold text-right" :class="currentAssetMetadata.gind ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.gind || currentAssetMetadata.ggroup || 'N/A'"></span>
+                  </div>
+                  <div class="py-2.5 flex justify-between items-center gap-2">
+                    <span class="text-slate-400">IPO Datum</span>
+                    <span class="font-mono font-semibold" :class="currentAssetMetadata.ipo ? 'text-slate-100' : 'text-slate-500'" x-text="currentAssetMetadata.ipo || 'N/A'"></span>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- Bewerkmodus voor Metadata -->
+            <template x-if="editingDetailMetadata">
+              <div class="space-y-3 text-xs">
+                <div>
+                  <label class="block text-slate-400 font-semibold mb-1">Korte Beschrijving</label>
+                  <textarea rows="3" x-model="metadataForm.description" placeholder="Korte omschrijving van het bedrijf of de ETF..." class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-[#10b981]"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <label class="block text-slate-400 font-semibold mb-1">Marktkapitalisatie</label>
+                    <input type="text" x-model="metadataForm.marketCap" placeholder="bv. € 285 mld" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-2.5 py-1.5 text-slate-100">
+                  </div>
+                  <div>
+                    <label class="block text-slate-400 font-semibold mb-1">Land</label>
+                    <input type="text" x-model="metadataForm.country" placeholder="bv. Nederland / VS" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-2.5 py-1.5 text-slate-100">
+                  </div>
+                  <div>
+                    <label class="block text-slate-400 font-semibold mb-1">CEO</label>
+                    <input type="text" x-model="metadataForm.ceo" placeholder="bv. Christophe Fouquet" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-2.5 py-1.5 text-slate-100">
+                  </div>
+                  <div>
+                    <label class="block text-slate-400 font-semibold mb-1">Sector</label>
+                    <input type="text" x-model="metadataForm.sector" placeholder="bv. Technologie" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-2.5 py-1.5 text-slate-100">
+                  </div>
+                  <div class="col-span-2">
+                    <label class="block text-slate-400 font-semibold mb-1">Aantal werknemers</label>
+                    <input type="text" x-model="metadataForm.employees" placeholder="bv. 42.000" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-2.5 py-1.5 text-slate-100 font-mono">
+                  </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                  <button type="button" @click="editingDetailMetadata = false" class="bg-[#132247] text-slate-300 px-3 py-1.5 rounded-xl font-semibold">Annuleren</button>
+                  <button type="button" @click="saveAssetMetadata()" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-3.5 py-1.5 rounded-xl shadow">Opslaan</button>
+                </div>
+              </div>
+            </template>
+          </div>
+
         </div>
 
       </div>
@@ -1326,7 +1379,7 @@
       </div>
 
     </div>
-    <!-- ============================================== -->
+   <!-- ============================================== -->
     <!-- TAB 7: WATCHLIST & UNIVERSE ZOEKEN             -->
     <!-- ============================================== -->
     <div x-show="activeTab === 'watchlist'" class="space-y-5">
@@ -1422,6 +1475,7 @@
                 <th class="p-4">Land</th>
                 <th class="p-4 text-right">Laatste Koers</th>
                 <th class="p-4 text-right">Koers (EUR)</th>
+                <th class="p-4 text-center">Signaal</th>
                 <th class="p-4 text-right">Actie</th>
               </tr>
             </thead>
@@ -1452,6 +1506,14 @@
 
                   <td class="p-4 text-right font-mono font-bold text-[#34d399]" x-text="getWatchlistPriceInEur(w) > 0 ? formatCurrency(getWatchlistPriceInEur(w)) : 'Wacht op sync'"></td>
 
+                  <td class="p-4 text-center" x-data="{ get sig() { return getAssetSignals(w.isin, w.ticker).primary; } }">
+                    <span class="inline-block text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider font-mono cursor-help"
+                          :class="sig.badgeClass"
+                          :title="sig.reason"
+                          x-text="sig.label">
+                    </span>
+                  </td>
+
                   <td class="p-4 text-right">
                     <button type="button"
                             @click="removeFromWatchlist(idx)"
@@ -1465,7 +1527,7 @@
 
               <template x-if="watchlist.length === 0">
                 <tr>
-                  <td colspan="7" class="p-12 text-center text-slate-500 italic">
+                  <td colspan="8" class="p-12 text-center text-slate-500 italic">
                     Je watchlist is nog leeg. Gebruik de zoekbalk hierboven om aandelen uit het Universe toe te voegen.
                   </td>
                 </tr>
@@ -5151,6 +5213,134 @@ get detailDropdownAssets() {
             }
             this.openAssetDetail(w.isin);
           }
+        },
+        // Hulpfunctie: zet dagelijkse historie om naar wekelijkse slotkoersen (ISO-week)
+        getWeeklyClosesForTicker(ticker, isin = '') {
+          if (!ticker) return [];
+          const histPrices = this.getHistoricalPricesForTicker(ticker);
+          const allDates = this.historyData?.dates || [];
+          if (!histPrices || allDates.length === 0) return [];
+
+          const getIsoWeekKey = (dateStr) => {
+            const d = new Date(dateStr + 'T12:00:00Z');
+            if (isNaN(d.getTime())) return null;
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+          };
+
+          const weeklyMap = {};
+          for (let i = 0; i < allDates.length; i++) {
+            const p = parseFloat(histPrices[i]);
+            if (!isNaN(p) && p > 0) {
+              const wk = getIsoWeekKey(allDates[i]);
+              if (wk) {
+                weeklyMap[wk] = { week: wk, date: allDates[i], close: p };
+              }
+            }
+          }
+
+          const weeks = Object.values(weeklyMap).sort((a, b) => a.week.localeCompare(b.week));
+
+          // Werk de meest recente week bij met de actuele live koers indien beschikbaar
+          const livePrice = (this.latestPrices && this.latestPrices[ticker] > 0)
+            ? this.latestPrices[ticker]
+            : (isin && this.latestPrices && this.latestPrices[isin] > 0 ? this.latestPrices[isin] : 0);
+
+          if (weeks.length > 0 && livePrice > 0) {
+            const todayWeek = getIsoWeekKey(new Date().toISOString().split('T')[0]);
+            if (weeks[weeks.length - 1].week === todayWeek) {
+              weeks[weeks.length - 1].close = livePrice;
+            } else if (todayWeek && todayWeek > weeks[weeks.length - 1].week) {
+              weeks.push({ week: todayWeek, date: new Date().toISOString().split('T')[0], close: livePrice });
+            }
+          }
+
+          return weeks;
+        },
+
+        // Signaal 1: Wekelijkse SMA 10 / 40 Crossover
+        computeWeeklySmaSignal(ticker, isin = '') {
+          const weeks = this.getWeeklyClosesForTicker(ticker, isin);
+          const fastPeriod = 10;
+          const slowPeriod = 40;
+
+          if (weeks.length < slowPeriod + 1) {
+            return {
+              id: 'sma_10_40',
+              name: 'Wekelijkse SMA 10 / 40',
+              signal: 'N/A',
+              label: 'Te weinig data',
+              badgeClass: 'bg-slate-800 text-slate-400 border border-slate-700',
+              smaFast: null,
+              smaSlow: null,
+              weeksAvailable: weeks.length,
+              reason: `Minimaal ${slowPeriod + 1} weken historie nodig (nu: ${weeks.length} weken).`
+            };
+          }
+
+          const calcSma = (arr, endIdx, period) => {
+            let sum = 0;
+            for (let i = endIdx - period; i < endIdx; i++) {
+              sum += arr[i].close;
+            }
+            return sum / period;
+          };
+
+          const n = weeks.length;
+          const smaFastCurr = calcSma(weeks, n, fastPeriod);
+          const smaSlowCurr = calcSma(weeks, n, slowPeriod);
+          const smaFastPrev = calcSma(weeks, n - 1, fastPeriod);
+          const smaSlowPrev = calcSma(weeks, n - 1, slowPeriod);
+
+          let signal = 'WAIT';
+          let label = 'WAIT';
+          let badgeClass = 'bg-slate-800/80 text-slate-400 border border-slate-600/50';
+          let reason = 'SMA 10W ligt onder SMA 40W (neerwaartse trend).';
+
+          if (smaFastPrev <= smaSlowPrev && smaFastCurr > smaSlowCurr) {
+            signal = 'BUY';
+            label = 'BUY';
+            badgeClass = 'bg-[#10b981]/20 text-[#34d399] border border-[#10b981]/50 shadow-sm';
+            reason = 'Golden Cross: SMA 10W is deze week boven SMA 40W gekruist.';
+          } else if (smaFastPrev >= smaSlowPrev && smaFastCurr < smaSlowCurr) {
+            signal = 'SELL';
+            label = 'SELL';
+            badgeClass = 'bg-[#800020]/40 text-[#f87171] border border-[#f87171]/50 shadow-sm';
+            reason = 'Death Cross: SMA 10W is deze week onder SMA 40W gekruist.';
+          } else if (smaFastCurr > smaSlowCurr) {
+            signal = 'HOLD';
+            label = 'HOLD';
+            badgeClass = 'bg-[#38bdf8]/15 text-[#38bdf8] border border-[#38bdf8]/40';
+            reason = 'Bullish trend actief: SMA 10W noteert boven SMA 40W.';
+          }
+
+          return {
+            id: 'sma_10_40',
+            name: 'Wekelijkse SMA 10 / 40',
+            signal: signal,
+            label: label,
+            badgeClass: badgeClass,
+            smaFast: smaFastCurr,
+            smaSlow: smaSlowCurr,
+            smaFastPrev: smaFastPrev,
+            smaSlowPrev: smaSlowPrev,
+            currentWeek: weeks[n - 1].week,
+            weeksAvailable: n,
+            reason: reason
+          };
+        },
+
+        // Centrale wrapper voor alle signalen van een asset (klaar voor toekomstige uitbreidingen)
+        getAssetSignals(isin, explicitTicker = '') {
+          const ticker = explicitTicker || this.assetMapping[isin]?.ticker || '';
+          const sma1040 = this.computeWeeklySmaSignal(ticker, isin);
+          return {
+            primary: sma1040,
+            list: [sma1040]
+          };
         },
         formatCurrency(val) {
           return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val || 0);
