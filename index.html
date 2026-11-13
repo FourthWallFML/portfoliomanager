@@ -2059,9 +2059,7 @@
           const savedBm = localStorage.getItem('pat_benchmarks');
           if (savedMeta) this.assetMetadata = JSON.parse(savedMeta);
           if (savedBm) this.benchmarkConfigs = JSON.parse(savedBm);
-          const savedUniverse = localStorage.getItem('pat_universe');
           const savedWatchlist = localStorage.getItem('pat_watchlist');
-          if (savedUniverse) this.universeList = JSON.parse(savedUniverse);
           if (savedWatchlist) this.watchlist = JSON.parse(savedWatchlist);
           if (savedTx) this.transactions = JSON.parse(savedTx);
           if (savedMap) this.assetMapping = JSON.parse(savedMap);
@@ -2642,23 +2640,22 @@
             .then(data => {
               if (data.status === 'success') {
                 if (Array.isArray(data.universe)) {
+                  // Ruim eventuele oude zware cache op
+                  try { localStorage.removeItem('pat_universe'); } catch (e) {}
+
                   this.universeList = data.universe.map(u => {
                     const isin = String(u.isin || u.isisn || u.ISIN || '').trim().toUpperCase();
                     const ticker = String(u.ticker || u['Finance Ticker'] || u.finance_ticker || '').trim();
                     const companyName = String(u.company_name || u['company_name'] || u.name || '').trim();
                     const ccy = String(u.reporting_currency || u.currency || 'EUR').trim().toUpperCase();
 
-                    // Vul assetMapping automatisch aan met de echte bedrijfsnaam en ticker uit Universe
-                    if (isin && !DUMMY_ISINS.includes(isin)) {
-                      if (!this.assetMapping[isin]) {
-                        this.assetMapping[isin] = { name: companyName || isin, ticker: ticker, currency: ccy };
-                      } else {
-                        if (companyName && this.isRawTickerOrIsin(this.assetMapping[isin].name, isin, this.assetMapping[isin].ticker)) {
-                          this.assetMapping[isin].name = companyName;
-                        }
-                        if (!this.assetMapping[isin].ticker && ticker) {
-                          this.assetMapping[isin].ticker = ticker;
-                        }
+                    // Alleen bestaande mappings (uit transacties/watchlist) verrijken, niet heel Universe toevoegen
+                    if (isin && this.assetMapping[isin]) {
+                      if (companyName && this.isRawTickerOrIsin(this.assetMapping[isin].name, isin, this.assetMapping[isin].ticker)) {
+                        this.assetMapping[isin].name = companyName;
+                      }
+                      if (!this.assetMapping[isin].ticker && ticker) {
+                        this.assetMapping[isin].ticker = ticker;
                       }
                     }
 
@@ -2677,8 +2674,7 @@
                       isin: isin
                     };
                   });
-                  localStorage.setItem('pat_universe', JSON.stringify(this.universeList));
-                  localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
+                  try { localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping)); } catch (e) {}
                 }
 
                 if (Array.isArray(data.watchlist)) {
