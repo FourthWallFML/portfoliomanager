@@ -1062,7 +1062,7 @@
             <div class="flex items-center justify-between border-b border-[#182649] pb-2.5">
               <div>
                 <h3 class="text-sm font-bold text-slate-200">Technische Signalen</h3>
-                <p class="text-[10px] text-slate-400">Automatische trend- & kruisingsanalyse</p>
+                <p class="text-[10px] text-slate-400">Trend (SMA) & Momentum (RSI / MACD)</p>
               </div>
               <span class="text-xs font-black px-3 py-1 rounded-xl uppercase tracking-wider font-mono"
                     :class="sigData.primary.badgeClass"
@@ -1071,23 +1071,22 @@
 
             <template x-for="s in sigData.list" :key="s.id">
               <div class="p-3 rounded-xl bg-[#080e22] border border-[#1e3260]/70 space-y-2 text-xs">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between gap-2">
                   <span class="font-bold text-slate-200" x-text="s.name"></span>
-                  <span class="text-[10px] font-black px-2 py-0.5 rounded uppercase font-mono"
+                  <span class="text-[10px] font-black px-2 py-0.5 rounded uppercase font-mono shrink-0"
                         :class="s.badgeClass"
                         x-text="s.label"></span>
                 </div>
                 <p class="text-[11px] text-slate-400 leading-relaxed" x-text="s.reason"></p>
-                <template x-if="s.smaFast !== null && s.smaSlow !== null">
-                  <div class="grid grid-cols-2 gap-2 pt-1.5 border-t border-[#182649] font-mono text-[11px]">
-                    <div>
-                      <span class="text-slate-500 block text-[10px]">SMA 10W (Fast)</span>
-                      <span class="font-bold text-slate-200" x-text="s.smaFast.toFixed(2)"></span>
-                    </div>
-                    <div class="text-right">
-                      <span class="text-slate-500 block text-[10px]">SMA 40W (Slow)</span>
-                      <span class="font-bold text-slate-200" x-text="s.smaSlow.toFixed(2)"></span>
-                    </div>
+                <template x-if="s.metrics && s.metrics.length > 0">
+                  <div class="grid gap-2 pt-1.5 border-t border-[#182649] font-mono text-[11px]"
+                       :class="s.metrics.length === 3 ? 'grid-cols-3' : 'grid-cols-2'">
+                    <template x-for="(m, idx) in s.metrics" :key="m.label">
+                      <div :class="idx === s.metrics.length - 1 ? 'text-right' : (idx === 1 && s.metrics.length === 3 ? 'text-center' : '')">
+                        <span class="text-slate-500 block text-[10px]" x-text="m.label"></span>
+                        <span class="font-bold text-slate-200" x-text="m.value"></span>
+                      </div>
+                    </template>
                   </div>
                 </template>
               </div>
@@ -5338,14 +5337,266 @@ get detailDropdownAssets() {
           };
         },
 
-        // Centrale wrapper voor alle signalen van een asset (klaar voor toekomstige uitbreidingen)
+        // Hulpfunctie: zet dagelijkse historie om naar maandelijkse slotkoersen (YYYY-MM)
+        getMonthlyClosesForTicker(ticker, isin = '') {
+          if (!ticker) return [];
+          const histPrices = this.getHistoricalPricesForTicker(ticker);
+          const allDates = this.historyData?.dates || [];
+          if (!histPrices || allDates.length === 0) return [];
+
+          const monthlyMap = {};
+          for (let i = 0; i < allDates.length; i++) {
+            const p = parseFloat(histPrices[i]);
+            const dStr = String(allDates[i] || '').trim();
+            if (!isNaN(p) && p > 0 && dStr.length >= 7) {
+              const monthKey = dStr.slice(0, 7); // YYYY-MM
+              monthlyMap[monthKey] = { month: monthKey, date: dStr, close: p };
+            }
+          }
+
+          const months = Object.values(monthlyMap).sort((a, b) => a.month.localeCompare(b.month));
+
+          // Werk de lopende maand bij met de actuele live koers indien beschikbaar
+          const livePrice = (this.latestPrices && this.latestPrices[ticker] > 0)
+            ? this.latestPrices[ticker]
+            : (isin && this.latestPrices && this.latestPrices[isin] > 0 ? this.latestPrices[isin] : 0);
+
+          if (months.length > 0 && livePrice > 0) {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const currentMonth = todayStr.slice(0, 7);
+            if (months[months.length - 1].month === currentMonth) {
+              months[months.length - 1].close = livePrice;
+            } else if (currentMonth > months[months.length - 1].month) {
+              months.push({ month: currentMonth, date: todayStr, close: livePrice });
+            }
+          }
+
+          return months;
+        },
+
+        // Signaal 2A: Maandelijkse RSI (14 maanden - Wilder's Smoothing)
+        computeMonthlyRsiSignal(ticker, isin = '') {
+          const months = this.getMonthlyClosesForTicker(ticker, isin);
+          const period = 14;
+
+          if (months.length < period + 2) {
+            return {
+              id: 'rsi_14m',
+              name: 'Maandelijkse RSI (14M)',
+              signal: 'N/A',
+              label: 'Te weinig data',
+              badgeClass: 'bg-slate-800 text-slate-400 border border-slate-700',
+              metrics: [],
+              reason: `Minimaal ${period + 2} maanden historie nodig (nu: ${months.length} maanden).`
+            };
+          }
+
+          // Bereken Wilder's RSI reeks
+          let gains = 0;
+          let losses = 0;
+          for (let i = 1; i <= period; i++) {
+            const diff = months[i].close - months[i - 1].close;
+            if (diff >= 0) gains += diff;
+            else losses += Math.abs(diff);
+          }
+
+          let avgGain = gains / period;
+          let avgLoss = losses / period;
+          const rsiSeries = [];
+
+          const calcRsiVal = (g, l) => (l === 0 ? 100 : 100 - (100 / (1 + g / l)));
+          rsiSeries.push(calcRsiVal(avgGain, avgLoss));
+
+          for (let i = period + 1; i < months.length; i++) {
+            const diff = months[i].close - months[i - 1].close;
+            const curGain = diff > 0 ? diff : 0;
+            const curLoss = diff < 0 ? Math.abs(diff) : 0;
+            avgGain = ((avgGain * (period - 1)) + curGain) / period;
+            avgLoss = ((avgLoss * (period - 1)) + curLoss) / period;
+            rsiSeries.push(calcRsiVal(avgGain, avgLoss));
+          }
+
+          const currRsi = rsiSeries[rsiSeries.length - 1];
+          const prevRsi = rsiSeries[rsiSeries.length - 2];
+
+          let signal = 'NEUTRAL';
+          let label = 'NEUTRAAL';
+          let badgeClass = 'bg-slate-800/80 text-slate-400 border border-slate-600/50';
+          let reason = `RSI (${currRsi.toFixed(1)}) beweegt in de neutrale zone tussen 30 en 70.`;
+
+          if (prevRsi <= 30 && currRsi > 30) {
+            signal = 'BUY';
+            label = 'BUY';
+            badgeClass = 'bg-[#10b981]/20 text-[#34d399] border border-[#10b981]/50 shadow-sm';
+            reason = `Oversold herstel: RSI kruist omhoog door de 30-lijn (${prevRsi.toFixed(1)} → ${currRsi.toFixed(1)}).`;
+          } else if (prevRsi >= 70 && currRsi < 70) {
+            signal = 'SELL';
+            label = 'SELL';
+            badgeClass = 'bg-[#800020]/40 text-[#f87171] border border-[#f87171]/50 shadow-sm';
+            reason = `Overbought verzwakking: RSI kruist omlaag door de 70-lijn (${prevRsi.toFixed(1)} → ${currRsi.toFixed(1)}).`;
+          } else if (currRsi <= 30) {
+            signal = 'WAIT';
+            label = 'OVERSOLD';
+            badgeClass = 'bg-amber-500/15 text-amber-300 border border-amber-500/40';
+            reason = `Oversold zone (≤ 30): wacht op opwaartse kruising boven 30 voor koopsignaal.`;
+          } else if (currRsi >= 70) {
+            signal = 'HOLD';
+            label = 'OVERBOUGHT';
+            badgeClass = 'bg-[#38bdf8]/15 text-[#38bdf8] border border-[#38bdf8]/40';
+            reason = `Sterk momentum (≥ 70): koopsignaal blijft actief tot RSI onder 70 zakt.`;
+          }
+
+          return {
+            id: 'rsi_14m',
+            name: 'Maandelijkse RSI (14M)',
+            signal: signal,
+            label: label,
+            badgeClass: badgeClass,
+            metrics: [
+              { label: 'RSI Huidig', value: currRsi.toFixed(1) },
+              { label: 'RSI Vorige Mnd', value: prevRsi.toFixed(1) }
+            ],
+            reason: reason
+          };
+        },
+
+        // Signaal 2B: Maandelijkse MACD (12, 26, 9 maanden)
+        computeMonthlyMacdSignal(ticker, isin = '') {
+          const months = this.getMonthlyClosesForTicker(ticker, isin);
+          const fastP = 12;
+          const slowP = 26;
+          const signalP = 9;
+          const minRequired = slowP + signalP; // 35 maanden voor huidige + vorige signaallijn
+
+          if (months.length < minRequired) {
+            return {
+              id: 'macd_12_26_9m',
+              name: 'Maandelijkse MACD (12, 26, 9M)',
+              signal: 'N/A',
+              label: 'Te weinig data',
+              badgeClass: 'bg-slate-800 text-slate-400 border border-slate-700',
+              metrics: [],
+              reason: `Minimaal ${minRequired} maanden historie nodig (nu: ${months.length} maanden).`
+            };
+          }
+
+          const calcEmaSeries = (values, period) => {
+            const k = 2 / (period + 1);
+            const ema = new Array(values.length).fill(null);
+            let sum = 0;
+            for (let i = 0; i < period; i++) sum += values[i];
+            ema[period - 1] = sum / period;
+            for (let i = period; i < values.length; i++) {
+              ema[i] = (values[i] - ema[i - 1]) * k + ema[i - 1];
+            }
+            return ema;
+          };
+
+          const closes = months.map(m => m.close);
+          const emaFast = calcEmaSeries(closes, fastP);
+          const emaSlow = calcEmaSeries(closes, slowP);
+
+          const macdLine = [];
+          for (let i = slowP - 1; i < closes.length; i++) {
+            macdLine.push(emaFast[i] - emaSlow[i]);
+          }
+
+          const signalLine = calcEmaSeries(macdLine, signalP);
+          const lastIdx = macdLine.length - 1;
+          const prevIdx = macdLine.length - 2;
+
+          const currMacd = macdLine[lastIdx];
+          const prevMacd = macdLine[prevIdx];
+          const currSig = signalLine[lastIdx];
+          const prevSig = signalLine[prevIdx];
+          const currHist = currMacd - currSig;
+
+          let signal = 'WAIT';
+          let label = 'BEARISH';
+          let badgeClass = 'bg-slate-800/80 text-slate-400 border border-slate-600/50';
+          let reason = 'MACD noteert onder de signaallijn (neerwaarts momentum).';
+
+          if (prevMacd <= prevSig && currMacd > currSig && currMacd < 0) {
+            signal = 'BUY';
+            label = 'BUY';
+            badgeClass = 'bg-[#10b981]/20 text-[#34d399] border border-[#10b981]/50 shadow-sm';
+            reason = 'Bullish MACD-kruising onder de nullijn: opwaartse trendversnelling.';
+          } else if (prevMacd >= prevSig && currMacd < currSig && currMacd > 0) {
+            signal = 'SELL';
+            label = 'SELL';
+            badgeClass = 'bg-[#800020]/40 text-[#f87171] border border-[#f87171]/50 shadow-sm';
+            reason = 'Bearish MACD-kruising boven de nullijn: verlies van opwaarts momentum.';
+          } else if (prevMacd <= prevSig && currMacd > currSig) {
+            signal = 'HOLD';
+            label = 'BULLISH CROSS';
+            badgeClass = 'bg-[#38bdf8]/15 text-[#38bdf8] border border-[#38bdf8]/40';
+            reason = 'MACD kruist opwaarts boven de signaallijn (boven de nullijn).';
+          } else if (currMacd > currSig) {
+            signal = 'HOLD';
+            label = 'HOLD';
+            badgeClass = 'bg-[#38bdf8]/15 text-[#38bdf8] border border-[#38bdf8]/40';
+            reason = 'Positief momentum actief: MACD noteert boven de signaallijn.';
+          }
+
+          return {
+            id: 'macd_12_26_9m',
+            name: 'Maandelijkse MACD (12, 26, 9M)',
+            signal: signal,
+            label: label,
+            badgeClass: badgeClass,
+            metrics: [
+              { label: 'MACD Lijn', value: currMacd.toFixed(2) },
+              { label: 'Signal Lijn', value: currSig.toFixed(2) },
+              { label: 'Histogram', value: (currHist >= 0 ? '+' : '') + currHist.toFixed(2) }
+            ],
+            reason: reason
+          };
+        },
+
+        // Centrale wrapper voor alle signalen van een asset
         getAssetSignals(isin, explicitTicker = '') {
           const ticker = explicitTicker || this.assetMapping[isin]?.ticker || '';
           const sma1040 = this.computeWeeklySmaSignal(ticker, isin);
+          const rsi14m = this.computeMonthlyRsiSignal(ticker, isin);
+          const macdM = this.computeMonthlyMacdSignal(ticker, isin);
+
+          // Geef sma1040 ook het uniforme metrics-formaat voor de detailkaart
+          sma1040.metrics = (sma1040.smaFast !== null && sma1040.smaSlow !== null)
+            ? [
+                { label: 'SMA 10W (Fast)', value: sma1040.smaFast.toFixed(2) },
+                { label: 'SMA 40W (Slow)', value: sma1040.smaSlow.toFixed(2) }
+              ]
+            : [];
+
+          const allSignals = [sma1040, rsi14m, macdM];
+
+          // Bepaal hoofd-badge voor de tabellen (BUY/SELL uit een van de modules krijgt voorrang)
+          const activeBuy = allSignals.find(s => s.signal === 'BUY');
+          const activeSell = allSignals.find(s => s.signal === 'SELL');
+          let primary = sma1040;
+
+          if (activeBuy) {
+            primary = {
+              ...activeBuy,
+              reason: allSignals.filter(s => s.signal === 'BUY').map(s => `${s.name}: ${s.reason}`).join(' | ')
+            };
+          } else if (activeSell) {
+            primary = {
+              ...activeSell,
+              reason: allSignals.filter(s => s.signal === 'SELL').map(s => `${s.name}: ${s.reason}`).join(' | ')
+            };
+          } else {
+            primary = {
+              ...sma1040,
+              reason: allSignals.map(s => `${s.name}: ${s.label}`).join(' • ')
+            };
+          }
+
           return {
-            primary: sma1040,
-            list: [sma1040]
+            primary: primary,
+            list: allSignals
           };
+        },
         },
         formatCurrency(val) {
           return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val || 0);
