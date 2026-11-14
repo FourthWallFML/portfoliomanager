@@ -2694,8 +2694,30 @@
                       ggroup: String(w.ggroup || (fromUni ? fromUni.ggroup : '')).trim()
                     };
                   });
-                  localStorage.setItem('pat_watchlist', JSON.stringify(this.watchlist));
+                const safeSave = (k, v) => {
+                  try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { console.warn('Cache vol voor', k); }
+                };
+
+                if (Array.isArray(data.watchlist)) {
+                  this.watchlist = data.watchlist.map(w => {
+                    const isin = String(w.isin || w.isisn || '').trim().toUpperCase();
+                    const ticker = String(w.ticker || w['Finance Ticker'] || '').trim();
+                    const fromUni = this.universeList.find(u => (isin && u.isin === isin) || (ticker && u.ticker === ticker));
+                    return {
+                      isin: isin || (fromUni ? fromUni.isin : ''),
+                      ticker: ticker || (fromUni ? fromUni.ticker : ''),
+                      company_name: String(w.company_name || (fromUni ? fromUni.company_name : '') || ticker || isin).trim(),
+                      country: String(w.country || (fromUni ? fromUni.country : '')).trim(),
+                      reporting_currency: String(w.reporting_currency || (fromUni ? fromUni.reporting_currency : 'EUR')).trim().toUpperCase(),
+                      exchange_name: String(w.exchange_name || (fromUni ? fromUni.exchange_name : '')).trim(),
+                      gsector: String(w.gsector || (fromUni ? fromUni.gsector : '')).trim(),
+                      gind: String(w.gind || (fromUni ? fromUni.gind : '')).trim(),
+                      ggroup: String(w.ggroup || (fromUni ? fromUni.ggroup : '')).trim()
+                    };
+                  });
+                  safeSave('pat_watchlist', this.watchlist);
                 }
+
                 if (data.mapping) {
                   for (let isin in data.mapping) {
                     if (DUMMY_ISINS.includes(isin)) continue;
@@ -2729,7 +2751,7 @@
                       }
                     }
                   }
-                  localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping));
+                  safeSave('pat_mapping', this.assetMapping);
                 }
 
                 if (Array.isArray(data.benchmarks)) {
@@ -2748,7 +2770,7 @@
                       enabled: prevEnabled[id] !== undefined ? prevEnabled[id] : Boolean(b.enabled)
                     };
                   });
-                  localStorage.setItem('pat_benchmarks', JSON.stringify(this.benchmarkConfigs));
+                  safeSave('pat_benchmarks', this.benchmarkConfigs);
                 }
 
                 if (data.prices) {
@@ -2758,24 +2780,23 @@
                       this.latestPrices[key] = val;
                     }
                   }
-                  localStorage.setItem('pat_prices', JSON.stringify(this.latestPrices));
+                  safeSave('pat_prices', this.latestPrices);
                 }
 
                 if (data.currencies) {
                   this.currencies = data.currencies;
-                  localStorage.setItem('pat_currencies', JSON.stringify(this.currencies));
+                  safeSave('pat_currencies', this.currencies);
                 }
 
                 if (data.rates) {
                   this.rates = data.rates;
-                  localStorage.setItem('pat_rates', JSON.stringify(this.rates));
+                  safeSave('pat_rates', this.rates);
                 }
 
                 if (data.history && data.history.dates && data.history.dates.length > 0) {
                   this.historyData = data.history;
-                  localStorage.setItem('pat_history', JSON.stringify(this.historyData));
+                  safeSave('pat_history', this.historyData);
                 }
-
                 if (this.transactions.length > 0) {
                   this.calculatePositions();
                 }
