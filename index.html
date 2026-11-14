@@ -17,6 +17,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SheetJS voor Excel (.xlsx) imports zoals Bolero -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body class="bg-[#070d1e] text-slate-100 font-sans min-h-screen" x-data="portfolioApp()" x-init="initApp()">
 
@@ -65,15 +67,28 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2 justify-end pt-2 md:pt-0 border-t md:border-t-0 border-[#1b2b52]/60">
-        <label for="csvFileInputMain" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow cursor-pointer active:scale-95">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-          <span>Upload CSV</span>
-        </label>
-        <input type="file"
-           id="csvFileInputMain"
-           accept=".csv,text/csv,text/plain,application/vnd.ms-excel,*/*"
-           @change="handleFileUpload($event)"
-           class="sr-only" />
+        <!-- Multi-Broker Filter Dropdown -->
+        <select x-model="selectedBrokerFilter"
+                @change="setBrokerFilter($event.target.value)"
+                title="Filter portefeuille op broker"
+                class="bg-[#080e22] border border-[#1e3260] text-slate-200 text-xs font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:border-[#38bdf8]">
+          <option value="ALL">Alle Brokers</option>
+          <template x-for="b in availableBrokers" :key="b">
+            <option :value="b" x-text="b"></option>
+          </template>
+        </select>
+
+        <!-- Multi-Broker CSV Beheer Knop -->
+        <button type="button" @click="showCsvUploadModal = true" class="bg-[#132247] hover:bg-[#182b59] text-slate-200 border border-[#1e3260] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-[#10b981]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          <span>CSV / Brokers</span>
+          <span x-show="csvBatches.length > 0" class="bg-[#10b981]/20 text-[#34d399] px-1.5 rounded-full text-[10px] font-mono" x-text="csvBatches.length"></span>
+        </button>
+
+        <!-- Manuele Transactie / Dividend Toevoegen Knop -->
+        <button type="button" @click="showManualTxModal = true" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow active:scale-95">
+          <span>+ Boeking</span>
+        </button>
 
         <button type="button" @click="fetchGoogleSheetData()" class="bg-[#132247] hover:bg-[#182b59] text-slate-200 border border-[#1e3260] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-[#38bdf8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
@@ -1929,7 +1944,227 @@
       </div>
     </div>
   </div>
+<!-- Modal 6: Multi-Broker CSV Upload & Beheer -->
+  <div x-show="showCsvUploadModal"
+    x-transition
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-[#182649] flex justify-between items-center">
+        <div>
+          <h3 class="text-base font-bold text-slate-100">Multi-Broker CSV Bestanden</h3>
+          <p class="text-[11px] text-slate-400">Upload per broker een transactie-export. Bestanden worden automatisch samengevoegd.</p>
+        </div>
+        <button @click="showCsvUploadModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+      </div>
 
+      <div class="p-4 overflow-y-auto space-y-4 text-xs">
+        <div class="bg-[#080e22] p-4 rounded-xl border border-[#1e3260] flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
+          <div class="flex-1">
+            <label class="block text-slate-400 font-semibold mb-1">1. Kies Broker</label>
+            <select x-model="pendingCsvBroker" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-semibold">
+              <template x-for="b in availableBrokers" :key="b">
+                <option :value="b" x-text="b"></option>
+              </template>
+            </select>
+          </div>
+          <div>
+            <label for="multiBrokerCsvInput" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-2 rounded-xl transition cursor-pointer inline-flex items-center gap-1.5 shadow">
+              <span>2. Selecteer CSV Bestand</span>
+            </label>
+    <input type="file" id="multiBrokerCsvInput" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" @change="handleMultiBrokerCsvUpload($event)" class="sr-only">
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="font-bold text-slate-300 uppercase tracking-wider">Ingeladen CSV Bestanden (<span x-text="csvBatches.length"></span>)</div>
+          <template x-for="(batch, idx) in csvBatches" :key="batch.id">
+            <div class="p-3 bg-[#080e22] rounded-xl border border-[#1e3260] flex items-center justify-between gap-2">
+              <div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/20 text-[#38bdf8] border border-blue-500/30 mr-1.5" x-text="batch.broker"></span>
+                <span class="font-bold text-slate-200" x-text="batch.fileName"></span>
+                <span class="text-[10px] text-slate-400 font-mono block mt-0.5" x-text="batch.rows.length + ' regels • Geüpload op ' + batch.uploadedAt"></span>
+              </div>
+              <button type="button" @click="removeCsvBatch(idx)" class="text-[#f87171] hover:text-white bg-[#800020]/20 hover:bg-[#800020]/40 px-2.5 py-1 rounded-lg font-semibold transition">Verwijder</button>
+            </div>
+          </template>
+          <template x-if="csvBatches.length === 0">
+            <div class="p-6 text-center text-slate-500 italic bg-[#080e22]/50 rounded-xl border border-[#1e3260]/60">Nog geen CSV-bestanden geladen.</div>
+          </template>
+        </div>
+      </div>
+
+      <div class="p-3 border-t border-[#182649] flex justify-end bg-[#080e22]">
+        <button @click="showCsvUploadModal = false" class="bg-[#132247] hover:bg-[#18274f] text-slate-200 font-bold px-4 py-1.5 rounded-xl text-xs transition">Sluiten</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 7: Manuele Transactie & Dividend Toevoegen -->
+  <div x-show="showManualTxModal"
+    x-transition
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-[#182649] flex justify-between items-center">
+        <div>
+          <h3 class="text-base font-bold text-slate-100">Manuele Transactie of Dividend Toevoegen</h3>
+          <p class="text-[11px] text-slate-400">Voeg handmatig een aan-/verkoop, dividenduitkering of kasboeking toe aan een broker.</p>
+        </div>
+        <button @click="showManualTxModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+      </div>
+
+      <div class="p-4 overflow-y-auto space-y-4 text-xs">
+        <!-- Type Keuze Tabs -->
+        <div class="grid grid-cols-3 gap-2 bg-[#080e22] p-1.5 rounded-xl border border-[#1e3260]">
+          <button type="button" @click="manualTxTab = 'trade'" :class="manualTxTab === 'trade' ? 'bg-[#10b981] text-slate-950 font-bold' : 'text-slate-300 hover:text-white'" class="py-2 rounded-lg transition">Aan- / Verkoop</button>
+          <button type="button" @click="manualTxTab = 'dividend'" :class="manualTxTab === 'dividend' ? 'bg-[#10b981] text-slate-950 font-bold' : 'text-slate-300 hover:text-white'" class="py-2 rounded-lg transition">Dividend</button>
+          <button type="button" @click="manualTxTab = 'cash'" :class="manualTxTab === 'cash' ? 'bg-[#10b981] text-slate-950 font-bold' : 'text-slate-300 hover:text-white'" class="py-2 rounded-lg transition">Storting / Cash</button>
+        </div>
+
+        <!-- Gemeenschappelijke velden: Broker & Datum -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Broker</label>
+            <select x-model="newManualTx.broker" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-semibold">
+              <template x-for="b in availableBrokers" :key="b">
+                <option :value="b" x-text="b"></option>
+              </template>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Datum</label>
+            <input type="date" x-model="newManualTx.date" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Tijd (optioneel)</label>
+            <input type="text" x-model="newManualTx.time" placeholder="12:00:00" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+          </div>
+        </div>
+
+        <!-- Velden voor AAN- / VERKOOP -->
+        <template x-if="manualTxTab === 'trade'">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260]">
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Richting</label>
+              <select x-model="newManualTx.tradeType" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-bold">
+                <option value="Buy Trade">Aankoop (Buy)</option>
+                <option value="Sell Trade">Verkoop (Sell)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">ISIN Code *</label>
+              <input type="text" x-model="newManualTx.isin" list="knownIsinsList" placeholder="bv. NL0010273215" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono uppercase">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Naam Stock / ETF</label>
+              <input type="text" x-model="newManualTx.assetName" placeholder="bv. ASML Holding" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">Google Ticker</label>
+                <input type="text" x-model="newManualTx.ticker" placeholder="AMS:ASML" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-2.5 py-2 text-slate-100 font-mono">
+              </div>
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">Valuta</label>
+                <input type="text" x-model="newManualTx.currency" list="currencyList" placeholder="EUR" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-2.5 py-2 text-slate-100 font-mono uppercase text-center">
+              </div>
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Aantal Stuks *</label>
+              <input type="number" step="any" x-model="newManualTx.quantity" placeholder="bv. 10" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Totaalbedrag in EUR (excl. kosten) *</label>
+              <input type="number" step="any" x-model="newManualTx.totalEur" placeholder="bv. 1250.00" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Transactiekosten (EUR)</label>
+              <input type="number" step="any" x-model="newManualTx.feeEur" placeholder="0.00" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Beurstaks / TOB (EUR)</label>
+              <input type="number" step="any" x-model="newManualTx.taxEur" placeholder="0.00" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+            </div>
+            <template x-if="newManualTx.tradeType === 'Sell Trade'">
+              <div class="sm:col-span-2">
+                <label class="block text-slate-400 font-semibold mb-1">Gerealiseerde Winst / Verlies in EUR (optioneel)</label>
+                <input type="number" step="any" x-model="newManualTx.realizedPnlEur" placeholder="bv. 145.50 of -40.00" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+              </div>
+            </template>
+          </div>
+        </template>
+
+        <!-- Velden voor DIVIDEND -->
+        <template x-if="manualTxTab === 'dividend'">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260]">
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">ISIN Code *</label>
+              <input type="text" x-model="newManualTx.isin" list="knownIsinsList" placeholder="bv. BE0003851681" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono uppercase">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Naam Stock / ETF</label>
+              <input type="text" x-model="newManualTx.assetName" placeholder="bv. Aedifica" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Bruto Dividend in EUR *</label>
+              <input type="number" step="any" x-model="newManualTx.totalEur" placeholder="bv. 85.00" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Ingehouden Bronbelasting in EUR</label>
+              <input type="number" step="any" x-model="newManualTx.taxEur" placeholder="bv. 25.50" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+            </div>
+          </div>
+        </template>
+
+        <!-- Velden voor CASH / STORTING / OPNAME -->
+        <template x-if="manualTxTab === 'cash'">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260]">
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Type Kasboeking</label>
+              <select x-model="newManualTx.cashType" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-semibold">
+                <option value="deposits">Storting (Deposit)</option>
+                <option value="withdrawals">Afhaling (Withdrawal)</option>
+                <option value="interest">Rente op cash (Interest)</option>
+                <option value="fees">Broker- / Abonnementskost</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Bedrag in EUR *</label>
+              <input type="number" step="any" x-model="newManualTx.totalEur" placeholder="bv. 1000.00" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-slate-400 font-semibold mb-1">Omschrijving</label>
+              <input type="text" x-model="newManualTx.description" placeholder="bv. Maandelijkse storting Bolero" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
+            </div>
+          </div>
+        </template>
+
+        <!-- Overzicht van eerdere manuele boekingen -->
+        <div x-show="manualTransactions.length > 0" class="space-y-1.5 pt-2 border-t border-[#182649]">
+          <div class="font-bold text-slate-300 uppercase tracking-wider">Manuele Boekingen (<span x-text="manualTransactions.length"></span> regels)</div>
+          <div class="max-h-36 overflow-y-auto space-y-1.5 pr-1">
+            <template x-for="mtx in manualTransactions" :key="mtx._manualId + mtx['Transaction Type'] + mtx['Transaction Amount']">
+              <div class="p-2 bg-[#080e22] rounded-lg border border-[#1e3260]/70 flex items-center justify-between gap-2 text-[11px]">
+                <div class="truncate">
+                  <span class="font-mono text-slate-400 mr-1.5" x-text="(mtx['Transaction Time (CET)'] || '').split(' ')[0]"></span>
+                  <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-[#38bdf8] font-bold mr-1" x-text="mtx.Broker"></span>
+                  <span class="text-slate-200 font-semibold" x-text="mtx['Asset Name'] || mtx['Transaction Description']"></span>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <span class="font-mono font-bold" :class="mtx['Transaction Amount'] >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="formatCurrency(mtx['Transaction Amount'])"></span>
+                  <button type="button" @click="removeManualTransaction(mtx._manualId)" class="text-[#f87171] hover:text-white font-bold px-1">✕</button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3 border-t border-[#182649] flex justify-end gap-2 bg-[#080e22]">
+        <button type="button" @click="showManualTxModal = false" class="bg-[#132247] text-slate-300 px-4 py-1.5 rounded-xl text-xs font-semibold">Annuleren</button>
+        <button type="button" @click="saveManualTransaction()" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs shadow">Boeking Opslaan</button>
+      </div>
+    </div>
+  </div>
   <!-- Script Application Logic -->
   <script>
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxTN8cNGXmyHRPm4XuSejOqTRFydugjHE0QDeFJaLkuLKK3iBcEhVk2SsedyPGjdotHQ/exec';
@@ -1945,7 +2180,7 @@
     function portfolioApp() {
       return {
         activeTab: 'dashboard',
-        appVersion: 'v1.4.1 (2026-11-14)',
+        appVersion: 'v1.5 (20261114)',
         loadedFileName: '',
         uploadMessage: '',
         showClosedPositionsModal: false,
@@ -1954,7 +2189,31 @@
         showCorporateActionsModal: false,
         editingAsset: { isin: '', name: '', ticker: '', currency: 'EUR' },
         transactions: [],
-        positions: [],
+        csvBatches: [],            // Lijst van geüploade CSV-bestanden per broker
+        manualTransactions: [],    // Lijst van handmatig ingevoerde transacties & dividenden
+        selectedBrokerFilter: 'ALL',
+        availableBrokers: ['BUX', 'DEGIRO', 'Bolero', 'Saxo', 'Interactive Brokers', 'Trade Republic', 'Overig'],
+        showCsvUploadModal: false,
+        pendingCsvBroker: 'BUX',
+        showManualTxModal: false,
+        manualTxTab: 'trade',      // 'trade' | 'dividend' | 'cash'
+        newManualTx: {
+          broker: 'BUX',
+          date: new Date().toISOString().split('T')[0],
+          time: '12:00:00',
+          tradeType: 'Buy Trade',  // 'Buy Trade' | 'Sell Trade'
+          isin: '',
+          assetName: '',
+          ticker: '',
+          currency: 'EUR',
+          quantity: '',
+          totalEur: '',            // Totaalbedrag in EUR (excl. kosten)
+          feeEur: '0',             // Transactiekosten in EUR
+          taxEur: '0',             // Beurstaks / bronbelasting in EUR
+          realizedPnlEur: '0',     // Alleen bij verkoop
+          cashType: 'deposits',    // 'deposits' | 'withdrawals' | 'interest' | 'fees'
+          description: ''
+        },        positions: [],
         assetMapping: {},
         corporateActions: [],
         mergerClosedPositions: [],
@@ -2051,7 +2310,6 @@
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed:', err));
           }
 
-          const savedTx = localStorage.getItem('pat_transactions');
           const savedMap = localStorage.getItem('pat_mapping');
           const savedCa = localStorage.getItem('pat_corporate_actions');
           const savedPrices = localStorage.getItem('pat_prices');
@@ -2061,11 +2319,11 @@
           const savedName = localStorage.getItem('pat_filename');
           const savedMeta = localStorage.getItem('pat_stock_metadata');
           const savedBm = localStorage.getItem('pat_benchmarks');
+          const savedWatchlist = localStorage.getItem('pat_watchlist');
+
           if (savedMeta) this.assetMetadata = JSON.parse(savedMeta);
           if (savedBm) this.benchmarkConfigs = JSON.parse(savedBm);
-          const savedWatchlist = localStorage.getItem('pat_watchlist');
           if (savedWatchlist) this.watchlist = JSON.parse(savedWatchlist);
-          if (savedTx) this.transactions = JSON.parse(savedTx);
           if (savedMap) this.assetMapping = JSON.parse(savedMap);
           if (savedCa) this.corporateActions = JSON.parse(savedCa);
           if (savedPrices) this.latestPrices = JSON.parse(savedPrices);
@@ -2076,9 +2334,32 @@
 
           DUMMY_ISINS.forEach(d => delete this.assetMapping[d]);
 
-          if (this.transactions.length > 0) {
-            this.calculatePositions();
+          // --- START STAP 2B: Multi-Broker CSV batches & manuele transacties laden ---
+          const savedBatches = localStorage.getItem('pat_csv_batches');
+          const savedManual = localStorage.getItem('pat_manual_transactions');
+          const savedTx = localStorage.getItem('pat_transactions');
+
+          if (savedBatches) this.csvBatches = JSON.parse(savedBatches);
+          if (savedManual) this.manualTransactions = JSON.parse(savedManual);
+
+          // Eenmalige migratie van oude pat_transactions naar een BUX-batch
+          if (this.csvBatches.length === 0 && savedTx) {
+            const legacyRows = JSON.parse(savedTx);
+            if (Array.isArray(legacyRows) && legacyRows.length > 0) {
+              this.csvBatches.push({
+                id: 'batch_legacy',
+                broker: 'BUX',
+                fileName: savedName || 'Geïmporteerde BUX CSV',
+                uploadedAt: new Date().toISOString().split('T')[0],
+                rows: legacyRows.map(r => ({ ...r, Broker: r.Broker || 'BUX' }))
+              });
+              try { localStorage.setItem('pat_csv_batches', JSON.stringify(this.csvBatches)); } catch (e) {}
+            }
           }
+
+          // Voegt alle batches + manuele boekingen samen en berekent direct de posities
+          this.rebuildActiveTransactions();
+          // --- EINDE STAP 2B ---
 
           this.fetchGoogleSheetData();
           this.$nextTick(() => { this.renderDonutCharts(); });
@@ -2930,6 +3211,520 @@
 
           reader.readAsText(file, 'utf-8');
           event.target.value = '';
+        },
+
+        // Combineert alle CSV-batches + manuele boekingen en past de actieve broker-filter toe
+        rebuildActiveTransactions() {
+          let combined = [];
+          this.csvBatches.forEach(batch => {
+            (batch.rows || []).forEach(r => {
+              combined.push({ ...r, Broker: r.Broker || batch.broker || 'Overig' });
+            });
+          });
+          this.manualTransactions.forEach(mtx => {
+            combined.push({ ...mtx, Broker: mtx.Broker || 'Overig' });
+          });
+
+          if (this.selectedBrokerFilter && this.selectedBrokerFilter !== 'ALL') {
+            this.transactions = combined.filter(t => (t.Broker || 'Overig') === this.selectedBrokerFilter);
+          } else {
+            this.transactions = combined;
+          }
+
+          this.processNewTransactions();
+        },
+
+        setBrokerFilter(broker) {
+          this.selectedBrokerFilter = broker;
+          this.rebuildActiveTransactions();
+          this.renderDonutCharts();
+          if (this.activeTab === 'twr') this.updateTwrView();
+          if (this.activeTab === 'dividenden') this.renderDividendCharts();
+          if (this.activeTab === 'winstbijdrage') this.renderProfitContributionCharts();
+          if (this.activeTab === 'assetDetail') this.updateAssetDetailView();
+        },
+
+        // Verwerkt een nieuwe CSV voor de gekozen broker zonder andere brokers te overschrijven
+// Koppelt een Bolero-effectnaam (bv. "KBC GROEP (BR)") aan een bekende ISIN of maakt een stabiele Bolero-ID aan
+        resolveBoleroAssetIsin(rawAssetName) {
+          const clean = String(rawAssetName || '')
+            .replace(/\s+\d{2}\.\d{2}\.\d{2}$/, '') // Verwijder ex-dividend datum zoals "04.11.26"
+            .replace(/\([A-Z]{2}\)?$/i, '')         // Verwijder beurscode "(BR)", "(AS)", "(LO", "(FR)"
+            .replace(/-D$/i, '')                    // Verwijder "-D" (Distributing) achtervoegsel
+            .trim();
+
+          const norm = clean.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+          // 1. Zoek eerst in bestaande assetMapping (bv. als je het aandeel ook bij BUX hebt of eerder hebt gemapt)
+          for (let isin in this.assetMapping) {
+            const mName = String(this.assetMapping[isin]?.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (mName && (mName.includes(norm) || norm.includes(mName))) {
+              return { isin: isin, displayName: this.assetMapping[isin].name };
+            }
+          }
+
+          // 2. Zoek in Universe
+          const uniMatch = this.universeList.find(u => {
+            const uName = String(u.company_name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            return uName && (uName.includes(norm) || norm.includes(uName));
+          });
+          if (uniMatch && uniMatch.isin) {
+            return { isin: uniMatch.isin, displayName: uniMatch.company_name };
+          }
+
+          // 3. Maak een unieke, stabiele sleutel aan zodat je in 'Tickers & Valuta' de ticker kunt invullen
+          const fallbackId = 'BOLERO_' + norm.slice(0, 18).toUpperCase();
+          return { isin: fallbackId, displayName: clean || rawAssetName };
+        },
+
+        // Zet een ingelezen Bolero Excel-sheet om naar PAT-transactieregels
+        parseBoleroExcelWorkbook(workbook, broker) {
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+          const matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
+
+          // Zoek de header-rij ("Datum transactie")
+          let headerRowIdx = -1;
+          for (let r = 0; r < Math.min(25, matrix.length); r++) {
+            const rowStr = (matrix[r] || []).map(c => String(c || '').trim().toLowerCase());
+            if (rowStr.includes('datum transactie') && rowStr.includes('transactie')) {
+              headerRowIdx = r;
+              break;
+            }
+          }
+          if (headerRowIdx === -1) return [];
+
+          const headers = matrix[headerRowIdx].map(c => String(c || '').trim().toLowerCase());
+          const colDatum = headers.indexOf('datum transactie');
+          const colTransactie = headers.indexOf('transactie');
+          const colBedrag = headers.indexOf('bedrag');
+          const colAantal = headers.indexOf('aantal');
+          const colRv = headers.findIndex(h => h.includes('roerende voorheffing'));
+          const colPnl = headers.findIndex(h => h.includes('winst/verlies'));
+
+          const patRows = [];
+
+          for (let r = headerRowIdx + 1; r < matrix.length; r++) {
+            const row = matrix[r];
+            if (!row || !row[colDatum] || !row[colTransactie]) continue;
+
+            const rawDate = String(row[colDatum]).trim();
+            if (!/^\d{4}-\d{2}-\d{2}/.test(rawDate)) continue; // Sla disclaimer-regels onderaan over
+
+            const desc = String(row[colTransactie]).trim();
+            const descLow = desc.toLowerCase();
+            const amount = this.parseNum(row[colBedrag]);
+            const qty = Math.abs(this.parseNum(row[colAantal]));
+            const rvTax = colRv !== -1 ? Math.abs(this.parseNum(row[colRv])) : 0;
+            const realizedPnl = colPnl !== -1 ? this.parseNum(row[colPnl]) : 0;
+
+            // 1. Stortingen & Afhalingen
+            if (descLow.startsWith('provisionering rekening')) {
+              patRows.push({
+                Broker: broker,
+                'Transaction Time (CET)': rawDate,
+                'Transaction Category': 'deposits',
+                'Transaction Type': 'Deposit',
+                'Transfer Type': 'CASH_CREDIT',
+                'Transaction Amount': Math.abs(amount),
+                'Transaction Description': desc
+              });
+              continue;
+            }
+            if (descLow.startsWith('overschrijving naar klant')) {
+              patRows.push({
+                Broker: broker,
+                'Transaction Time (CET)': rawDate,
+                'Transaction Category': 'withdrawals',
+                'Transaction Type': 'Withdrawal',
+                'Transfer Type': 'CASH_DEBIT',
+                'Transaction Amount': -Math.abs(amount),
+                'Transaction Description': desc
+              });
+              continue;
+            }
+
+            // 2. Kostencompensaties ("Terugstorting")
+            if (descLow.startsWith('terugstorting')) {
+              patRows.push({
+                Broker: broker,
+                'Transaction Time (CET)': rawDate,
+                'Transaction Category': 'others',
+                'Transaction Type': 'Compensation',
+                'Transfer Type': 'CASH_CREDIT',
+                'Transaction Amount': Math.abs(amount),
+                'Transaction Description': desc
+              });
+              continue;
+            }
+
+            // 3. Aankopen & Verkopen
+            if (descLow.startsWith('aankoop online ') || descLow.startsWith('verkoop online ')) {
+              const isBuy = descLow.startsWith('aankoop online ');
+              const rawAsset = desc.replace(/^(aankoop|verkoop)\s+online\s+/i, '').trim();
+              const resolved = this.resolveBoleroAssetIsin(rawAsset);
+
+              patRows.push({
+                Broker: broker,
+                'Transaction Time (CET)': rawDate,
+                'Transaction Category': 'trades',
+                'Transaction Type': isBuy ? 'Buy Trade' : 'Sell Trade',
+                'Transfer Type': isBuy ? 'CASH_DEBIT' : 'CASH_CREDIT',
+                'Asset Id': resolved.isin,
+                'Asset Name': resolved.displayName,
+                'Asset Currency': 'EUR',
+                'Asset Quantity': qty,
+                'Transaction Amount': isBuy ? -Math.abs(amount) : Math.abs(amount),
+                'Profit And Loss Amount': isBuy ? 0 : realizedPnl,
+                'Transaction Description': desc
+              });
+              continue;
+            }
+
+            // 4. Dividenden (Bruto + Roerende voorheffing splitsen voor nauwkeurige Tab 4 statistieken)
+            if (descLow.startsWith('uitbetaling dividenden')) {
+              const rawAsset = desc.replace(/^uitbetaling\s+dividenden\s+(cp\s+)?/i, '').trim();
+              const resolved = this.resolveBoleroAssetIsin(rawAsset);
+              const netDiv = Math.abs(amount);
+              const grossDiv = netDiv + rvTax;
+
+              patRows.push({
+                Broker: broker,
+                'Transaction Time (CET)': rawDate,
+                'Transaction Category': 'dividends',
+                'Transaction Type': 'Dividend',
+                'Transfer Type': 'CASH_CREDIT',
+                'Asset Id': resolved.isin,
+                'Asset Name': resolved.displayName,
+                'Asset Currency': 'EUR',
+                'Transaction Amount': grossDiv,
+                'Transaction Description': desc
+              });
+
+              if (rvTax > 0) {
+                patRows.push({
+                  Broker: broker,
+                  'Transaction Time (CET)': rawDate,
+                  'Transaction Category': 'dividends',
+                  'Transaction Type': 'Dividend Withholding Tax',
+                  'Transfer Type': 'CASH_DEBIT',
+                  'Asset Id': resolved.isin,
+                  'Asset Name': resolved.displayName,
+                  'Asset Currency': 'EUR',
+                  'Transaction Amount': -rvTax,
+                  'Transaction Description': `Roerende voorheffing ${resolved.displayName}`
+                });
+              }
+            }
+          }
+
+          return patRows;
+        },
+
+        // Verwerkt zowel CSV (BUX/DEGIRO) als Excel .xlsx (Bolero) per broker
+        handleMultiBrokerCsvUpload(event) {
+          const file = event.target.files && event.target.files[0];
+          if (!file) return;
+
+          const broker = this.pendingCsvBroker || 'Bolero';
+          const isExcel = /\.(xlsx|xls)$/i.test(file.name);
+          this.loadedFileName = `${file.name} (${broker})`;
+          try { localStorage.setItem('pat_filename', this.loadedFileName); } catch (e) {}
+
+          const finalizeBatch = (cleanRows) => {
+            if (!cleanRows || cleanRows.length === 0) {
+              this.uploadMessage = 'Geen geldige transactieregels gevonden in het bestand.';
+              return;
+            }
+
+            const existingIdx = this.csvBatches.findIndex(b => b.fileName === file.name && b.broker === broker);
+            const batchObj = {
+              id: 'batch_' + Date.now(),
+              broker: broker,
+              fileName: file.name,
+              uploadedAt: new Date().toISOString().split('T')[0],
+              rows: cleanRows
+            };
+
+            if (existingIdx !== -1) {
+              this.csvBatches[existingIdx] = batchObj;
+            } else {
+              this.csvBatches.push(batchObj);
+            }
+
+            try { localStorage.setItem('pat_csv_batches', JSON.stringify(this.csvBatches)); } catch (e) {}
+            this.rebuildActiveTransactions();
+            this.showCsvUploadModal = false;
+            this.uploadMessage = `${cleanRows.length} boekingen geladen voor ${broker} (${file.name}).`;
+
+            this.renderDonutCharts();
+            if (this.activeTab === 'dividenden') this.renderDividendCharts();
+            if (this.activeTab === 'assetDetail') this.updateAssetDetailView();
+          };
+
+          const reader = new FileReader();
+
+          if (isExcel) {
+            reader.onload = (e) => {
+              const data = new Uint8Array(e.target.result);
+              const workbook = XLSX.read(data, { type: 'array' });
+              const rows = this.parseBoleroExcelWorkbook(workbook, broker);
+              finalizeBatch(rows);
+            };
+            reader.readAsArrayBuffer(file);
+          } else {
+            reader.onload = (e) => {
+              let textData = (e.target.result || '').replace(/^\ufeff/, '');
+              const firstLine = textData.split(/\r\n|\n|\r/)[0] || '';
+              const delimiter = (firstLine.includes(';') && !firstLine.includes(',')) ? ';' : ',';
+
+              const parsed = Papa.parse(textData, {
+                header: true,
+                delimiter: delimiter,
+                skipEmptyLines: 'greedy'
+              });
+
+              const cleanRows = (parsed.data || [])
+                .filter(r => Object.keys(r).length > 1)
+                .map(r => this.normalizeBrokerCsvRow(r, broker));
+              finalizeBatch(cleanRows);
+            };
+            reader.readAsText(file, 'utf-8');
+          }
+
+          event.target.value = '';
+        },
+
+        // Normaliseert kolommen van andere brokers naar het standaard BUX/PAT-formaat
+        normalizeBrokerCsvRow(row, broker) {
+          // Als de CSV al BUX-kolommen heeft, alleen Broker toevoegen
+          if (row['Transaction Category'] !== undefined) {
+            return { ...row, Broker: broker };
+          }
+
+          // Basis-mapping voor algemene broker-exports (zoals DEGIRO / Bolero)
+          const dateVal = this.getVal(row, 'Datum', 'Date', 'Transaction Time (CET)', 'Boekingsdatum');
+          const timeVal = this.getVal(row, 'Tijd', 'Time') || '12:00:00';
+          const isin = this.getVal(row, 'ISIN', 'Asset Id').toUpperCase();
+          const name = this.getVal(row, 'Product', 'Omschrijving', 'Effect', 'Asset Name', 'Name');
+          const qty = this.parseNum(this.getVal(row, 'Aantal', 'Quantity', 'Stuks'));
+          const totalEur = this.parseNum(this.getVal(row, 'Totaal', 'Total', 'Bedrag', 'Netto bedrag', 'Transaction Amount'));
+          const desc = this.getVal(row, 'Omschrijving', 'Description', 'Type') || '';
+          const descLow = desc.toLowerCase();
+
+          let category = 'trades';
+          let txType = qty >= 0 ? 'Buy Trade' : 'Sell Trade';
+          let transferType = totalEur <= 0 ? 'CASH_DEBIT' : 'CASH_CREDIT';
+
+          if (descLow.includes('dividend')) {
+            category = 'dividends';
+            txType = totalEur < 0 ? 'Dividend Tax' : 'Dividend';
+            transferType = totalEur < 0 ? 'CASH_DEBIT' : 'CASH_CREDIT';
+          } else if (descLow.includes('storting') || descLow.includes('deposit') || descLow.includes('ideal')) {
+            category = 'deposits';
+            txType = 'Deposit';
+            transferType = 'CASH_CREDIT';
+          } else if (descLow.includes('opname') || descLow.includes('withdrawal') || descLow.includes('terugstorting')) {
+            category = 'withdrawals';
+            txType = 'Withdrawal';
+            transferType = 'CASH_DEBIT';
+          } else if (descLow.includes('transactiekosten') || descLow.includes('fee') || descLow.includes('aansluitingskosten')) {
+            category = 'fees';
+            txType = 'Trading Fee';
+            transferType = 'CASH_DEBIT';
+          } else if (descLow.includes('taks') || descLow.includes('tob') || descLow.includes('belasting')) {
+            category = 'tax';
+            txType = 'Transaction Tax';
+            transferType = 'CASH_DEBIT';
+          }
+
+          return {
+            Broker: broker,
+            'Transaction Time (CET)': `${dateVal} ${timeVal}`.trim(),
+            'Transaction Category': category,
+            'Transaction Type': txType,
+            'Transfer Type': transferType,
+            'Asset Id': isin,
+            'Asset Name': name,
+            'Asset Currency': this.getVal(row, 'Valuta', 'Currency') || 'EUR',
+            'Asset Quantity': Math.abs(qty),
+            'Transaction Amount': totalEur,
+            'Transaction Description': desc
+          };
+        },
+
+        removeCsvBatch(index) {
+          this.csvBatches.splice(index, 1);
+          try { localStorage.setItem('pat_csv_batches', JSON.stringify(this.csvBatches)); } catch (e) {}
+          this.rebuildActiveTransactions();
+          this.renderDonutCharts();
+        },
+
+        // Slaat een handmatige transactie, dividend of kasboeking op
+        saveManualTransaction() {
+          const f = this.newManualTx;
+          const broker = f.broker || 'Overig';
+          const timestamp = `${f.date} ${f.time || '12:00:00'}`;
+          const isin = String(f.isin || '').trim().toUpperCase();
+          const name = String(f.assetName || '').trim() || this.getAssetDisplayName(isin) || isin;
+          const ticker = String(f.ticker || '').trim();
+          const ccy = String(f.currency || 'EUR').trim().toUpperCase();
+          const batchId = 'manual_' + Date.now();
+
+          if (this.manualTxTab === 'trade') {
+            const qty = Math.abs(this.parseNum(f.quantity));
+            const totalEur = Math.abs(this.parseNum(f.totalEur));
+            const feeEur = Math.abs(this.parseNum(f.feeEur));
+            const taxEur = Math.abs(this.parseNum(f.taxEur));
+            const pnlEur = this.parseNum(f.realizedPnlEur);
+
+            if (!isin || qty <= 0 || totalEur <= 0) {
+              alert('Vul minimaal een ISIN, aantal (> 0) en totaalbedrag in EUR (> 0) in.');
+              return;
+            }
+
+            const isBuy = f.tradeType === 'Buy Trade';
+            this.manualTransactions.push({
+              _manualId: batchId,
+              Broker: broker,
+              'Transaction Time (CET)': timestamp,
+              'Transaction Category': 'trades',
+              'Transaction Type': f.tradeType,
+              'Transfer Type': isBuy ? 'CASH_DEBIT' : 'CASH_CREDIT',
+              'Asset Id': isin,
+              'Asset Name': name,
+              'Asset Currency': ccy,
+              'Asset Quantity': qty,
+              'Transaction Amount': isBuy ? -totalEur : totalEur,
+              'Profit And Loss Amount': isBuy ? 0 : pnlEur,
+              'Transaction Description': f.description || `${f.tradeType} (${broker})`
+            });
+
+            if (feeEur > 0) {
+              this.manualTransactions.push({
+                _manualId: batchId,
+                Broker: broker,
+                'Transaction Time (CET)': timestamp,
+                'Transaction Category': 'fees',
+                'Transaction Type': 'Trading Fee',
+                'Transfer Type': 'CASH_DEBIT',
+                'Asset Id': isin,
+                'Asset Name': name,
+                'Transaction Amount': -feeEur,
+                'Transaction Description': `Transactiekosten ${name}`
+              });
+            }
+
+            if (taxEur > 0) {
+              this.manualTransactions.push({
+                _manualId: batchId,
+                Broker: broker,
+                'Transaction Time (CET)': timestamp,
+                'Transaction Category': 'tax',
+                'Transaction Type': 'Transaction Tax',
+                'Transfer Type': 'CASH_DEBIT',
+                'Asset Id': isin,
+                'Asset Name': name,
+                'Transaction Amount': -taxEur,
+                'Transaction Description': `Beurstaks (TOB) ${name}`
+              });
+            }
+
+            // Koppel ticker & valuta direct als die zijn ingevuld
+            if (isin && (ticker || name)) {
+              if (!this.assetMapping[isin]) {
+                this.assetMapping[isin] = { name: name, ticker: ticker, currency: ccy };
+              } else {
+                if (ticker) this.assetMapping[isin].ticker = ticker;
+                if (name && this.isRawTickerOrIsin(this.assetMapping[isin].name, isin, ticker)) {
+                  this.assetMapping[isin].name = name;
+                }
+              }
+              try { localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping)); } catch (e) {}
+              if (ticker) this.saveMappingToSheet(isin);
+            }
+
+          } else if (this.manualTxTab === 'dividend') {
+            const grossOrNetEur = Math.abs(this.parseNum(f.totalEur));
+            const taxEur = Math.abs(this.parseNum(f.taxEur));
+
+            if (!isin || grossOrNetEur <= 0) {
+              alert('Vul een ISIN en een dividendbedrag in EUR (> 0) in.');
+              return;
+            }
+
+            this.manualTransactions.push({
+              _manualId: batchId,
+              Broker: broker,
+              'Transaction Time (CET)': timestamp,
+              'Transaction Category': 'dividends',
+              'Transaction Type': 'Dividend',
+              'Transfer Type': 'CASH_CREDIT',
+              'Asset Id': isin,
+              'Asset Name': name,
+              'Asset Currency': ccy,
+              'Transaction Amount': grossOrNetEur,
+              'Transaction Description': f.description || `Dividend ${name} (${broker})`
+            });
+
+            if (taxEur > 0) {
+              this.manualTransactions.push({
+                _manualId: batchId,
+                Broker: broker,
+                'Transaction Time (CET)': timestamp,
+                'Transaction Category': 'dividends',
+                'Transaction Type': 'Dividend Withholding Tax',
+                'Transfer Type': 'CASH_DEBIT',
+                'Asset Id': isin,
+                'Asset Name': name,
+                'Asset Currency': ccy,
+                'Transaction Amount': -taxEur,
+                'Transaction Description': `Bronbelasting dividend ${name}`
+              });
+            }
+
+          } else if (this.manualTxTab === 'cash') {
+            const amt = Math.abs(this.parseNum(f.totalEur));
+            if (amt <= 0) {
+              alert('Vul een geldig bedrag in EUR (> 0) in.');
+              return;
+            }
+            const isOutflow = (f.cashType === 'withdrawals' || f.cashType === 'fees');
+            this.manualTransactions.push({
+              _manualId: batchId,
+              Broker: broker,
+              'Transaction Time (CET)': timestamp,
+              'Transaction Category': f.cashType,
+              'Transaction Type': f.cashType,
+              'Transfer Type': isOutflow ? 'CASH_DEBIT' : 'CASH_CREDIT',
+              'Transaction Amount': isOutflow ? -amt : amt,
+              'Transaction Description': f.description || `Manuele kasboeking (${broker})`
+            });
+          }
+
+          try { localStorage.setItem('pat_manual_transactions', JSON.stringify(this.manualTransactions)); } catch (e) {}
+          this.rebuildActiveTransactions();
+          this.showManualTxModal = false;
+          this.uploadMessage = `Manuele boeking toegevoegd onder ${broker}!`;
+
+          // Reset invoervelden
+          this.newManualTx.quantity = '';
+          this.newManualTx.totalEur = '';
+          this.newManualTx.feeEur = '0';
+          this.newManualTx.taxEur = '0';
+          this.newManualTx.realizedPnlEur = '0';
+          this.newManualTx.description = '';
+
+          this.renderDonutCharts();
+          if (this.activeTab === 'dividenden') this.renderDividendCharts();
+          if (this.activeTab === 'assetDetail') this.updateAssetDetailView();
+        },
+
+        removeManualTransaction(manualId) {
+          this.manualTransactions = this.manualTransactions.filter(t => t._manualId !== manualId);
+          try { localStorage.setItem('pat_manual_transactions', JSON.stringify(this.manualTransactions)); } catch (e) {}
+          this.rebuildActiveTransactions();
+          this.renderDonutCharts();
         },
 
         processNewTransactions() {
@@ -4874,7 +5669,9 @@ get detailDropdownAssets() {
             history: this.historyData,
             benchmarks: this.benchmarkConfigs,
             assetMetadata: this.assetMetadata,
-            filename: this.loadedFileName
+            filename: this.loadedFileName,
+            csvBatches: this.csvBatches,
+            manualTransactions: this.manualTransactions
           };
           const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'json' });
           const url = URL.createObjectURL(blob);
