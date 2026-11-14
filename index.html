@@ -1946,7 +1946,7 @@
     function portfolioApp() {
       return {
         activeTab: 'dashboard',
-        appVersion: 'v1.4.0 (2026-11-14)',
+        appVersion: 'v1.4.1 (2026-11-14)',
         loadedFileName: '',
         uploadMessage: '',
         showClosedPositionsModal: false,
@@ -2682,23 +2682,6 @@
                   try { localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping)); } catch (e) {}
                 }
 
-                if (Array.isArray(data.watchlist)) {
-                  this.watchlist = data.watchlist.map(w => {
-                    const isin = String(w.isin || w.isisn || '').trim().toUpperCase();
-                    const ticker = String(w.ticker || w['Finance Ticker'] || '').trim();
-                    const fromUni = this.universeList.find(u => (isin && u.isin === isin) || (ticker && u.ticker === ticker));
-                    return {
-                      isin: isin || (fromUni ? fromUni.isin : ''),
-                      ticker: ticker || (fromUni ? fromUni.ticker : ''),
-                      company_name: String(w.company_name || (fromUni ? fromUni.company_name : '') || ticker || isin).trim(),
-                      country: String(w.country || (fromUni ? fromUni.country : '')).trim(),
-                      reporting_currency: String(w.reporting_currency || (fromUni ? fromUni.reporting_currency : 'EUR')).trim().toUpperCase(),
-                      exchange_name: String(w.exchange_name || (fromUni ? fromUni.exchange_name : '')).trim(),
-                      gsector: String(w.gsector || (fromUni ? fromUni.gsector : '')).trim(),
-                      gind: String(w.gind || (fromUni ? fromUni.gind : '')).trim(),
-                      ggroup: String(w.ggroup || (fromUni ? fromUni.ggroup : '')).trim()
-                    };
-                  });
                 const safeSave = (k, v) => {
                   try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { console.warn('Cache vol voor', k); }
                 };
