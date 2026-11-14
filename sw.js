@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pat-cache-v4';
+const CACHE_NAME = 'pat-cache-v1.4.0';
 const ASSETS = [
   'index.html',
   'manifest.json',
