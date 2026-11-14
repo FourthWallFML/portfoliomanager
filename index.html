@@ -52,10 +52,14 @@
       <div class="flex items-center gap-4">
         <img src="banner.jpg" alt="Key Analysis" class="h-14 sm:h-16 w-auto max-w-[240px] sm:max-w-xs object-cover rounded-xl border border-[#1e3260] shadow" />
         <div>
-          <span class="inline-flex items-center gap-1.5 text-[11px] text-[#34d399] font-medium bg-[#10b981]/10 px-2.5 py-0.5 rounded-full border border-[#10b981]/20">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
-            <span x-text="syncStatus"></span>
-          </span>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="inline-flex items-center gap-1.5 text-[11px] text-[#34d399] font-medium bg-[#10b981]/10 px-2.5 py-0.5 rounded-full border border-[#10b981]/20">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
+              <span x-text="syncStatus"></span>
+            </span>
+            <!-- NIEUWE BUILD VERSIE BADGE -->
+            <span class="text-[10px] font-mono text-slate-400 bg-[#080e22] px-2 py-0.5 rounded-full border border-[#1e3260]" x-text="appVersion"></span>
+          </div>
           <p class="text-[11px] text-slate-400 mt-1 truncate max-w-[200px] sm:max-w-xs" x-text="loadedFileName ? 'Bestand: ' + loadedFileName : 'Geen bestand actief'"></p>
         </div>
       </div>
@@ -1942,6 +1946,7 @@
     function portfolioApp() {
       return {
         activeTab: 'dashboard',
+        appVersion: 'v1.4.0 (2026-11-14)',
         loadedFileName: '',
         uploadMessage: '',
         showClosedPositionsModal: false,
