@@ -1815,24 +1815,35 @@
     x-transition
     class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-md p-5 shadow-2xl space-y-4">
-      <div class="flex justify-between items-start border-b border-[#182649] pb-3">
+<div class="flex justify-between items-start border-b border-[#182649] pb-3">
         <div>
           <h3 class="text-base font-bold text-slate-100" x-text="editingAsset.name || 'Asset Configureren'"></h3>
-          <p class="text-[11px] text-slate-400 font-mono mt-0.5" x-text="'ISIN: ' + editingAsset.isin"></p>
+          <p class="text-[11px] text-slate-400 font-mono mt-0.5" x-text="'Huidige ID: ' + editingAsset.isin"></p>
         </div>
         <button @click="showEditAssetModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
       </div>
 
       <div class="space-y-3 text-xs">
         <div>
+          <label class="block text-slate-300 font-semibold mb-1">ISIN Code (voor API's & koppelingen)</label>
+          <input type="text" x-model="editingAsset.newIsin" placeholder="bv. BE0003565737 of IE00B4L5Y983" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono uppercase focus:outline-none focus:border-[#10b981]">
+          <span class="text-[10px] text-slate-400 mt-1 block">Vervangt een tijdelijke <code>BOLERO_...</code> code of werkt de ISIN bij over alle transacties.</span>
+        </div>
+
+        <div>
           <label class="block text-slate-300 font-semibold mb-1">Naam Stock / ETF</label>
           <input type="text" x-model="editingAsset.name" placeholder="bv. Aedifica, ASML Holding, iShares Core MSCI World" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-[#10b981]">
         </div>
 
-        <div>
-          <label class="block text-slate-300 font-semibold mb-1">Google Finance Ticker</label>
-          <input type="text" x-model="editingAsset.ticker" placeholder="bv. NASDAQ:NVDA, AMS:ASML, LON:SHEL" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-[#10b981]">
-          <span class="text-[10px] text-slate-400 mt-1 block">Voorbeeld: <code>NASDAQ:NVDA</code>, <code>AMS:ASML</code>, <code>LON:SHEL</code></span>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">API Ticker (Finnhub / FMP)</label>
+            <input type="text" x-model="editingAsset.apiTicker" placeholder="bv. NVDA of KBC.BR" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono focus:outline-none focus:border-[#10b981]">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Google Finance Ticker</label>
+            <input type="text" x-model="editingAsset.ticker" placeholder="bv. NASDAQ:NVDA of EBR:KBC" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono focus:outline-none focus:border-[#10b981]">
+          </div>
         </div>
 
         <div>
@@ -2367,7 +2378,7 @@
         showEditAssetModal: false,
         showManageMappingsModal: false,
         showCorporateActionsModal: false,
-        editingAsset: { isin: '', name: '', ticker: '', currency: 'EUR' },
+        editingAsset: { isin: '', newIsin: '', name: '', ticker: '', apiTicker: '', currency: 'EUR' },
         transactions: [],
         csvBatches: [],            // Lijst van geüploade CSV-bestanden per broker
         manualTransactions: [],    // Lijst van handmatig ingevoerde transacties & dividenden
@@ -2815,37 +2826,90 @@
           const mapping = this.assetMapping[isin] || {};
           this.editingAsset = {
             isin: isin,
+            newIsin: isin,
             name: this.getAssetDisplayName(pos || isin),
-            ticker: mapping.ticker || '',
+            ticker: mapping.googleTicker || mapping.ticker || '',
+            apiTicker: mapping.apiTicker || '',
             currency: this.getAssetCurrency(isin)
           };
           this.showEditAssetModal = true;
         },
 
         saveEditedAsset() {
-          const isin = this.editingAsset.isin;
-          if (!isin) return;
-
-          if (!this.assetMapping[isin]) {
-            this.assetMapping[isin] = { name: '', ticker: '', currency: 'EUR' };
-          }
+          const oldIsin = String(this.editingAsset.isin || '').trim();
+          const targetIsin = String(this.editingAsset.newIsin || oldIsin).trim().toUpperCase();
+          if (!oldIsin || !targetIsin) return;
 
           const cleanName = (this.editingAsset.name || '').trim();
-          if (cleanName) {
-            this.assetMapping[isin].name = cleanName;
-          }
-          this.assetMapping[isin].ticker = (this.editingAsset.ticker || '').trim();
-          this.assetMapping[isin].currency = (this.editingAsset.currency || 'EUR').trim().toUpperCase();
+          const cleanGfTicker = (this.editingAsset.ticker || '').trim();
+          const cleanApiTicker = (this.editingAsset.apiTicker || '').trim();
+          const cleanCurrency = (this.editingAsset.currency || 'EUR').trim().toUpperCase();
 
-          this.saveMappingToSheet(isin);
+          // Als de ISIN gewijzigd is (bv. van BOLERO_... naar echte 12-tekens ISIN)
+          if (oldIsin !== targetIsin) {
+            // 1. Verplaats mapping & metadata
+            const existingTarget = this.assetMapping[targetIsin] || {};
+            const existingOld = this.assetMapping[oldIsin] || {};
+            this.assetMapping[targetIsin] = {
+              ...existingOld,
+              ...existingTarget,
+              name: cleanName || existingTarget.name || existingOld.name || targetIsin,
+              ticker: cleanGfTicker || existingTarget.ticker || existingOld.ticker || '',
+              googleTicker: cleanGfTicker || existingTarget.googleTicker || existingOld.googleTicker || '',
+              apiTicker: cleanApiTicker || existingTarget.apiTicker || existingOld.apiTicker || '',
+              currency: cleanCurrency
+            };
+            delete this.assetMapping[oldIsin];
+
+            if (this.assetMetadata[oldIsin]) {
+              this.assetMetadata[targetIsin] = { ...this.assetMetadata[oldIsin], ...(this.assetMetadata[targetIsin] || {}) };
+              delete this.assetMetadata[oldIsin];
+              try { localStorage.setItem('pat_stock_metadata', JSON.stringify(this.assetMetadata)); } catch (e) {}
+            }
+
+            // 2. Werk alle CSV-batches en manuele transacties bij naar de nieuwe ISIN
+            this.csvBatches.forEach(batch => {
+              (batch.rows || []).forEach(r => {
+                if (String(r['Asset Id'] || '').trim() === oldIsin) {
+                  r['Asset Id'] = targetIsin;
+                  if (cleanName) r['Asset Name'] = cleanName;
+                }
+              });
+            });
+            this.manualTransactions.forEach(mtx => {
+              if (String(mtx['Asset Id'] || '').trim() === oldIsin) {
+                mtx['Asset Id'] = targetIsin;
+                if (cleanName) mtx['Asset Name'] = cleanName;
+              }
+            });
+
+            try {
+              localStorage.setItem('pat_csv_batches', JSON.stringify(this.csvBatches));
+              localStorage.setItem('pat_manual_transactions', JSON.stringify(this.manualTransactions));
+            } catch (e) {}
+
+            if (this.selectedDetailIsin === oldIsin) {
+              this.selectedDetailIsin = targetIsin;
+            }
+          } else {
+            if (!this.assetMapping[targetIsin]) {
+              this.assetMapping[targetIsin] = { name: '', ticker: '', googleTicker: '', apiTicker: '', currency: 'EUR' };
+            }
+            if (cleanName) this.assetMapping[targetIsin].name = cleanName;
+            this.assetMapping[targetIsin].ticker = cleanGfTicker;
+            this.assetMapping[targetIsin].googleTicker = cleanGfTicker;
+            if (cleanApiTicker) this.assetMapping[targetIsin].apiTicker = cleanApiTicker;
+            this.assetMapping[targetIsin].currency = cleanCurrency;
+          }
+
+          this.saveMappingToSheet(targetIsin);
           this.showEditAssetModal = false;
-          this.calculatePositions();
+          this.rebuildActiveTransactions();
           this.renderDonutCharts();
           if (this.activeTab === 'twr') this.updateTwrView();
           if (this.activeTab === 'dividenden') this.renderDividendCharts();
           if (this.activeTab === 'assetDetail') this.updateAssetDetailView();
         },
-
         setSort(col) {
           if (this.sortCol === col) {
             this.sortAsc = !this.sortAsc;
