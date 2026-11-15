@@ -3563,10 +3563,30 @@
         },
 
         // Zet een ingelezen Bolero Excel-sheet om naar PAT-transactieregels
+// Zet een ingelezen KBC / Bolero Excel-sheet om naar PAT-transactieregels
         parseBoleroExcelWorkbook(workbook, broker) {
           const sheetName = workbook.SheetNames[0];
           const sheet = workbook.Sheets[sheetName];
-          const matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
+          const matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null, raw: true });
+
+          // Hulpfunctie: zet Excel-serienummers (bv. 46332.5) en tekstdatums om naar YYYY-MM-DD HH:mm:ss
+          const formatExcelDateCell = (val) => {
+            if (val === null || val === undefined || val === '') return '';
+            if (typeof val === 'number' && val > 20000 && val < 100000) {
+              const dt = new Date(Math.round((val - 25569) * 86400 * 1000));
+              if (!isNaN(dt.getTime())) {
+                return dt.toISOString().replace('T', ' ').slice(0, 19);
+              }
+            }
+            if (val instanceof Date && !isNaN(val.getTime())) {
+              return val.toISOString().replace('T', ' ').slice(0, 19);
+            }
+            const s = String(val).trim();
+            if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s;
+            const euMatch = s.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})(.*)$/);
+            if (euMatch) return `${euMatch[3]}-${euMatch[2]}-${euMatch[1]}${euMatch[4] || ''}`.trim();
+            return '';
+          };
 
           // Zoek de header-rij ("Datum transactie")
           let headerRowIdx = -1;
@@ -3591,10 +3611,10 @@
 
           for (let r = headerRowIdx + 1; r < matrix.length; r++) {
             const row = matrix[r];
-            if (!row || !row[colDatum] || !row[colTransactie]) continue;
+            if (!row || row[colDatum] === null || !row[colTransactie]) continue;
 
-            const rawDate = String(row[colDatum]).trim();
-            if (!/^\d{4}-\d{2}-\d{2}/.test(rawDate)) continue; // Sla disclaimer-regels onderaan over
+            const rawDate = formatExcelDateCell(row[colDatum]);
+            if (!rawDate) continue; // Sla lege rijen en disclaimer-regels onderaan over
 
             const desc = String(row[colTransactie]).trim();
             const descLow = desc.toLowerCase();
