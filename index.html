@@ -169,35 +169,48 @@
     </nav>
 
     <!-- Unmapped Warning Banner -->
-    <template x-if="unmappedIsins.length > 0">
-      <div class="bg-[#800020]/20 border-l-4 border-[#b83344] p-3.5 rounded-r-xl border border-[#800020]/40">
-        <div class="flex items-center justify-between">
-          <p class="text-xs text-slate-200">
-            Let op: Er zijn
-            <button type="button" @click="showUnmappedDetails = !showUnmappedDetails" class="font-black text-[#f87171] underline cursor-pointer">
-              <span x-text="unmappedIsins.length"></span>
-            </button>
-            assets zonder ticker gemapt.
-          </p>
-          <button type="button" @click="showUnmappedDetails = !showUnmappedDetails" class="text-xs text-[#f87171] hover:text-white underline" x-text="showUnmappedDetails ? 'Verberg ▲' : 'Toon ▼'"></button>
-        </div>
-        <div x-show="showUnmappedDetails" class="mt-3 pt-3 border-t border-[#800020]/30 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <template x-for="isin in unmappedIsins" :key="isin">
-            <div class="p-2.5 bg-[#080e22] rounded-xl border border-[#1e3260] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div class="truncate">
-                <div class="text-xs font-bold text-slate-200 truncate" x-text="assetMapping[isin]?.name || isin"></div>
-                <div class="text-[10px] text-slate-400 font-mono" x-text="isin"></div>
-              </div>
-              <div class="flex items-center gap-1.5 shrink-0">
-                <input type="text" x-model="assetMapping[isin].ticker" placeholder="Ticker" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-2 py-1 w-24 text-slate-100 focus:outline-none focus:border-[#10b981]">
-                <input type="text" x-model="assetMapping[isin].currency" placeholder="Valuta" list="currencyList" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-1.5 py-1 w-16 text-slate-100 font-mono uppercase text-center focus:outline-none focus:border-[#10b981]">
-                <button @click="saveMappingToSheet(isin)" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-2.5 py-1 rounded text-xs transition">Opslaan</button>
-              </div>
-            </div>
-          </template>
-        </div>
+<!-- Unmapped Warning Banner -->
+    <div x-show="unmappedIsins.length > 0" class="bg-[#800020]/20 border-l-4 border-[#b83344] p-3.5 rounded-r-xl border border-[#800020]/40">
+      <div class="flex items-center justify-between">
+        <p class="text-xs text-slate-200">
+          Let op: Er zijn
+          <button type="button" @click="showUnmappedDetails = !showUnmappedDetails" class="font-black text-[#f87171] underline cursor-pointer">
+            <span x-text="unmappedIsins.length"></span>
+          </button>
+          assets zonder ticker gemapt.
+        </p>
+        <button type="button" @click="showUnmappedDetails = !showUnmappedDetails" class="text-xs text-[#f87171] hover:text-white underline" x-text="showUnmappedDetails ? 'Verberg ▲' : 'Toon ▼'"></button>
       </div>
-    </template>
+      <div x-show="showUnmappedDetails" class="mt-3 pt-3 border-t border-[#800020]/30 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <template x-for="isin in unmappedIsins" :key="isin">
+          <div x-data="{ localTicker: '', localCcy: getAssetCurrency(isin) || 'EUR' }"
+               class="p-2.5 bg-[#080e22] rounded-xl border border-[#1e3260] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="truncate">
+              <div class="text-xs font-bold text-slate-200 truncate" x-text="getAssetDisplayName(isin)"></div>
+              <div class="text-[10px] text-slate-400 font-mono" x-text="isin"></div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <input type="text"
+                     x-model="localTicker"
+                     @keydown.enter.prevent="saveInlineMapping(isin, localTicker, localCcy)"
+                     placeholder="bv. LON:III"
+                     class="text-xs bg-[#132247] border border-[#1e3260] rounded px-2 py-1 w-28 text-slate-100 font-mono focus:outline-none focus:border-[#10b981]">
+              <input type="text"
+                     x-model="localCcy"
+                     @keydown.enter.prevent="saveInlineMapping(isin, localTicker, localCcy)"
+                     placeholder="Valuta"
+                     list="currencyList"
+                     class="text-xs bg-[#132247] border border-[#1e3260] rounded px-1.5 py-1 w-16 text-slate-100 font-mono uppercase text-center focus:outline-none focus:border-[#10b981]">
+              <button type="button"
+                      @click="saveInlineMapping(isin, localTicker, localCcy)"
+                      class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-2.5 py-1 rounded text-xs transition">
+                Opslaan
+              </button>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
 
     <!-- ============================================== -->
     <!-- TAB 1: DASHBOARD                               -->
@@ -501,7 +514,7 @@
     <div x-show="activeTab === 'posities'" class="space-y-6">
 
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <!-- Asset Mapping Sidebar -->
+<!-- Asset Mapping Sidebar -->
         <div class="lg:col-span-1 space-y-6" x-show="unmappedIsins.length > 0">
           <div class="bg-[#0f1a36]/90 backdrop-blur p-5 rounded-2xl shadow-xl border border-[#1b2b52]">
             <div class="flex justify-between items-center mb-3">
@@ -511,15 +524,29 @@
             <p class="text-[11px] text-slate-400 mb-3">Koppel een Google Finance ticker om koersen op te halen.</p>
             <div class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
               <template x-for="isin in unmappedIsins" :key="isin">
-                <div class="p-2.5 bg-[#0a1126] rounded-xl border border-[#1e3260]">
-                  <div class="text-xs font-bold text-slate-200 truncate" x-text="assetMapping[isin]?.name || isin"></div>
+                <div x-data="{ localTicker: '', localCcy: getAssetCurrency(isin) || 'EUR' }"
+                     class="p-2.5 bg-[#0a1126] rounded-xl border border-[#1e3260]">
+                  <div class="text-xs font-bold text-slate-200 truncate" x-text="getAssetDisplayName(isin)"></div>
                   <div class="text-[10px] text-slate-400 font-mono mb-1.5" x-text="isin"></div>
                   <div class="flex flex-col gap-1.5">
                     <div class="flex gap-1.5">
-                      <input type="text" x-model="assetMapping[isin].ticker" placeholder="Ticker (bv. AMS:ASML)" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-2 py-1 w-full text-slate-200 focus:outline-none focus:border-[#10b981]">
-                      <input type="text" x-model="assetMapping[isin].currency" placeholder="Valuta" list="currencyList" class="text-xs bg-[#132247] border border-[#1e3260] rounded px-1.5 py-1 w-16 text-slate-100 font-mono uppercase text-center focus:outline-none focus:border-[#10b981]">
+                      <input type="text"
+                             x-model="localTicker"
+                             @keydown.enter.prevent="saveInlineMapping(isin, localTicker, localCcy)"
+                             placeholder="Ticker (bv. LON:III)"
+                             class="text-xs bg-[#132247] border border-[#1e3260] rounded px-2 py-1 w-full text-slate-200 font-mono focus:outline-none focus:border-[#10b981]">
+                      <input type="text"
+                             x-model="localCcy"
+                             @keydown.enter.prevent="saveInlineMapping(isin, localTicker, localCcy)"
+                             placeholder="Valuta"
+                             list="currencyList"
+                             class="text-xs bg-[#132247] border border-[#1e3260] rounded px-1.5 py-1 w-16 text-slate-100 font-mono uppercase text-center focus:outline-none focus:border-[#10b981]">
                     </div>
-                    <button @click="saveMappingToSheet(isin)" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-2.5 py-1 rounded text-xs transition">Opslaan in Backend</button>
+                    <button type="button"
+                            @click="saveInlineMapping(isin, localTicker, localCcy)"
+                            class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-2.5 py-1 rounded text-xs transition">
+                      Opslaan in Backend
+                    </button>
                   </div>
                 </div>
               </template>
@@ -3432,6 +3459,28 @@
           const num = parseFloat(val);
           if (val === '' || val === null || val === undefined || isNaN(num)) return '—';
           return num.toLocaleString('nl-BE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + suffix;
+        },
+
+saveInlineMapping(isin, rawTicker, rawCcy) {
+          const typedTicker = String(rawTicker || '').trim();
+          const typedCurrency = String(rawCcy || this.getAssetCurrency(isin) || 'EUR').trim().toUpperCase();
+          if (!typedTicker) {
+            alert('Vul eerst een geldige ticker in (bijv. LON:III of EPA:NATO).');
+            return;
+          }
+          const currentName = this.getAssetDisplayName(isin) || isin;
+          this.assetMapping[isin] = {
+            ...(this.assetMapping[isin] || {}),
+            name: currentName,
+            ticker: typedTicker,
+            googleTicker: typedTicker,
+            currency: typedCurrency
+          };
+
+          this.saveMappingToSheet(isin);
+          if (this.transactions && this.transactions.length > 0) {
+            this.calculatePositions();
+          }
         },
 
         saveMappingToSheet(isin) {
