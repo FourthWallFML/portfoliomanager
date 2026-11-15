@@ -3532,10 +3532,10 @@ saveInlineMapping(isin, rawTicker, rawCcy) {
           });
         },
 
-        parseNum(val) {
+parseNum(val) {
           if (val === null || val === undefined || val === '') return 0;
           if (typeof val === 'number') return val;
-          let s = String(val).trim().replace(/['" ]/g, '');
+          let s = String(val).trim().replace(/['" €£$]/g, '');
           if (s.includes('.') && s.includes(',')) {
             s = s.replace(/\./g, '').replace(',', '.');
           } else if (s.includes(',')) {
@@ -3904,7 +3904,7 @@ saveInlineMapping(isin, rawTicker, rawCcy) {
 
               const cleanRows = (parsed.data || [])
                 .filter(r => Object.keys(r).length > 1)
-                .map(r => this.normalizeBrokerCsvRow(r, broker));
+                .map(r => this.normalizeBrokerCsvRow(r, broker)).flat();
               finalizeBatch(cleanRows);
             };
             reader.readAsText(file, 'utf-8');
@@ -3913,14 +3913,216 @@ saveInlineMapping(isin, rawTicker, rawCcy) {
           event.target.value = '';
         },
 
-        // Normaliseert kolommen van andere brokers naar het standaard BUX/PAT-formaat
+        // Zet (Beurs + Ticker) uit het aangepaste Bolero-overzicht om naar een Google Finance Ticker
+        buildGoogleTickerFromExchange(beurs, rawTicker) {
+          const t = String(rawTicker || '').trim().toUpperCase();
+          if (!t || t === '-') return '';
+          if (t.includes(':')) return t;
+          const b = String(beurs || '').toLowerCase();
+          if (b.includes('brussels')) return `EBR:${t}`;
+          if (b.includes('amsterdam')) return `AMS:${t}`;
+          if (b.includes('paris')) return `EPA:${t}`;
+          if (b.includes('london')) return `LON:${t}`;
+          if (b.includes('xetra') || b.includes('frankfurt')) return `ETR:${t}`;
+          if (b.includes('nasdaq')) return `NASDAQ:${t}`;
+          if (b.includes('nyse')) return `NYSE:${t}`;
+          return t;
+        },
+
+        // Normaliseert kolommen van andere brokers (inclusief het aangepaste Bolero Transacties Totaal formaat)
         normalizeBrokerCsvRow(row, broker) {
-          // Als de CSV al BUX-kolommen heeft, alleen Broker toevoegen
+          // 1. Als de CSV al standaard BUX/PAT-kolommen heeft
           if (row['Transaction Category'] !== undefined) {
             return { ...row, Broker: broker };
           }
 
-          // Basis-mapping voor algemene broker-exports (zoals DEGIRO / Bolero)
+          // 2. Nieuw aangepast KBC / Bolero formaat ("Categorie", "Omschrijving / Effect", "Netto Cash Bedrag")
+          if (row['Categorie'] !== undefined && row['Netto Cash Bedrag'] !== undefined) {
+            const datum = this.getVal(row, 'Datum');
+            if (!datum) return [];
+
+            const timestamp = `${datum} 12:00:00`;
+            const catRaw = this.getVal(row, 'Categorie').toLowerCase();
+            const desc = this.getVal(row, 'Omschrijving / Effect');
+            const rawTicker = this.getVal(row, 'Ticker');
+            const rawIsin = this.getVal(row, 'ISIN').toUpperCase();
+            const isin = (rawIsin && rawIsin !== '-') ? rawIsin : '';
+            const beurs = this.getVal(row, 'Beurs');
+            const qty = Math.abs(this.parseNum(this.getVal(row, 'Aantal')));
+            const unitPrice = Math.abs(this.parseNum(this.getVal(row, 'Transactieprijs')));
+            const rvOrTaxOrig = Math.abs(this.parseNum(this.getVal(row, 'Roerende Voorheffing')));
+            const netCashEur = this.parseNum(this.getVal(row, 'Netto Cash Bedrag'));
+            const ccy = (this.getVal(row, 'Munt') || 'EUR').toUpperCase();
+            const feeOrig = Math.abs(this.parseNum(this.getVal(row, 'Makelaarsloon')));
+            const fxRaw = this.parseNum(this.getVal(row, 'Wisselkoers'));
+            // Wisselkoers in bestand is EUR->Munt (bv. 0.862 GBP/EUR of 1.178 USD/EUR), dus 1/fxRaw = Munt->EUR
+            const toEurRate = (ccy === 'EUR' || fxRaw <= 0) ? 1.0 : (1.0 / fxRaw);
+
+            // Zuivere effectnaam opschonen & ticker vooraf registreren in assetMapping
+            const cleanName = desc
+              .replace(/^(Aankoop|Verkoop)\s+Online\s+/i, '')
+              .replace(/^Uitbetaling\s+dividenden\s+(CP\s+)?/i, '')
+              .replace(/^Inkomende\s+interne\s+transfer\s+/i, '')
+              .replace(/\s+\d{2}\.\d{2}\.\d{2}$/, '')
+              .replace(/\([A-Z]{2}\)?$/i, '')
+              .replace(/-D$/i, '')
+              .trim() || desc;
+
+            if (isin) {
+              const gfTicker = this.buildGoogleTickerFromExchange(beurs, rawTicker);
+              if (!this.assetMapping[isin]) {
+                this.assetMapping[isin] = {
+                  name: cleanName,
+                  ticker: gfTicker,
+                  googleTicker: gfTicker,
+                  currency: ccy
+                };
+              } else {
+                if (gfTicker && !this.assetMapping[isin].ticker) {
+                  this.assetMapping[isin].ticker = gfTicker;
+                  this.assetMapping[isin].googleTicker = gfTicker;
+                }
+                if (this.isRawTickerOrIsin(this.assetMapping[isin].name, isin, gfTicker)) {
+                  this.assetMapping[isin].name = cleanName;
+                }
+              }
+            }
+
+            const outRows = [];
+
+            if (catRaw === 'storting') {
+              outRows.push({
+                Broker: broker,
+                'Transaction Time (CET)': timestamp,
+                'Transaction Category': 'deposits',
+                'Transaction Type': 'Deposit',
+                'Transfer Type': 'CASH_CREDIT',
+                'Transaction Amount': Math.abs(netCashEur),
+                'Transaction Description': desc
+              });
+            } else if (catRaw === 'geldopname') {
+              outRows.push({
+                Broker: broker,
+                'Transaction Time (CET)': timestamp,
+                'Transaction Category': 'withdrawals',
+                'Transaction Type': 'Withdrawal',
+                'Transfer Type': 'CASH_DEBIT',
+                'Transaction Amount': -Math.abs(netCashEur),
+                'Transaction Description': desc
+              });
+            } else if (catRaw === 'terugstorting') {
+              outRows.push({
+                Broker: broker,
+                'Transaction Time (CET)': timestamp,
+                'Transaction Category': 'others',
+                'Transaction Type': 'Compensation',
+                'Transfer Type': 'CASH_CREDIT',
+                'Transaction Amount': Math.abs(netCashEur),
+                'Transaction Description': desc
+              });
+            } else if (catRaw === 'dividend') {
+              const netDivEur = Math.abs(netCashEur);
+              const rvEur = Math.round(rvOrTaxOrig * toEurRate * 100) / 100;
+              const grossDivEur = Math.round((netDivEur + rvEur) * 100) / 100;
+
+              outRows.push({
+                Broker: broker,
+                'Transaction Time (CET)': timestamp,
+                'Transaction Category': 'dividends',
+                'Transaction Type': 'Dividend',
+                'Transfer Type': 'CASH_CREDIT',
+                'Asset Id': isin,
+                'Asset Name': cleanName,
+                'Asset Currency': ccy,
+                'Transaction Amount': grossDivEur,
+                'Transaction Description': desc
+              });
+              if (rvEur > 0) {
+                outRows.push({
+                  Broker: broker,
+                  'Transaction Time (CET)': timestamp,
+                  'Transaction Category': 'dividends',
+                  'Transaction Type': 'Dividend Withholding Tax',
+                  'Transfer Type': 'CASH_DEBIT',
+                  'Asset Id': isin,
+                  'Asset Name': cleanName,
+                  'Asset Currency': ccy,
+                  'Transaction Amount': -rvEur,
+                  'Transaction Description': `Roerende voorheffing ${cleanName}`
+                });
+              }
+            } else if (catRaw === 'aankoop' || catRaw === 'verkoop') {
+              const isBuy = (catRaw === 'aankoop');
+              const feeEur = Math.round(feeOrig * toEurRate * 100) / 100;
+              const tobEur = Math.round(rvOrTaxOrig * toEurRate * 100) / 100;
+              const grossTradeEur = isBuy
+                ? Math.max(0, Math.abs(netCashEur) - feeEur - tobEur)
+                : (Math.abs(netCashEur) + feeEur + tobEur);
+
+              outRows.push({
+                Broker: broker,
+                'Transaction Time (CET)': timestamp,
+                'Transaction Category': 'trades',
+                'Transaction Type': isBuy ? 'Buy Trade' : 'Sell Trade',
+                'Transfer Type': isBuy ? 'CASH_DEBIT' : 'CASH_CREDIT',
+                'Asset Id': isin,
+                'Asset Name': cleanName,
+                'Asset Currency': ccy,
+                'Asset Quantity': qty,
+                'Transaction Amount': isBuy ? -grossTradeEur : grossTradeEur,
+                'Profit And Loss Amount': 0,
+                'Transaction Description': desc
+              });
+
+              if (feeEur > 0) {
+                outRows.push({
+                  Broker: broker,
+                  'Transaction Time (CET)': timestamp,
+                  'Transaction Category': 'fees',
+                  'Transaction Type': 'Trading Fee',
+                  'Transfer Type': 'CASH_DEBIT',
+                  'Asset Id': isin,
+                  'Asset Name': cleanName,
+                  'Transaction Amount': -feeEur,
+                  'Transaction Description': `Makelaarsloon ${cleanName}`
+                });
+              }
+              if (tobEur > 0) {
+                outRows.push({
+                  Broker: broker,
+                  'Transaction Time (CET)': timestamp,
+                  'Transaction Category': 'tax',
+                  'Transaction Type': 'Transaction Tax',
+                  'Transfer Type': 'CASH_DEBIT',
+                  'Asset Id': isin,
+                  'Asset Name': cleanName,
+                  'Transaction Amount': -tobEur,
+                  'Transaction Description': `Beurstaks (TOB) ${cleanName}`
+                });
+              }
+            } else if (catRaw === 'effectentransfer') {
+              // Inkomende transfer (bv. 10x KBC @ €85,68) toevoegen als positie-inbreng zonder kas-impact
+              const transferValEur = Math.round(qty * unitPrice * toEurRate * 100) / 100;
+              outRows.push({
+                Broker: broker,
+                'Transaction Time (CET)': timestamp,
+                'Transaction Category': 'trades',
+                'Transaction Type': 'Buy Trade',
+                'Transfer Type': '',
+                'Asset Id': isin,
+                'Asset Name': cleanName,
+                'Asset Currency': ccy,
+                'Asset Quantity': qty,
+                'Transaction Amount': -transferValEur,
+                'Profit And Loss Amount': 0,
+                'Transaction Description': desc
+              });
+            }
+
+            return outRows;
+          }
+
+          // 3. Fallback voor overige generieke broker-CSV's
           const dateVal = this.getVal(row, 'Datum', 'Date', 'Transaction Time (CET)', 'Boekingsdatum');
           const timeVal = this.getVal(row, 'Tijd', 'Time') || '12:00:00';
           const isin = this.getVal(row, 'ISIN', 'Asset Id').toUpperCase();
