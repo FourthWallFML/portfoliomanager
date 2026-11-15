@@ -152,12 +152,19 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
         Winstbijdrage
       </button>
-      <button @click="destroyTabCharts('watchlist'); activeTab = 'watchlist'"
+<button @click="destroyTabCharts('watchlist'); activeTab = 'watchlist'"
           :class="activeTab === 'watchlist' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'"
           class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
         Watchlist
         <span class="bg-[#080e22] text-[10px] px-2 py-0.5 rounded-full border border-[#1e3260] text-[#38bdf8] font-mono" x-text="watchlist.length"></span>
+      </button>
+      <button @click="destroyTabCharts('markt'); activeTab = 'markt'"
+          :class="activeTab === 'markt' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'"
+          class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+        Markt & Insiders
+        <span class="bg-[#080e22] text-[10px] px-2 py-0.5 rounded-full border border-[#1e3260] text-[#38bdf8] font-mono" x-text="newsList.length"></span>
       </button>
     </nav>
 
@@ -1213,10 +1220,96 @@
             </template>
           </div>
 
+          <!-- Finnhub Basic Financials (US Stocks) -->
+          <div x-show="currentAssetFinancials" class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-3">
+            <div class="flex items-center justify-between border-b border-[#182649] pb-2.5">
+              <div>
+                <h3 class="text-sm font-bold text-slate-200">Kerncijfers & Waardering</h3>
+                <p class="text-[10px] text-slate-400">Finnhub Basic Financials</p>
+              </div>
+              <span class="text-[10px] font-mono text-slate-400" x-text="currentAssetFinancials?.updated || ''"></span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5 text-xs">
+              <div class="p-2.5 rounded-xl bg-[#080e22] border border-[#1e3260]/70">
+                <span class="text-[10px] text-slate-400 block">K/W (P/E TTM)</span>
+                <span class="font-mono font-bold text-slate-100 text-sm" x-text="formatMetric(currentAssetFinancials?.peTTM, 'x', 1)"></span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#080e22] border border-[#1e3260]/70">
+                <span class="text-[10px] text-slate-400 block">Koers / Boekwaarde (P/B)</span>
+                <span class="font-mono font-bold text-slate-100 text-sm" x-text="formatMetric(currentAssetFinancials?.pbAnnual, 'x', 2)"></span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#080e22] border border-[#1e3260]/70">
+                <span class="text-[10px] text-slate-400 block">Dividendrendement</span>
+                <span class="font-mono font-bold text-[#34d399] text-sm" x-text="formatMetric(currentAssetFinancials?.dividendYieldIndicatedAnnual, '%', 2)"></span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#080e22] border border-[#1e3260]/70">
+                <span class="text-[10px] text-slate-400 block">ROE (TTM)</span>
+                <span class="font-mono font-bold text-slate-100 text-sm" x-text="formatMetric(currentAssetFinancials?.roeTTM, '%', 1)"></span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#080e22] border border-[#1e3260]/70">
+                <span class="text-[10px] text-slate-400 block">Brutomarge / Oper. Marge</span>
+                <span class="font-mono font-semibold text-slate-200"
+                      x-text="formatMetric(currentAssetFinancials?.grossMarginTTM, '%', 1) + ' / ' + formatMetric(currentAssetFinancials?.operatingMarginTTM, '%', 1)"></span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#080e22] border border-[#1e3260]/70">
+                <span class="text-[10px] text-slate-400 block">Beta / Debt-to-Equity</span>
+                <span class="font-mono font-semibold text-slate-200"
+                      x-text="formatMetric(currentAssetFinancials?.beta, '', 2) + ' / ' + formatMetric(currentAssetFinancials?.debtEquityAnnual, '', 2)"></span>
+              </div>
+              <div class="col-span-2 p-2.5 rounded-xl bg-[#080e22] border border-[#1e3260]/70 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] text-slate-400 block">52-Weeks Range (Low - High)</span>
+                  <span class="font-mono font-semibold text-slate-200"
+                        x-text="formatMetric(currentAssetFinancials?.week52Low, '', 2) + ' — ' + formatMetric(currentAssetFinancials?.week52High, '', 2)"></span>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] text-slate-400 block">Marktkapitalisatie</span>
+                  <span class="font-mono font-semibold text-[#38bdf8]"
+                        x-text="currentAssetFinancials?.marketCapitalization ? (Number(currentAssetFinancials.marketCapitalization) / 1000).toFixed(1) + ' mld' : '—'"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stock Peer Comparison & Agenda -->
+          <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-4">
+            <div class="flex items-center justify-between border-b border-[#182649] pb-2.5">
+              <h3 class="text-sm font-bold text-slate-200">Peers & Analisten Agenda</h3>
+              <span class="text-[10px] font-mono text-slate-400" x-text="assetMapping[selectedDetailIsin]?.apiTicker || assetMapping[selectedDetailIsin]?.ticker || ''"></span>
+            </div>
+
+            <div>
+              <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold block mb-1.5">Stock Peer Comparison (FMP)</span>
+              <div class="flex flex-wrap gap-1.5">
+                <template x-for="peer in currentAssetPeers" :key="peer">
+                  <span class="px-2.5 py-1 rounded-md bg-[#132247] border border-[#1e3260] text-xs font-mono text-[#38bdf8]" x-text="peer"></span>
+                </template>
+                <span x-show="currentAssetPeers.length === 0" class="text-xs text-slate-500 italic">Geen peers beschikbaar voor dit asset.</span>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-[#182649] space-y-2">
+              <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold block">Kwartaalcijfers & Consensus</span>
+              <template x-for="(ev, idx) in currentAssetEvents" :key="idx">
+                <div class="p-2.5 rounded-lg bg-[#080e22] border border-[#1e3260]/70 text-xs flex items-center justify-between gap-2">
+                  <div>
+                    <span class="font-bold text-[#38bdf8] mr-1" x-text="ev.type + ':'"></span>
+                    <span class="text-slate-200" x-text="ev.details"></span>
+                  </div>
+                  <span class="font-mono text-[11px] text-slate-400 shrink-0" x-text="ev.date"></span>
+                </div>
+              </template>
+              <p x-show="currentAssetEvents.length === 0" class="text-xs text-slate-500 italic">Geen geplande events gevonden.</p>
+            </div>
+          </div>
+
         </div>
 
       </div>
     </div>
+<!-- ============================================== -->
+    <!-- TAB 6: WINSTBIJDRAGE & GEWOGEN IMPACT          -->
 <!-- ============================================== -->
     <!-- TAB 6: WINSTBIJDRAGE & GEWOGEN IMPACT          -->
     <!-- ============================================== -->
@@ -1556,7 +1649,94 @@
       </div>
 
     </div>
+
+    <!-- ============================================== -->
+    <!-- TAB 8: MARKTNIEUWS & INSIDER TRADING           -->
+    <!-- ============================================== -->
+    <div x-show="activeTab === 'markt'" class="space-y-5">
+      <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#182649] pb-3">
+          <div>
+            <h2 class="text-base font-bold text-slate-100">Marktnieuws & Insider Trading</h2>
+            <p class="text-xs text-slate-400">FMP Artikelen, Finnhub US Nieuws & Insider Transacties</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <div class="inline-flex rounded-lg bg-[#080e22] p-1 border border-[#1e3260]">
+              <button @click="marketFeedFilter = 'ALL'"
+                      :class="marketFeedFilter === 'ALL' ? 'bg-[#10b981] text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'"
+                      class="px-3 py-1 rounded-md text-xs transition">
+                Volledig Universum
+              </button>
+              <button @click="marketFeedFilter = 'PORTFOLIO'"
+                      :class="marketFeedFilter === 'PORTFOLIO' ? 'bg-[#10b981] text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'"
+                      class="px-3 py-1 rounded-md text-xs transition">
+                Mijn Portefeuille
+              </button>
+            </div>
+
+            <button @click="refreshFmpInsightsNow()" :disabled="isRefreshingFmp"
+                    class="px-3 py-1.5 rounded-lg bg-[#132247] hover:bg-[#182b59] border border-[#1e3260] text-xs font-semibold text-[#38bdf8] transition disabled:opacity-50">
+              <span x-text="isRefreshingFmp ? 'Vernieuwen...' : 'Ververs Inzichten'"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <!-- Kolom 1: Nieuws & FMP Articles -->
+          <div class="space-y-2.5">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Laatste Nieuws & Analyse (<span x-text="filteredMarketNews.length"></span>)</h3>
+            <div class="max-h-[560px] overflow-y-auto space-y-2 pr-1">
+              <template x-for="(art, idx) in filteredMarketNews" :key="idx">
+                <a :href="art.url" target="_blank" rel="noopener noreferrer"
+                   class="block p-3 rounded-xl bg-[#080e22] hover:bg-[#132247]/70 border border-[#1e3260]/70 transition space-y-1">
+                  <div class="flex items-center justify-between gap-2 text-[11px] font-mono">
+                    <div class="flex items-center gap-1.5">
+                      <span class="px-1.5 py-0.5 rounded bg-[#132247] text-[#38bdf8] font-bold" x-text="art.ticker"></span>
+                      <span x-show="art.isin" class="px-1.5 py-0.5 rounded bg-[#10b981]/20 text-[#34d399] text-[10px]">Portefeuille</span>
+                    </div>
+                    <span class="text-slate-400" x-text="art.source + ' • ' + art.date"></span>
+                  </div>
+                  <div class="text-xs font-semibold text-slate-100 leading-snug" x-text="art.headline"></div>
+                  <p class="text-[11px] text-slate-400 line-clamp-2" x-text="art.summary"></p>
+                </a>
+              </template>
+              <p x-show="filteredMarketNews.length === 0" class="text-xs text-slate-500 italic py-4">Geen nieuwsberichten gevonden voor deze selectie.</p>
+            </div>
+          </div>
+
+          <!-- Kolom 2: Insider Trading -->
+          <div class="space-y-2.5">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Recente Insider Trading (<span x-text="filteredInsiderTrades.length"></span>)</h3>
+            <div class="max-h-[560px] overflow-y-auto space-y-2 pr-1">
+              <template x-for="(ins, idx) in filteredInsiderTrades" :key="idx">
+                <div class="p-3 rounded-xl bg-[#080e22] border border-[#1e3260]/70 flex items-center justify-between gap-3 text-xs">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5 mb-0.5">
+                      <span class="px-1.5 py-0.5 rounded bg-[#132247] text-[#38bdf8] font-mono font-bold" x-text="ins.ticker"></span>
+                      <span x-show="ins.isin" class="px-1.5 py-0.5 rounded bg-[#10b981]/20 text-[#34d399] text-[10px]">Portefeuille</span>
+                      <span class="font-semibold text-slate-200 truncate" x-text="ins.reportingName"></span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 truncate" x-text="ins.filingDate + (ins.typeOfOwner ? ' • ' + ins.typeOfOwner : '')"></div>
+                  </div>
+                  <div class="text-right shrink-0 font-mono">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold"
+                          :class="String(ins.transactionType).toUpperCase().startsWith('P') ? 'bg-[#10b981]/20 text-[#34d399]' : 'bg-[#f43f5e]/20 text-[#fb7185]'"
+                          x-text="ins.transactionType || 'TRANS'"></span>
+                    <div class="text-slate-200 font-semibold mt-1" x-text="Number(ins.securitiesTransacted || 0).toLocaleString('nl-BE') + ' st.'"></div>
+                    <div x-show="Number(ins.price) > 0" class="text-[10px] text-slate-400" x-text="'@ $' + Number(ins.price).toFixed(2)"></div>
+                  </div>
+                </div>
+              </template>
+              <p x-show="filteredInsiderTrades.length === 0" class="text-xs text-slate-500 italic py-4">Geen insider-transacties gevonden voor deze selectie.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Modal 5: Benchmarks Beheren (Google Sheet Backend) -->
 
   <!-- Modal 5: Benchmarks Beheren (Google Sheet Backend) -->
   <div x-show="showManageBenchmarksModal"
@@ -2180,7 +2360,7 @@
     function portfolioApp() {
       return {
         activeTab: 'dashboard',
-        appVersion: 'v1.5 (20261114)',
+        appVersion: 'v1.6 (20261114)',
         loadedFileName: '',
         uploadMessage: '',
         showClosedPositionsModal: false,
@@ -2301,6 +2481,13 @@
         universeSearchQuery: '',
         profitBarChartInstance: null,
         profitDonutChartInstance: null,
+        newsList: JSON.parse(localStorage.getItem('pat_news') || '[]'),
+        eventsList: JSON.parse(localStorage.getItem('pat_events') || '[]'),
+        insiderList: JSON.parse(localStorage.getItem('pat_insiders') || '[]'),
+        peersList: JSON.parse(localStorage.getItem('pat_peers') || '[]'),
+        financialsList: JSON.parse(localStorage.getItem('pat_financials') || '[]'),
+        isRefreshingFmp: false,
+        marketFeedFilter: 'ALL',
         initApp() {
           window.addEventListener('pwa-install-ready', () => {
             this.showInstallPrompt = true;
@@ -2990,6 +3177,8 @@
                   for (let isin in data.mapping) {
                     if (DUMMY_ISINS.includes(isin)) continue;
                     const incomingTicker = data.mapping[isin].ticker || '';
+                    const incomingApi = data.mapping[isin].apiTicker || incomingTicker;
+                    const incomingGf = data.mapping[isin].googleTicker || incomingTicker;
                     const incomingName = data.mapping[isin].name || '';
                     const incomingCcy = data.mapping[isin].currency || '';
 
@@ -2997,10 +3186,14 @@
                       this.assetMapping[isin] = {
                         name: incomingName,
                         ticker: incomingTicker,
+                        apiTicker: incomingApi,
+                        googleTicker: incomingGf,
                         currency: incomingCcy || 'EUR'
                       };
                     } else {
                       if (incomingTicker) this.assetMapping[isin].ticker = incomingTicker;
+                      if (incomingApi) this.assetMapping[isin].apiTicker = incomingApi;
+                      if (incomingGf) this.assetMapping[isin].googleTicker = incomingGf;
                       if (incomingName && !this.isRawTickerOrIsin(incomingName, isin, incomingTicker)) {
                         if (this.isRawTickerOrIsin(this.assetMapping[isin].name, isin, this.assetMapping[isin].ticker)) {
                           this.assetMapping[isin].name = incomingName;
@@ -3065,6 +3258,26 @@
                   this.historyData = data.history;
                   safeSave('pat_history', this.historyData);
                 }
+                if (Array.isArray(data.news)) {
+                  this.newsList = data.news;
+                  safeSave('pat_news', this.newsList);
+                }
+                if (Array.isArray(data.events)) {
+                  this.eventsList = data.events;
+                  safeSave('pat_events', this.eventsList);
+                }
+                if (Array.isArray(data.insiderTrading)) {
+                  this.insiderList = data.insiderTrading;
+                  safeSave('pat_insiders', this.insiderList);
+                }
+                if (Array.isArray(data.peers)) {
+                  this.peersList = data.peers;
+                  safeSave('pat_peers', this.peersList);
+                }
+                if (Array.isArray(data.financials)) {
+                  this.financialsList = data.financials;
+                  safeSave('pat_financials', this.financialsList);
+                }
                 if (this.transactions.length > 0) {
                   this.calculatePositions();
                 }
@@ -3083,6 +3296,78 @@
               console.error('Fout bij synchroniseren:', err);
               this.syncStatus = 'Offline modus (lokale cache actief)';
             });
+        },
+
+        async refreshFmpInsightsNow() {
+          if (!GOOGLE_SCRIPT_URL) return;
+          this.isRefreshingFmp = true;
+          this.syncStatus = 'FMP & Finnhub inzichten ophalen...';
+          try {
+            await fetch(GOOGLE_SCRIPT_URL, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'fetchEnrichedData' })
+            });
+            setTimeout(() => {
+              this.fetchGoogleSheetData();
+              this.isRefreshingFmp = false;
+            }, 3500);
+          } catch (e) {
+            console.error('Fout bij verversen FMP/Finnhub inzichten:', e);
+            this.isRefreshingFmp = false;
+          }
+        },
+
+        get filteredMarketNews() {
+          if (this.marketFeedFilter === 'PORTFOLIO') {
+            return this.newsList.filter(n => String(n.isin || '').trim() !== '');
+          }
+          return this.newsList;
+        },
+
+        get filteredInsiderTrades() {
+          if (this.marketFeedFilter === 'PORTFOLIO') {
+            return this.insiderList.filter(i => String(i.isin || '').trim() !== '');
+          }
+          return this.insiderList;
+        },
+
+        get currentAssetPeers() {
+          const isin = this.selectedDetailIsin;
+          const m = this.assetMapping[isin] || {};
+          const candidates = [m.apiTicker, m.googleTicker, m.ticker].filter(Boolean).map(s => s.toUpperCase());
+          const match = this.peersList.find(p =>
+            (isin && String(p.isin || '').toUpperCase() === isin.toUpperCase()) ||
+            candidates.includes(String(p.ticker || '').toUpperCase())
+          );
+          return match && match.peers ? String(match.peers).split(',').map(s => s.trim()).filter(Boolean) : [];
+        },
+
+        get currentAssetEvents() {
+          const isin = this.selectedDetailIsin;
+          const m = this.assetMapping[isin] || {};
+          const candidates = [m.apiTicker, m.googleTicker, m.ticker].filter(Boolean).map(s => s.toUpperCase());
+          return this.eventsList.filter(e =>
+            (isin && String(e.isin || '').toUpperCase() === isin.toUpperCase()) ||
+            candidates.includes(String(e.ticker || '').toUpperCase())
+          );
+        },
+
+        get currentAssetFinancials() {
+          const isin = this.selectedDetailIsin;
+          const m = this.assetMapping[isin] || {};
+          const candidates = [m.apiTicker, m.googleTicker, m.ticker].filter(Boolean).map(s => s.toUpperCase());
+          return this.financialsList.find(f =>
+            (isin && String(f.isin || '').toUpperCase() === isin.toUpperCase()) ||
+            candidates.includes(String(f.ticker || '').toUpperCase())
+          ) || null;
+        },
+
+        formatMetric(val, suffix = '', decimals = 2) {
+          const num = parseFloat(val);
+          if (val === '' || val === null || val === undefined || isNaN(num)) return '—';
+          return num.toLocaleString('nl-BE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + suffix;
         },
 
         saveMappingToSheet(isin) {
@@ -4107,13 +4392,27 @@
           return (startStr < minDateStr) ? minDateStr : startStr;
         },
 
-        getHistoricalPricesForTicker(rawTicker) {
+getHistoricalPricesForTicker(rawTicker) {
           if (!this.historyData || !this.historyData.prices || !rawTicker) return null;
           const cleanTicker = String(rawTicker).trim();
           const hp = this.historyData.prices;
 
           if (hp[cleanTicker] && Array.isArray(hp[cleanTicker]) && hp[cleanTicker].length > 0) {
             return hp[cleanTicker];
+          }
+
+          // Zoek ook via eventuele gekoppelde googleTicker of apiTicker in assetMapping
+          const mappedEntry = Object.values(this.assetMapping || {}).find(m =>
+            (m.apiTicker && m.apiTicker.toUpperCase() === cleanTicker.toUpperCase()) ||
+            (m.googleTicker && m.googleTicker.toUpperCase() === cleanTicker.toUpperCase()) ||
+            (m.ticker && m.ticker.toUpperCase() === cleanTicker.toUpperCase())
+          );
+          if (mappedEntry) {
+            for (const alt of [mappedEntry.googleTicker, mappedEntry.apiTicker, mappedEntry.ticker]) {
+              if (alt && hp[alt] && Array.isArray(hp[alt]) && hp[alt].length > 0) {
+                return hp[alt];
+              }
+            }
           }
 
           for (let key in hp) {
