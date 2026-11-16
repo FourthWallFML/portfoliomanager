@@ -45,21 +45,20 @@
 
   <div class="max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-5">
 
-    <!-- Header: Volledige Breedte Compacte Banner + Verborgen Beheer-menu -->
+<!-- Header: Responsieve Banner (hoger & scherp uitgelijnd op PC, compact op mobiel) -->
     <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] overflow-visible shadow-xl">
-      <!-- Smalle banner over de volledige breedte -->
-      <div class="relative w-full h-12 sm:h-14 overflow-hidden rounded-t-2xl border-b border-[#182649]">
-        <img src="banner.jpg" alt="Key Analysis" class="w-full h-full object-cover object-center opacity-85" />
-        <div class="absolute inset-0 bg-gradient-to-r from-[#070d1e]/80 via-[#070d1e]/30 to-[#070d1e]/85 flex items-center justify-between px-3 sm:px-4">
+      <div class="relative w-full h-14 sm:h-20 lg:h-24 overflow-hidden rounded-t-2xl border-b border-[#182649] bg-[#070d1e]">
+        <img src="banner.jpg" alt="Key Analysis" class="w-full h-full object-cover object-center opacity-90" />
+        <div class="absolute inset-0 bg-gradient-to-r from-[#070d1e]/75 via-transparent to-[#070d1e]/85 flex flex-col sm:flex-row items-start sm:items-end justify-between p-2.5 sm:px-5 sm:py-3 gap-1.5">
           <div class="flex items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 text-[10px] text-[#34d399] font-medium bg-[#070d1e]/85 px-2.5 py-0.5 rounded-full border border-[#10b981]/30 backdrop-blur-sm">
+            <span class="inline-flex items-center gap-1.5 text-[11px] text-[#34d399] font-medium bg-[#070d1e]/90 px-2.5 py-1 rounded-full border border-[#10b981]/30 shadow">
               <span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
               <span x-text="syncStatus"></span>
             </span>
-            <span class="hidden sm:inline text-[10px] font-mono text-slate-300 bg-[#070d1e]/80 px-2 py-0.5 rounded-full border border-[#1e3260]" x-text="appVersion"></span>
+            <span class="hidden sm:inline text-[10px] font-mono text-slate-300 bg-[#070d1e]/85 px-2.5 py-1 rounded-full border border-[#1e3260]" x-text="appVersion"></span>
           </div>
-          <span class="text-[10px] text-slate-300 bg-[#070d1e]/80 px-2.5 py-0.5 rounded-full border border-[#1e3260] truncate max-w-[180px] sm:max-w-xs"
-                x-text="loadedFileName ? loadedFileName : 'Geen bestand actief'"></span>
+          <span class="text-[10px] sm:text-[11px] text-slate-200 bg-[#070d1e]/85 px-2.5 py-1 rounded-full border border-[#1e3260] truncate max-w-[210px] sm:max-w-sm shadow"
+                x-text="loadedFileName ? 'Actief: ' + loadedFileName : 'Geen bestand actief'"></span>
         </div>
       </div>
 
@@ -148,6 +147,7 @@
 
     <!-- Status Notificatie bij inladen -->
     <div x-show="uploadMessage"
+      x-cloak
       x-transition
       class="p-3.5 rounded-xl bg-[#10b981]/15 border border-[#10b981]/30 text-[#34d399] text-xs font-medium flex justify-between items-center shadow-lg">
       <span x-text="uploadMessage"></span>
@@ -227,8 +227,7 @@
 
     <!-- Unmapped Warning Banner -->
 <!-- Unmapped Warning Banner -->
-    <div x-show="unmappedIsins.length > 0" class="bg-[#800020]/20 border-l-4 border-[#b83344] p-3.5 rounded-r-xl border border-[#800020]/40">
-      <div class="flex items-center justify-between">
+  <div x-show="unmappedIsins.length > 0" x-cloak class="bg-[#800020]/20 border-l-4 border-[#b83344] p-3.5 rounded-r-xl border border-[#800020]/40">    <div class="flex items-center justify-between">
         <p class="text-xs text-slate-200">
           Let op: Er zijn
           <button type="button" @click="showUnmappedDetails = !showUnmappedDetails" class="font-black text-[#f87171] underline cursor-pointer">
@@ -560,10 +559,10 @@
       </div>
     </div>
 
-<!-- ============================================== -->
-    <!-- TAB 3: POSITIES & KOERSEN (MET SORTEREN & CA)  -->
+<!-- TAB 3: POSITIES & KOERSEN (MET SORTEREN & CA)  -->
     <!-- ============================================== -->
-    <div x-show="activeTab === 'posities'" class="space-y-6">
+    <template x-if="activeTab === 'posities'">
+    <div class="space-y-6">
 
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
 <!-- Asset Mapping Sidebar -->
@@ -799,6 +798,10 @@
       </div>
 
     </div>
+      </div>
+
+    </div>
+    </template>
 
     <!-- ============================================== -->
     <!-- TAB 4: DIVIDEND OVERZICHT & ANALYSE            -->
@@ -1587,11 +1590,10 @@
       </div>
 
     </div>
-   <!-- ============================================== -->
-    <!-- TAB 7: WATCHLIST & UNIVERSE ZOEKEN             -->
+ <!-- TAB 7: WATCHLIST & UNIVERSE ZOEKEN             -->
     <!-- ============================================== -->
-    <div x-show="activeTab === 'watchlist'" class="space-y-5">
-
+    <template x-if="activeTab === 'watchlist'">
+    <div class="space-y-5">
       <!-- Zoekbalk in Universe -->
       <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-3">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -1746,11 +1748,18 @@
       </div>
 
     </div>
+      </div>
+
+    </div>
+    </template>
 
     <!-- ============================================== -->
     <!-- TAB 8: MARKTNIEUWS & INSIDER TRADING           -->
     <!-- ============================================== -->
-    <div x-show="activeTab === 'markt'" class="space-y-5">
+  <!-- TAB 8: MARKTNIEUWS & INSIDER TRADING           -->
+    <!-- ============================================== -->
+    <template x-if="activeTab === 'markt'">
+    <div class="space-y-5">
       <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#182649] pb-3">
           <div>
@@ -1835,8 +1844,10 @@
     <!-- ============================================== -->
     <!-- TAB 9: ASSET MANAGER (PERSONEN & INLEG)        -->
     <!-- ============================================== -->
-    <div x-show="activeTab === 'clients'" class="space-y-5">
-      <!-- Nieuwe storting koppelen aan een persoon -->
+  <!-- TAB 9: ASSET MANAGER (PERSONEN & INLEG)        -->
+    <!-- ============================================== -->
+    <template x-if="activeTab === 'clients'">
+    <div class="space-y-5">    <!-- Nieuwe storting koppelen aan een persoon -->
       <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-3">
         <div>
           <h2 class="text-base font-bold text-slate-100">Asset Manager — Personen & Portefeuillerendement</h2>
@@ -1977,7 +1988,10 @@
       </div>
     </div>
   </div>
-
+</div>
+    </div>
+    </template>
+  </div>
   <!-- Modal 5: Benchmarks Beheren (Google Sheet Backend) -->
 
   <!-- Modal 5: Benchmarks Beheren (Google Sheet Backend) -->
@@ -2647,9 +2661,15 @@
   </div>
   <!-- Script Application Logic -->
   <script>
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxTN8cNGXmyHRPm4XuSejOqTRFydugjHE0QDeFJaLkuLKK3iBcEhVk2SsedyPGjdotHQ/exec';
+   const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxTN8cNGXmyHRPm4XuSejOqTRFydugjHE0QDeFJaLkuLKK3iBcEhVk2SsedyPGjdotHQ/exec';
     const DUMMY_ISINS = ['DE000A3E5DT0', 'DE000TUAG109'];
 
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof Chart !== 'undefined') {
+        Chart.defaults.animation = false;
+        Chart.defaults.responsiveAnimationDuration = 0;
+      }
+    });
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -7430,9 +7450,9 @@ get detailDropdownAssets() {
         // Centrale wrapper voor alle signalen van een asset
         // Centrale wrapper voor alle signalen van een asset
         getAssetSignals(isin, explicitTicker = '') {
-          const ticker = explicitTicker || this.assetMapping[isin]?.ticker || '';
+const ticker = explicitTicker || this.assetMapping[isin]?.ticker || '';
           const sigKey = `${isin}_${ticker}_${(this.historyData?.dates || []).length}_${this.latestPrices[ticker] || 0}`;
-          if (this._cachedSignals[sigKey]) {
+          if (this._cachedSignals && this._cachedSignals[sigKey]) {
             return this._cachedSignals[sigKey];
           }
 
