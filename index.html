@@ -4,21 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Key Analysis - Portfolio Insights</title>
+  <style>[x-cloak] { display: none !important; }</style>
   <!-- PWA Meta Tags -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#070d1e">
   <link rel="apple-touch-icon" href="icon-192.png">
 
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Alpine.js -->
+<script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script defer src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <!-- PapaParse -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- SheetJS voor Excel (.xlsx) imports zoals Bolero -->
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body class="bg-[#070d1e] text-slate-100 font-sans min-h-screen" x-data="portfolioApp()" x-init="initApp()">
 
@@ -38,7 +35,7 @@
   </datalist>
 
   <!-- PWA Install Banner -->
-  <div x-show="showInstallPrompt" class="bg-[#121e3d] border-b border-[#1b2b52] px-4 py-2.5 text-slate-200 text-xs flex justify-between items-center shadow-md">
+  <div x-show="showInstallPrompt" x-cloak class="bg-[#121e3d] border-b border-[#1b2b52] px-4 py-2.5 text-slate-200 text-xs flex justify-between items-center shadow-md">
     <span>Installeer Key Analysis als app op je apparaat voor snelle toegang.</span>
     <div class="flex gap-2">
       <button @click="installPwa()" class="bg-[#10b981] hover:bg-[#059669] text-white font-bold px-3 py-1 rounded-lg shadow">Installeer</button>
@@ -1714,7 +1711,7 @@
           <div class="space-y-2.5">
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Laatste Nieuws & Analyse (<span x-text="filteredMarketNews.length"></span>)</h3>
             <div class="max-h-[560px] overflow-y-auto space-y-2 pr-1">
-              <template x-for="(art, idx) in filteredMarketNews" :key="idx">
+              <template x-for="(art, idx) in filteredMarketNews.slice(0, 35)" :key="idx">
                 <a :href="art.url" target="_blank" rel="noopener noreferrer"
                    class="block p-3 rounded-xl bg-[#080e22] hover:bg-[#132247]/70 border border-[#1e3260]/70 transition space-y-1">
                   <div class="flex items-center justify-between gap-2 text-[11px] font-mono">
@@ -1736,7 +1733,7 @@
           <div class="space-y-2.5">
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Recente Insider Trading (<span x-text="filteredInsiderTrades.length"></span>)</h3>
             <div class="max-h-[560px] overflow-y-auto space-y-2 pr-1">
-              <template x-for="(ins, idx) in filteredInsiderTrades" :key="idx">
+              <template x-for="(ins, idx) in filteredInsiderTrades.slice(0, 35)" :key="idx">
                 <div class="p-3 rounded-xl bg-[#080e22] border border-[#1e3260]/70 flex items-center justify-between gap-3 text-xs">
                   <div class="min-w-0">
                     <div class="flex items-center gap-1.5 mb-0.5">
@@ -1766,7 +1763,7 @@
   <!-- Modal 5: Benchmarks Beheren (Google Sheet Backend) -->
 
   <!-- Modal 5: Benchmarks Beheren (Google Sheet Backend) -->
-  <div x-show="showManageBenchmarksModal"
+  <div x-show="showManageBenchmarksModal" x-cloak 
     x-transition
     class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-3xl max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
@@ -1838,7 +1835,7 @@
   </div>
 
   <!-- Modal 1: Individueel Asset Bewerken -->
-  <div x-show="showEditAssetModal"
+  <div x-show="showEditAssetModal" x-cloak
     x-transition
     class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-md p-5 shadow-2xl space-y-4">
@@ -1890,7 +1887,7 @@
   </div>
 
   <!-- Modal 2: Alle Tickers & Valuta's Beheren -->
-  <div x-show="showManageMappingsModal"
+  <div x-show="showManageMappingsModal" x-cloak 
     x-transition
     class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
@@ -1926,7 +1923,7 @@
   </div>
 
   <!-- Modal 3: Gesloten Posities Overzicht -->
-  <div x-show="showClosedPositionsModal"
+  <div x-show="showClosedPositionsModal" x-cloak 
     x-transition
     class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden">
@@ -1978,7 +1975,7 @@
   </div>
 
   <!-- Modal 4: Corporate Actions Beheer (Naamswijziging, Overname/Fusie, Aandelensplitsing) -->
-  <div x-show="showCorporateActionsModal"
+  <div x-show="showCorporateActionsModal" x-cloak
     x-transition
     class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-3xl max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
@@ -2163,7 +2160,7 @@
     </div>
   </div>
 <!-- Modal 6: Multi-Broker CSV Upload & Beheer -->
-  <div x-show="showCsvUploadModal"
+  <div x-show="showCsvUploadModal" x-cloak 
     x-transition
     class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
@@ -2218,7 +2215,7 @@
   </div>
 
   <!-- Modal 7: Manuele Transactie & Dividend Toevoegen -->
-  <div x-show="showManualTxModal"
+  <div x-show="showManualTxModal" x-cloak 
     x-transition
     class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
@@ -2526,13 +2523,18 @@
         financialsList: JSON.parse(localStorage.getItem('pat_financials') || '[]'),
         isRefreshingFmp: false,
         marketFeedFilter: 'ALL',
+        _cachedTimeline: null,
+        _cachedTimelineKey: '',
+        _cachedSignals: {},
         initApp() {
           window.addEventListener('pwa-install-ready', () => {
             this.showInstallPrompt = true;
           });
 
           if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed:', err));
+            navigator.serviceWorker.getRegistrations().then(regs => {
+              regs.forEach(r => r.unregister());
+            });
           }
 
           const savedMap = localStorage.getItem('pat_mapping');
@@ -2540,8 +2542,8 @@
           const savedPrices = localStorage.getItem('pat_prices');
           const savedCurrencies = localStorage.getItem('pat_currencies');
           const savedRates = localStorage.getItem('pat_rates');
-          const savedHist = localStorage.getItem('pat_history');
           const savedName = localStorage.getItem('pat_filename');
+          try { localStorage.removeItem('pat_history'); } catch (e) {}
           const savedMeta = localStorage.getItem('pat_stock_metadata');
           const savedBm = localStorage.getItem('pat_benchmarks');
           const savedWatchlist = localStorage.getItem('pat_watchlist');
@@ -2554,7 +2556,6 @@
           if (savedPrices) this.latestPrices = JSON.parse(savedPrices);
           if (savedCurrencies) this.currencies = JSON.parse(savedCurrencies);
           if (savedRates) this.rates = JSON.parse(savedRates);
-          if (savedHist) this.historyData = JSON.parse(savedHist);
           if (savedName) this.loadedFileName = savedName;
 
           DUMMY_ISINS.forEach(d => delete this.assetMapping[d]);
@@ -3204,197 +3205,168 @@
           }
         },
 
-        fetchGoogleSheetData() {
-          this.syncStatus = 'Bezig met synchroniseren...';
-          fetch(GOOGLE_SCRIPT_URL)
-            .then(response => response.json())
-            .then(data => {
-              if (data.status === 'success') {
-                if (Array.isArray(data.universe)) {
-                  // Ruim eventuele oude zware cache op
-                  try { localStorage.removeItem('pat_universe'); } catch (e) {}
+async fetchGoogleSheetData() {
+          this.syncStatus = 'Snelle sync...';
+          try {
+            // FASE 1: Haal alleen koersen, valuta, mapping & watchlist op (< 1 sec)
+            const fastRes = await fetch(GOOGLE_SCRIPT_URL + '?mode=fast');
+            const fastData = await fastRes.json();
+            if (fastData.status === 'success') {
+              this.applySheetPayload(fastData);
+              this.syncStatus = 'Live koersen actief • Historie laden...';
+            }
 
-                  this.universeList = data.universe.map(u => {
-                    const isin = String(u.isin || u.isisn || u.ISIN || '').trim().toUpperCase();
-                    const ticker = String(u.ticker || u['Finance Ticker'] || u.finance_ticker || '').trim();
-                    const companyName = String(u.company_name || u['company_name'] || u.name || '').trim();
-                    const ccy = String(u.reporting_currency || u.currency || 'EUR').trim().toUpperCase();
-
-                    // Alleen bestaande mappings (uit transacties/watchlist) verrijken, niet heel Universe toevoegen
-                    if (isin && this.assetMapping[isin]) {
-                      if (companyName && this.isRawTickerOrIsin(this.assetMapping[isin].name, isin, this.assetMapping[isin].ticker)) {
-                        this.assetMapping[isin].name = companyName;
-                      }
-                      if (!this.assetMapping[isin].ticker && ticker) {
-                        this.assetMapping[isin].ticker = ticker;
-                      }
-                    }
-
-                    return {
-                      ticker: ticker,
-                      country: String(u.country || '').trim(),
-                      reporting_currency: ccy,
-                      description: String(u.description || '').trim(),
-                      employees: u.employees ? String(u.employees).trim() : '',
-                      exchange_name: String(u.exchange_name || '').trim(),
-                      ggroup: String(u.ggroup || '').trim(),
-                      gind: String(u.gind || '').trim(),
-                      gsector: String(u.gsector || '').trim(),
-                      ipo: String(u.ipo || '').trim(),
-                      company_name: companyName,
-                      isin: isin
-                    };
-                  });
-                  try { localStorage.setItem('pat_mapping', JSON.stringify(this.assetMapping)); } catch (e) {}
+            // FASE 2: Haal 500ms later de zware historie, nieuws & financials op zonder het scherm te blokkeren
+            setTimeout(async () => {
+              try {
+                const fullRes = await fetch(GOOGLE_SCRIPT_URL + '?mode=full');
+                const fullData = await fullRes.json();
+                if (fullData.status === 'success') {
+                  this.applySheetPayload(fullData);
+                  this.syncStatus = 'Gesynchroniseerd om ' + new Date().toLocaleTimeString();
                 }
-
-                const safeSave = (k, v) => {
-                  try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { console.warn('Cache vol voor', k); }
-                };
-
-                if (Array.isArray(data.watchlist)) {
-                  this.watchlist = data.watchlist.map(w => {
-                    const isin = String(w.isin || w.isisn || '').trim().toUpperCase();
-                    const ticker = String(w.ticker || w['Finance Ticker'] || '').trim();
-                    const fromUni = this.universeList.find(u => (isin && u.isin === isin) || (ticker && u.ticker === ticker));
-                    return {
-                      isin: isin || (fromUni ? fromUni.isin : ''),
-                      ticker: ticker || (fromUni ? fromUni.ticker : ''),
-                      company_name: String(w.company_name || (fromUni ? fromUni.company_name : '') || ticker || isin).trim(),
-                      country: String(w.country || (fromUni ? fromUni.country : '')).trim(),
-                      reporting_currency: String(w.reporting_currency || (fromUni ? fromUni.reporting_currency : 'EUR')).trim().toUpperCase(),
-                      exchange_name: String(w.exchange_name || (fromUni ? fromUni.exchange_name : '')).trim(),
-                      gsector: String(w.gsector || (fromUni ? fromUni.gsector : '')).trim(),
-                      gind: String(w.gind || (fromUni ? fromUni.gind : '')).trim(),
-                      ggroup: String(w.ggroup || (fromUni ? fromUni.ggroup : '')).trim()
-                    };
-                  });
-                  safeSave('pat_watchlist', this.watchlist);
-                }
-
-                if (data.mapping) {
-                  for (let isin in data.mapping) {
-                    if (DUMMY_ISINS.includes(isin)) continue;
-                    const incomingTicker = data.mapping[isin].ticker || '';
-                    const incomingApi = data.mapping[isin].apiTicker || incomingTicker;
-                    const incomingGf = data.mapping[isin].googleTicker || incomingTicker;
-                    const incomingName = data.mapping[isin].name || '';
-                    const incomingCcy = data.mapping[isin].currency || '';
-
-                    if (!this.assetMapping[isin]) {
-                      this.assetMapping[isin] = {
-                        name: incomingName,
-                        ticker: incomingTicker,
-                        apiTicker: incomingApi,
-                        googleTicker: incomingGf,
-                        currency: incomingCcy || 'EUR'
-                      };
-                    } else {
-                      if (incomingTicker) this.assetMapping[isin].ticker = incomingTicker;
-                      if (incomingApi) this.assetMapping[isin].apiTicker = incomingApi;
-                      if (incomingGf) this.assetMapping[isin].googleTicker = incomingGf;
-                      if (incomingName && !this.isRawTickerOrIsin(incomingName, isin, incomingTicker)) {
-                        if (this.isRawTickerOrIsin(this.assetMapping[isin].name, isin, this.assetMapping[isin].ticker)) {
-                          this.assetMapping[isin].name = incomingName;
-                        }
-                      }
-                      if (incomingCcy) this.assetMapping[isin].currency = incomingCcy;
-                    }
-
-                    if (this.isRawTickerOrIsin(this.assetMapping[isin].name, isin, this.assetMapping[isin].ticker)) {
-                      const tx = this.transactions.find(t => this.getVal(t, 'Asset Id', 'ISIN') === isin && this.getVal(t, 'Asset Name', 'Name'));
-                      if (tx) {
-                        const csvName = this.getVal(tx, 'Asset Name', 'Name');
-                        if (csvName && !this.isRawTickerOrIsin(csvName, isin, this.assetMapping[isin].ticker)) {
-                          this.assetMapping[isin].name = csvName;
-                        }
-                      }
-                    }
-                  }
-                  safeSave('pat_mapping', this.assetMapping);
-                }
-
-                if (Array.isArray(data.benchmarks)) {
-                  const prevEnabled = {};
-                  this.benchmarkConfigs.forEach(b => { prevEnabled[b.id] = b.enabled; });
-                  this.benchmarkConfigs = data.benchmarks.map(b => {
-                    const id = b.id || b.ticker;
-                    const tickers = Array.isArray(b.tickers) ? b.tickers : (b.ticker ? [b.ticker] : []);
-                    return {
-                      id: id,
-                      label: b.label || b.name || b.ticker,
-                      ticker: b.ticker || (tickers[0] || ''),
-                      tickers: tickers,
-                      currency: (b.currency || 'EUR').toUpperCase(),
-                      color: b.color || '#38bdf8',
-                      enabled: prevEnabled[id] !== undefined ? prevEnabled[id] : Boolean(b.enabled)
-                    };
-                  });
-                  safeSave('pat_benchmarks', this.benchmarkConfigs);
-                }
-
-                if (data.prices) {
-                  for (let key in data.prices) {
-                    const val = parseFloat(data.prices[key]);
-                    if (!isNaN(val) && val > 0) {
-                      this.latestPrices[key] = val;
-                    }
-                  }
-                  safeSave('pat_prices', this.latestPrices);
-                }
-
-                if (data.currencies) {
-                  this.currencies = data.currencies;
-                  safeSave('pat_currencies', this.currencies);
-                }
-
-                if (data.rates) {
-                  this.rates = data.rates;
-                  safeSave('pat_rates', this.rates);
-                }
-
-                if (data.history && data.history.dates && data.history.dates.length > 0) {
-                  this.historyData = data.history;
-                  safeSave('pat_history', this.historyData);
-                }
-                if (Array.isArray(data.news)) {
-                  this.newsList = data.news;
-                  safeSave('pat_news', this.newsList);
-                }
-                if (Array.isArray(data.events)) {
-                  this.eventsList = data.events;
-                  safeSave('pat_events', this.eventsList);
-                }
-                if (Array.isArray(data.insiderTrading)) {
-                  this.insiderList = data.insiderTrading;
-                  safeSave('pat_insiders', this.insiderList);
-                }
-                if (Array.isArray(data.peers)) {
-                  this.peersList = data.peers;
-                  safeSave('pat_peers', this.peersList);
-                }
-                if (Array.isArray(data.financials)) {
-                  this.financialsList = data.financials;
-                  safeSave('pat_financials', this.financialsList);
-                }
-                if (this.transactions.length > 0) {
-                  this.calculatePositions();
-                }
-
-                this.syncStatus = 'Gesynchroniseerd om ' + new Date().toLocaleTimeString();
-                if (this.activeTab === 'twr') this.updateTwrView();
-                if (this.activeTab === 'dividenden') this.renderDividendCharts();
-                if (this.activeTab === 'winstbijdrage') this.renderProfitContributionCharts();
-                if (this.activeTab === 'assetDetail') this.updateAssetDetailView();
-                this.renderDonutCharts();
-              } else {
-                this.syncStatus = 'Sync fout van server';
+              } catch (bgErr) {
+                console.warn('Achtergrond-sync overgeslagen:', bgErr);
+                this.syncStatus = 'Live koersen actief (' + new Date().toLocaleTimeString() + ')';
               }
-            })
-            .catch(err => {
-              console.error('Fout bij synchroniseren:', err);
-              this.syncStatus = 'Offline modus (lokale cache actief)';
+            }, 500);
+          } catch (err) {
+            console.error('Fout bij synchroniseren:', err);
+            this.syncStatus = 'Offline modus (lokale cache actief)';
+          }
+        },
+
+        applySheetPayload(data) {
+          const safeSave = (k, v) => {
+            try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { console.warn('Cache vol voor', k); }
+          };
+
+          if (Array.isArray(data.watchlist)) {
+            this.watchlist = data.watchlist.map(w => {
+              const isin = String(w.isin || w.isisn || '').trim().toUpperCase();
+              const ticker = String(w.ticker || w['Finance Ticker'] || '').trim();
+              return {
+                isin: isin,
+                ticker: ticker,
+                company_name: String(w.company_name || ticker || isin).trim(),
+                country: String(w.country || '').trim(),
+                reporting_currency: String(w.reporting_currency || 'EUR').trim().toUpperCase(),
+                exchange_name: String(w.exchange_name || '').trim(),
+                gsector: String(w.gsector || '').trim(),
+                gind: String(w.gind || '').trim(),
+                ggroup: String(w.ggroup || '').trim()
+              };
             });
+            safeSave('pat_watchlist', this.watchlist);
+          }
+
+          if (data.mapping) {
+            for (let isin in data.mapping) {
+              if (DUMMY_ISINS.includes(isin)) continue;
+              const incomingTicker = data.mapping[isin].ticker || '';
+              const incomingApi = data.mapping[isin].apiTicker || incomingTicker;
+              const incomingGf = data.mapping[isin].googleTicker || incomingTicker;
+              const incomingName = data.mapping[isin].name || '';
+              const incomingCcy = data.mapping[isin].currency || '';
+
+              if (!this.assetMapping[isin]) {
+                this.assetMapping[isin] = {
+                  name: incomingName,
+                  ticker: incomingTicker,
+                  apiTicker: incomingApi,
+                  googleTicker: incomingGf,
+                  currency: incomingCcy || 'EUR'
+                };
+              } else {
+                if (incomingTicker) this.assetMapping[isin].ticker = incomingTicker;
+                if (incomingApi) this.assetMapping[isin].apiTicker = incomingApi;
+                if (incomingGf) this.assetMapping[isin].googleTicker = incomingGf;
+                if (incomingName && !this.isRawTickerOrIsin(incomingName, isin, incomingTicker)) {
+                  if (this.isRawTickerOrIsin(this.assetMapping[isin].name, isin, this.assetMapping[isin].ticker)) {
+                    this.assetMapping[isin].name = incomingName;
+                  }
+                }
+                if (incomingCcy) this.assetMapping[isin].currency = incomingCcy;
+              }
+            }
+            safeSave('pat_mapping', this.assetMapping);
+          }
+
+          if (Array.isArray(data.benchmarks)) {
+            const prevEnabled = {};
+            this.benchmarkConfigs.forEach(b => { prevEnabled[b.id] = b.enabled; });
+            this.benchmarkConfigs = data.benchmarks.map(b => {
+              const id = b.id || b.ticker;
+              const tickers = Array.isArray(b.tickers) ? b.tickers : (b.ticker ? [b.ticker] : []);
+              return {
+                id: id,
+                label: b.label || b.name || b.ticker,
+                ticker: b.ticker || (tickers[0] || ''),
+                tickers: tickers,
+                currency: (b.currency || 'EUR').toUpperCase(),
+                color: b.color || '#38bdf8',
+                enabled: prevEnabled[id] !== undefined ? prevEnabled[id] : Boolean(b.enabled)
+              };
+            });
+            safeSave('pat_benchmarks', this.benchmarkConfigs);
+          }
+
+          if (data.prices) {
+            for (let key in data.prices) {
+              const val = parseFloat(data.prices[key]);
+              if (!isNaN(val) && val > 0) {
+                this.latestPrices[key] = val;
+              }
+            }
+            safeSave('pat_prices', this.latestPrices);
+          }
+
+          if (data.currencies) {
+            this.currencies = data.currencies;
+            safeSave('pat_currencies', this.currencies);
+          }
+
+          if (data.rates) {
+            this.rates = data.rates;
+            safeSave('pat_rates', this.rates);
+          }
+
+          // Historie alleen in werkgeheugen houden (NIET in localStorage opslaan -> voorkomt mobiele freeze!)
+          if (data.history && data.history.dates && data.history.dates.length > 0) {
+            this.historyData = data.history;
+            this._cachedTimeline = null; // Reset cache zodat TWR ververst met nieuwe koersdata
+          }
+
+          if (Array.isArray(data.news)) {
+            this.newsList = data.news.slice(0, 80);
+            safeSave('pat_news', this.newsList);
+          }
+          if (Array.isArray(data.events)) {
+            this.eventsList = data.events;
+            safeSave('pat_events', this.eventsList);
+          }
+          if (Array.isArray(data.insiderTrading)) {
+            this.insiderList = data.insiderTrading.slice(0, 80);
+            safeSave('pat_insiders', this.insiderList);
+          }
+          if (Array.isArray(data.peers)) {
+            this.peersList = data.peers;
+            safeSave('pat_peers', this.peersList);
+          }
+          if (Array.isArray(data.financials)) {
+            this.financialsList = data.financials;
+            safeSave('pat_financials', this.financialsList);
+          }
+
+          if (this.transactions.length > 0) {
+            this.calculatePositions();
+          }
+
+          if (this.activeTab === 'dashboard') this.renderDonutCharts();
+          if (this.activeTab === 'twr') this.updateTwrView();
+          if (this.activeTab === 'dividenden') this.renderDividendCharts();
+          if (this.activeTab === 'winstbijdrage') this.renderProfitContributionCharts();
+          if (this.activeTab === 'assetDetail') this.updateAssetDetailView();
         },
 
         async refreshFmpInsightsNow() {
@@ -4775,7 +4747,12 @@ getHistoricalPricesForTicker(rawTicker) {
           return null;
         },
 
-        buildDailyPortfolioTimeline(allDates) {
+       buildDailyPortfolioTimeline(allDates) {
+          const cacheKey = `${this.transactions.length}_${this.selectedBrokerFilter}_${(allDates || []).length}_${Math.round(this.totalPortfolioValue)}_${this.corporateActions.length}`;
+          if (this._cachedTimeline && this._cachedTimelineKey === cacheKey) {
+            return this._cachedTimeline;
+          }
+
           let sortedTx = [...this.transactions].sort((a, b) => {
             const ta = this.getVal(a, 'Transaction Time (CET)', 'Date', 'Time');
             const tb = this.getVal(b, 'Transaction Time (CET)', 'Date', 'Time');
@@ -4975,10 +4952,12 @@ getHistoricalPricesForTicker(rawTicker) {
             });
           });
 
-          if (timeline.length > 0 && this.totalPortfolioValue > 0) {
+if (timeline.length > 0 && this.totalPortfolioValue > 0) {
             timeline[timeline.length - 1].value = this.totalPortfolioValue;
           }
 
+          this._cachedTimeline = timeline;
+          this._cachedTimelineKey = cacheKey;
           return timeline;
         },
 
@@ -6993,8 +6972,14 @@ get detailDropdownAssets() {
         },
 
         // Centrale wrapper voor alle signalen van een asset
+        // Centrale wrapper voor alle signalen van een asset
         getAssetSignals(isin, explicitTicker = '') {
           const ticker = explicitTicker || this.assetMapping[isin]?.ticker || '';
+          const sigKey = `${isin}_${ticker}_${(this.historyData?.dates || []).length}_${this.latestPrices[ticker] || 0}`;
+          if (this._cachedSignals[sigKey]) {
+            return this._cachedSignals[sigKey];
+          }
+
           const sma1040 = this.computeWeeklySmaSignal(ticker, isin);
           const rsi14m = this.computeMonthlyRsiSignal(ticker, isin);
           const macdM = this.computeMonthlyMacdSignal(ticker, isin);
@@ -7031,10 +7016,12 @@ get detailDropdownAssets() {
             };
           }
 
-          return {
+const resultObj = {
             primary: primary,
             list: allSignals
           };
+          this._cachedSignals[sigKey] = resultObj;
+          return resultObj;
         },
 
         formatCurrency(val) {
