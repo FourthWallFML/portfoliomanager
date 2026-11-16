@@ -45,58 +45,104 @@
 
   <div class="max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-5">
 
-    <!-- Header: Compactere Banner Links & Functioneel Menu Rechts -->
-    <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-3 sm:p-4 shadow-xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-
-      <div class="flex items-center gap-4">
-        <img src="banner.jpg" alt="Key Analysis" class="h-14 sm:h-16 w-auto max-w-[240px] sm:max-w-xs object-cover rounded-xl border border-[#1e3260] shadow" />
-        <div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="inline-flex items-center gap-1.5 text-[11px] text-[#34d399] font-medium bg-[#10b981]/10 px-2.5 py-0.5 rounded-full border border-[#10b981]/20">
+    <!-- Header: Volledige Breedte Compacte Banner + Verborgen Beheer-menu -->
+    <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] overflow-visible shadow-xl">
+      <!-- Smalle banner over de volledige breedte -->
+      <div class="relative w-full h-12 sm:h-14 overflow-hidden rounded-t-2xl border-b border-[#182649]">
+        <img src="banner.jpg" alt="Key Analysis" class="w-full h-full object-cover object-center opacity-85" />
+        <div class="absolute inset-0 bg-gradient-to-r from-[#070d1e]/80 via-[#070d1e]/30 to-[#070d1e]/85 flex items-center justify-between px-3 sm:px-4">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 text-[10px] text-[#34d399] font-medium bg-[#070d1e]/85 px-2.5 py-0.5 rounded-full border border-[#10b981]/30 backdrop-blur-sm">
               <span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
               <span x-text="syncStatus"></span>
             </span>
-            <!-- NIEUWE BUILD VERSIE BADGE -->
-            <span class="text-[10px] font-mono text-slate-400 bg-[#080e22] px-2 py-0.5 rounded-full border border-[#1e3260]" x-text="appVersion"></span>
+            <span class="hidden sm:inline text-[10px] font-mono text-slate-300 bg-[#070d1e]/80 px-2 py-0.5 rounded-full border border-[#1e3260]" x-text="appVersion"></span>
           </div>
-          <p class="text-[11px] text-slate-400 mt-1 truncate max-w-[200px] sm:max-w-xs" x-text="loadedFileName ? 'Bestand: ' + loadedFileName : 'Geen bestand actief'"></p>
+          <span class="text-[10px] text-slate-300 bg-[#070d1e]/80 px-2.5 py-0.5 rounded-full border border-[#1e3260] truncate max-w-[180px] sm:max-w-xs"
+                x-text="loadedFileName ? loadedFileName : 'Geen bestand actief'"></span>
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2 justify-end pt-2 md:pt-0 border-t md:border-t-0 border-[#1b2b52]/60">
-        <!-- Multi-Broker Filter Dropdown -->
-        <select x-model="selectedBrokerFilter"
-                @change="setBrokerFilter($event.target.value)"
-                title="Filter portefeuille op broker"
-                class="bg-[#080e22] border border-[#1e3260] text-slate-200 text-xs font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:border-[#38bdf8]">
-          <option value="ALL">Alle Brokers</option>
-          <template x-for="b in availableBrokers" :key="b">
-            <option :value="b" x-text="b"></option>
-          </template>
-        </select>
+      <!-- Compacte Filter- & Actiebalk -->
+      <div class="px-3 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <!-- Links: Broker Filter (enkel Bolero & BUX) + Tag Filter -->
+        <div class="flex flex-wrap items-center gap-2">
+          <select x-model="selectedBrokerFilter"
+                  @change="setBrokerFilter($event.target.value)"
+                  title="Filter op broker"
+                  class="bg-[#080e22] border border-[#1e3260] text-slate-200 text-xs font-semibold rounded-lg px-2.5 py-1 focus:outline-none focus:border-[#38bdf8]">
+            <option value="ALL">Alle Brokers</option>
+            <option value="Bolero">Bolero</option>
+            <option value="BUX">BUX</option>
+          </select>
 
-        <!-- Multi-Broker CSV Beheer Knop -->
-        <button type="button" @click="showCsvUploadModal = true" class="bg-[#132247] hover:bg-[#182b59] text-slate-200 border border-[#1e3260] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-[#10b981]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-          <span>CSV / Brokers</span>
-          <span x-show="csvBatches.length > 0" class="bg-[#10b981]/20 text-[#34d399] px-1.5 rounded-full text-[10px] font-mono" x-text="csvBatches.length"></span>
-        </button>
+          <select x-model="selectedTagFilter"
+                  @change="setTagFilter($event.target.value)"
+                  title="Filter op tag / strategie"
+                  class="bg-[#080e22] border border-[#1e3260] text-slate-200 text-xs font-semibold rounded-lg px-2.5 py-1 focus:outline-none focus:border-[#10b981]">
+            <option value="ALL">Alle Tags</option>
+            <template x-for="tag in allAvailableTags" :key="tag">
+              <option :value="tag" x-text="'#' + tag"></option>
+            </template>
+          </select>
 
-        <!-- Manuele Transactie / Dividend Toevoegen Knop -->
-        <button type="button" @click="showManualTxModal = true" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-3.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow active:scale-95">
-          <span>+ Boeking</span>
-        </button>
+          <span x-show="selectedTagFilter !== 'ALL'"
+                @click="setTagFilter('ALL')"
+                title="Tag-filter wissen"
+                class="cursor-pointer text-[10px] bg-[#10b981]/20 text-[#34d399] border border-[#10b981]/40 px-2 py-0.5 rounded-full font-mono">
+            <span x-text="'#' + selectedTagFilter"></span> ✕
+          </span>
+        </div>
 
-        <button type="button" @click="fetchGoogleSheetData()" class="bg-[#132247] hover:bg-[#182b59] text-slate-200 border border-[#1e3260] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-[#38bdf8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-          <span>Sync Sheet</span>
-        </button>
-        <button type="button" @click="exportData()" class="bg-[#132247] hover:bg-[#182b59] text-slate-300 border border-[#1e3260] px-3.5 py-1.5 rounded-xl text-xs font-semibold transition">
-          Backup
-        </button>
-        <button type="button" @click="resetData()" class="bg-[#800020]/20 hover:bg-[#800020]/40 text-[#f87171] border border-[#800020]/40 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition">
-          Reset
-        </button>
+        <!-- Rechts: Snelle + Boeking knop & Uitklapbaar Beheer-menu (Upload, Sync, Backup, Reset) -->
+        <div class="flex items-center gap-1.5 relative" x-data="{ openToolsMenu: false }">
+          <button type="button"
+                  @click="showManualTxModal = true"
+                  title="Manuele transactie of dividend toevoegen"
+                  class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-2.5 py-1 rounded-lg text-xs transition flex items-center gap-1 shadow active:scale-95">
+            <span>+ Boeking</span>
+          </button>
+
+          <button type="button"
+                  @click="fetchGoogleSheetData()"
+                  title="Synchroniseer koersen & data met Google Sheet"
+                  class="bg-[#132247] hover:bg-[#182b59] text-[#38bdf8] border border-[#1e3260] p-1.5 rounded-lg transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          </button>
+
+          <!-- Verborgen Beheer Dropdown -->
+          <button type="button"
+                  @click="openToolsMenu = !openToolsMenu"
+                  @click.outside="openToolsMenu = false"
+                  title="Bestanden uploaden, Backup & Reset"
+                  class="bg-[#132247] hover:bg-[#182b59] text-slate-200 border border-[#1e3260] px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span class="hidden sm:inline">Beheer</span>
+            <span x-show="csvBatches.length > 0" class="bg-[#10b981]/20 text-[#34d399] px-1 rounded text-[10px] font-mono" x-text="csvBatches.length"></span>
+          </button>
+
+          <div x-show="openToolsMenu" x-cloak
+               class="absolute right-0 top-9 w-48 bg-[#0b142c] border border-[#1e3260] rounded-xl shadow-2xl py-1.5 z-40 space-y-0.5 text-xs">
+            <button type="button" @click="showCsvUploadModal = true; openToolsMenu = false"
+                    class="w-full text-left px-3.5 py-2 hover:bg-[#132247] text-slate-200 flex items-center justify-between">
+              <span>CSV / Excel Uploaden</span>
+              <span class="text-[#10b981] font-mono text-[10px]" x-text="csvBatches.length"></span>
+            </button>
+            <button type="button" @click="fetchGoogleSheetData(); openToolsMenu = false"
+                    class="w-full text-left px-3.5 py-2 hover:bg-[#132247] text-[#38bdf8]">
+              Sync Google Sheet
+            </button>
+            <button type="button" @click="exportData(); openToolsMenu = false"
+                    class="w-full text-left px-3.5 py-2 hover:bg-[#132247] text-slate-300">
+              Backup Downloaden
+            </button>
+            <div class="border-t border-[#182649] my-1"></div>
+            <button type="button" @click="resetData(); openToolsMenu = false"
+                    class="w-full text-left px-3.5 py-2 hover:bg-[#800020]/30 text-[#f87171]">
+              Alle Data Resetten
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -108,60 +154,74 @@
       <button @click="uploadMessage = ''" class="text-white hover:text-slate-300 ml-3 font-bold">✕</button>
     </div>
 
-    <!-- Tab Navigatie -->
-    <nav class="flex flex-wrap gap-2 border-b border-[#182649] pb-2">
+<!-- Compacte Icon-Only Tab Navigatie naast elkaar met Hover-tooltips -->
+    <nav class="flex items-center justify-between sm:justify-start gap-1 overflow-x-auto border-b border-[#182649] pb-1.5 no-scrollbar">
       <button @click="destroyTabCharts('dashboard'); activeTab = 'dashboard'; $nextTick(() => renderDonutCharts())"
-          :class="activeTab === 'dashboard' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'"
-          class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
+          title="Dashboard Overzicht"
+          :class="activeTab === 'dashboard' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981]' : 'text-slate-400 hover:text-slate-200 hover:bg-[#0b142c]'"
+          class="px-3 py-1.5 rounded-t-lg transition flex items-center gap-1.5 shrink-0">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-        Dashboard
       </button>
+
       <button @click="destroyTabCharts('twr'); activeTab = 'twr'; $nextTick(() => updateTwrView())"
-          :class="activeTab === 'twr' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'"
-          class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
+          title="TWR Rendement & Benchmarks"
+          :class="activeTab === 'twr' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981]' : 'text-slate-400 hover:text-slate-200 hover:bg-[#0b142c]'"
+          class="px-3 py-1.5 rounded-t-lg transition flex items-center gap-1.5 shrink-0">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-        TWR Rendement
       </button>
+
       <button @click="destroyTabCharts('posities'); activeTab = 'posities'"
-          :class="activeTab === 'posities' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'"
-          class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
+          title="Openstaande Posities, Koersen & Tags"
+          :class="activeTab === 'posities' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981]' : 'text-slate-400 hover:text-slate-200 hover:bg-[#0b142c]'"
+          class="px-3 py-1.5 rounded-t-lg transition flex items-center gap-1 shrink-0">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        Posities & Koersen
-        <span class="bg-[#080e22] text-[10px] px-2 py-0.5 rounded-full border border-[#1e3260] text-slate-300 font-mono" x-text="positions.length"></span>
+        <span class="text-[10px] font-mono text-slate-300" x-text="positions.length"></span>
       </button>
+
       <button @click="destroyTabCharts('dividenden'); activeTab = 'dividenden'; $nextTick(() => renderDividendCharts())"
-          :class="activeTab === 'dividenden' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'"
-          class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
+          title="Dividenden & Bronbelasting"
+          :class="activeTab === 'dividenden' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981]' : 'text-slate-400 hover:text-slate-200 hover:bg-[#0b142c]'"
+          class="px-3 py-1.5 rounded-t-lg transition flex items-center gap-1 shrink-0">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        Dividenden
-        <span class="bg-[#080e22] text-[10px] px-2 py-0.5 rounded-full border border-[#1e3260] text-[#34d399] font-mono" x-text="dividendSummary.payingAssetsCount"></span>
+        <span class="text-[10px] font-mono text-[#34d399]" x-text="dividendSummary.payingAssetsCount"></span>
       </button>
+
       <button @click="openAssetDetail(selectedDetailIsin)"
-          :class="activeTab === 'assetDetail' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'"
-          class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
+          title="Asset Detail, Technische Signalen & Kerncijfers"
+          :class="activeTab === 'assetDetail' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981]' : 'text-slate-400 hover:text-slate-200 hover:bg-[#0b142c]'"
+          class="px-3 py-1.5 rounded-t-lg transition flex items-center gap-1.5 shrink-0">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
-        Asset Detail
       </button>
 
       <button @click="destroyTabCharts('winstbijdrage'); activeTab = 'winstbijdrage'; $nextTick(() => renderProfitContributionCharts())"
-          :class="activeTab === 'winstbijdrage' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'"
-          class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
+          title="Winstbijdrage & Gewogen Impact"
+          :class="activeTab === 'winstbijdrage' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981]' : 'text-slate-400 hover:text-slate-200 hover:bg-[#0b142c]'"
+          class="px-3 py-1.5 rounded-t-lg transition flex items-center gap-1.5 shrink-0">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
-        Winstbijdrage
       </button>
-<button @click="destroyTabCharts('watchlist'); activeTab = 'watchlist'"
-          :class="activeTab === 'watchlist' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'"
-          class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
+
+      <button @click="destroyTabCharts('watchlist'); activeTab = 'watchlist'; loadUniverseIfNeeded()"
+          title="Watchlist & Universe Zoeken"
+          :class="activeTab === 'watchlist' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981]' : 'text-slate-400 hover:text-slate-200 hover:bg-[#0b142c]'"
+          class="px-3 py-1.5 rounded-t-lg transition flex items-center gap-1 shrink-0">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-        Watchlist
-        <span class="bg-[#080e22] text-[10px] px-2 py-0.5 rounded-full border border-[#1e3260] text-[#38bdf8] font-mono" x-text="watchlist.length"></span>
+        <span class="text-[10px] font-mono text-[#38bdf8]" x-text="watchlist.length"></span>
       </button>
+
       <button @click="destroyTabCharts('markt'); activeTab = 'markt'"
-          :class="activeTab === 'markt' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981] font-bold' : 'text-slate-400 hover:text-slate-200'"
-          class="px-5 py-2 rounded-t-xl text-sm transition flex items-center gap-2">
+          title="Marktnieuws & Insider Trading"
+          :class="activeTab === 'markt' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981]' : 'text-slate-400 hover:text-slate-200 hover:bg-[#0b142c]'"
+          class="px-3 py-1.5 rounded-t-lg transition flex items-center gap-1 shrink-0">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
-        Markt & Insiders
-        <span class="bg-[#080e22] text-[10px] px-2 py-0.5 rounded-full border border-[#1e3260] text-[#38bdf8] font-mono" x-text="newsList.length"></span>
+        <span class="text-[10px] font-mono text-[#38bdf8]" x-text="newsList.length"></span>
+      </button>
+
+      <button @click="destroyTabCharts('clients'); activeTab = 'clients'"
+          title="Asset Manager — Personen & Inleg (Renée, Auguste...)"
+          :class="activeTab === 'clients' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981]' : 'text-slate-400 hover:text-slate-200 hover:bg-[#0b142c]'"
+          class="px-3 py-1.5 rounded-t-lg transition flex items-center gap-1 shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span class="text-[10px] font-mono text-[#34d399]" x-text="clientDeposits.length"></span>
       </button>
     </nav>
 
@@ -466,18 +526,13 @@
             </button>
           </div>
 
-          <!-- Grafiek Legende (Lijn vs Balk) -->
-          <div class="flex items-center gap-4 text-[11px] text-slate-400 font-medium bg-[#080e22] px-3 py-1.5 rounded-xl border border-[#1e3260]/60">
+<!-- Grafiek Legende (Alleen TWR % & Benchmarks) -->
+          <div class="flex items-center gap-3 text-[11px] text-slate-400 font-medium bg-[#080e22] px-3 py-1.5 rounded-xl border border-[#1e3260]/60">
             <span class="flex items-center gap-1.5">
               <span class="w-4 h-0.5 bg-[#10b981] inline-block"></span>
-              <span>TWR (%)</span>
-            </span>
-            <span class="flex items-center gap-1.5">
-              <span class="w-3 h-3 rounded-sm bg-[#38bdf8]/35 border border-[#38bdf8]/60 inline-block"></span>
-              <span>Portefeuillewaarde (€)</span>
+              <span>Portefeuille TWR (%)</span>
             </span>
           </div>
-        </div>
 
         <!-- TWR & Waarde Metrics Tegels -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -655,11 +710,29 @@
                              x-text="pos.caBadge">
                           </span>
                         </template>
-                        <button type="button" @click="openEditAssetModal(pos.isin)" title="Ticker & Valuta handmatig aanpassen" class="text-slate-500 hover:text-[#38bdf8] p-0.5 transition">
+                        <template x-if="pos.isManualOverride">
+                          <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono cursor-help"
+                             :title="pos.overrideComment || 'Handmatig gecorrigeerde GAK / Aantal'"
+                             x-text="'Gecorrigeerd'">
+                          </span>
+                        </template>
+                        <button type="button" @click="openEditAssetModal(pos.isin)" title="GAK, Aantal, Tags & Ticker aanpassen" class="text-slate-500 hover:text-[#38bdf8] p-0.5 transition">
                           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                         </button>
                       </div>
                       <div class="text-[10px] text-slate-400 font-mono" x-text="pos.isin + ' • ' + (assetMapping[pos.isin]?.ticker || 'Geen ticker')"></div>
+                      <!-- Tags & Comment weergave -->
+                      <div x-show="getAssetTags(pos.isin).length > 0 || getAssetComment(pos.isin)" class="flex items-center gap-1 flex-wrap mt-1">
+                        <template x-for="t in getAssetTags(pos.isin)" :key="t">
+                          <span @click="setTagFilter(t)"
+                                class="cursor-pointer text-[9px] px-1.5 py-0.5 rounded bg-[#10b981]/15 text-[#34d399] border border-[#10b981]/30 font-mono hover:bg-[#10b981]/30"
+                                x-text="'#' + t"></span>
+                        </template>
+                        <span x-show="getAssetComment(pos.isin)"
+                              class="text-[10px] text-slate-400 italic truncate max-w-[200px]"
+                              :title="getAssetComment(pos.isin)"
+                              x-text="'— ' + getAssetComment(pos.isin)"></span>
+                      </div>
                     </td>
 
                     <td class="p-4">
@@ -1752,9 +1825,154 @@
                   </div>
                 </div>
               </template>
-              <p x-show="filteredInsiderTrades.length === 0" class="text-xs text-slate-500 italic py-4">Geen insider-transacties gevonden voor deze selectie.</p>
+<p x-show="filteredInsiderTrades.length === 0" class="text-xs text-slate-500 italic py-4">Geen insider-transacties gevonden voor deze selectie.</p>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TAB 9: ASSET MANAGER (PERSONEN & INLEG)        -->
+    <!-- ============================================== -->
+    <div x-show="activeTab === 'clients'" class="space-y-5">
+      <!-- Nieuwe storting koppelen aan een persoon -->
+      <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-3">
+        <div>
+          <h2 class="text-base font-bold text-slate-100">Asset Manager — Personen & Portefeuillerendement</h2>
+          <p class="text-xs text-slate-400">Elke storting groeit mee met het exacte dagelijkse TWR-rendement van de portefeuille vanaf die stortingsdatum. Bijstortingen tellen cumulatief mee vanaf hun eigen datum.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260] text-xs">
+          <div class="sm:col-span-3">
+            <label class="block text-slate-400 font-semibold mb-1">Persoon *</label>
+            <input type="text" x-model="newClientDeposit.person" list="knownClientsList" placeholder="bv. Renée of Auguste"
+                   class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-3 py-1.5 text-slate-100 font-semibold">
+            <datalist id="knownClientsList">
+              <template x-for="c in clientSummaryList" :key="c.person">
+                <option :value="c.person"></option>
+              </template>
+            </datalist>
+          </div>
+          <div class="sm:col-span-3">
+            <label class="block text-slate-400 font-semibold mb-1">Stortingsdatum *</label>
+            <input type="date" x-model="newClientDeposit.date"
+                   class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-3 py-1.5 text-slate-100 font-mono">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-slate-400 font-semibold mb-1">Bedrag (€) *</label>
+            <input type="number" step="any" x-model="newClientDeposit.amount" placeholder="500"
+                   class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-3 py-1.5 text-slate-100 font-mono">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-slate-400 font-semibold mb-1">Notitie</label>
+            <input type="text" x-model="newClientDeposit.note" placeholder="bv. Startinleg"
+                   class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-3 py-1.5 text-slate-100">
+          </div>
+          <div class="sm:col-span-2">
+            <button type="button" @click="addClientDeposit()"
+                    class="w-full bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-3 py-1.5 rounded-lg transition shadow">
+              + Toevoegen
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overzicht per Persoon (Samenvatting) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <template x-for="client in clientSummaryList" :key="client.person">
+          <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-3">
+            <div class="flex items-center justify-between border-b border-[#182649] pb-2.5">
+              <div>
+                <h3 class="text-base font-black text-slate-100" x-text="client.person"></h3>
+                <span class="text-[11px] text-slate-400" x-text="client.depositsCount + ' storting(en) • Eerste: ' + client.firstDate"></span>
+              </div>
+              <span class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg"
+                    :class="client.totalReturnPct >= 0 ? 'bg-[#10b981]/20 text-[#34d399]' : 'bg-[#f87171]/20 text-[#f87171]'"
+                    x-text="formatSignedPct(client.totalReturnPct)"></span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 text-xs">
+              <div class="p-2 rounded-lg bg-[#080e22] border border-[#1e3260]/70">
+                <span class="text-[10px] text-slate-400 block">Totale Inleg</span>
+                <span class="font-mono font-bold text-slate-200" x-text="formatCurrency(client.totalInvested)"></span>
+              </div>
+              <div class="p-2 rounded-lg bg-[#080e22] border border-[#1e3260]/70">
+                <span class="text-[10px] text-slate-400 block">Huidige Waarde</span>
+                <span class="font-mono font-bold text-[#38bdf8]" x-text="formatCurrency(client.currentValue)"></span>
+              </div>
+              <div class="p-2 rounded-lg bg-[#080e22] border border-[#1e3260]/70">
+                <span class="text-[10px] text-slate-400 block">Winst / Verlies</span>
+                <span class="font-mono font-bold"
+                      :class="client.pnlEur >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'"
+                      x-text="(client.pnlEur >= 0 ? '+' : '') + formatCurrency(client.pnlEur)"></span>
+              </div>
+            </div>
+
+            <!-- Detail per stortingstranche van deze persoon -->
+            <div class="space-y-1.5 pt-1 text-[11px]">
+              <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold block">Opbouw per storting (Tranches)</span>
+              <template x-for="tr in client.tranches" :key="tr.id">
+                <div class="p-2 rounded-lg bg-[#080e22] border border-[#1e3260]/60 flex items-center justify-between gap-2">
+                  <div>
+                    <span class="font-mono text-slate-300" x-text="tr.date"></span>
+                    <span class="text-slate-400 ml-1" x-text="'(' + formatCurrency(tr.amount) + ')'"></span>
+                    <span x-show="tr.note" class="text-slate-500 italic block text-[10px]" x-text="tr.note"></span>
+                  </div>
+                  <div class="text-right font-mono">
+                    <span class="font-bold text-slate-100 block" x-text="formatCurrency(tr.currentVal)"></span>
+                    <span class="text-[10px]" :class="tr.returnPct >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'"
+                          x-text="formatSignedPct(tr.returnPct)"></span>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Logboek van alle geregistreerde persoon-stortingen -->
+      <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] overflow-hidden shadow-xl">
+        <div class="p-4 border-b border-[#182649] flex justify-between items-center">
+          <h3 class="text-sm font-bold text-slate-200">Alle Geregistreerde Stortingen per Persoon</h3>
+          <span class="text-xs font-mono text-slate-400" x-text="clientDeposits.length + ' boekingen'"></span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-[#080e22] text-slate-400 text-[10px] uppercase">
+              <tr>
+                <th class="p-3">Persoon</th>
+                <th class="p-3">Datum</th>
+                <th class="p-3 text-right">Gestort Bedrag</th>
+                <th class="p-3 text-right">Portefeuille TWR sinds datum</th>
+                <th class="p-3 text-right">Huidige Waarde</th>
+                <th class="p-3">Notitie</th>
+                <th class="p-3 text-right">Actie</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#182649]">
+              <template x-for="(dep, idx) in computedClientTranches" :key="dep.id">
+                <tr class="hover:bg-[#132247]/40">
+                  <td class="p-3 font-bold text-slate-100" x-text="dep.person"></td>
+                  <td class="p-3 font-mono text-slate-300" x-text="dep.date"></td>
+                  <td class="p-3 text-right font-mono" x-text="formatCurrency(dep.amount)"></td>
+                  <td class="p-3 text-right font-mono font-semibold"
+                      :class="dep.returnPct >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'"
+                      x-text="formatSignedPct(dep.returnPct)"></td>
+                  <td class="p-3 text-right font-mono font-bold text-[#38bdf8]" x-text="formatCurrency(dep.currentVal)"></td>
+                  <td class="p-3 text-slate-400" x-text="dep.note || '—'"></td>
+                  <td class="p-3 text-right">
+                    <button type="button" @click="removeClientDeposit(dep.id)" class="text-[#f87171] hover:text-white px-2 py-0.5 rounded bg-[#800020]/20">✕</button>
+                  </td>
+                </tr>
+              </template>
+              <template x-if="computedClientTranches.length === 0">
+                <tr>
+                  <td colspan="7" class="p-8 text-center text-slate-500 italic">Nog geen stortingen per persoon geregistreerd. Voeg er hierboven één toe (bv. Renée €500 op 2026-01-01).</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -1834,53 +2052,91 @@
     </div>
   </div>
 
-  <!-- Modal 1: Individueel Asset Bewerken -->
-  <div x-show="showEditAssetModal" x-cloak
+ <!-- Modal 1: Individueel Asset Bewerken (ISIN, Tickers, GAK-correctie & Tags) -->
+  <div x-show="showEditAssetModal"
+    x-cloak
     x-transition
     class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-md p-5 shadow-2xl space-y-4">
-<div class="flex justify-between items-start border-b border-[#182649] pb-3">
+    <div class="bg-[#0b142c] border border-[#1b2b52] rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-[#182649] flex justify-between items-start">
         <div>
           <h3 class="text-base font-bold text-slate-100" x-text="editingAsset.name || 'Asset Configureren'"></h3>
-          <p class="text-[11px] text-slate-400 font-mono mt-0.5" x-text="'Huidige ID: ' + editingAsset.isin"></p>
+          <p class="text-[11px] text-slate-400 font-mono mt-0.5" x-text="'ID: ' + editingAsset.isin"></p>
         </div>
         <button @click="showEditAssetModal = false" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
       </div>
 
-      <div class="space-y-3 text-xs">
-        <div>
-          <label class="block text-slate-300 font-semibold mb-1">ISIN Code (voor API's & koppelingen)</label>
-          <input type="text" x-model="editingAsset.newIsin" placeholder="bv. BE0003565737 of IE00B4L5Y983" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono uppercase focus:outline-none focus:border-[#10b981]">
-          <span class="text-[10px] text-slate-400 mt-1 block">Vervangt een tijdelijke <code>BOLERO_...</code> code of werkt de ISIN bij over alle transacties.</span>
+      <div class="p-4 overflow-y-auto space-y-3 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">ISIN Code</label>
+            <input type="text" x-model="editingAsset.newIsin" placeholder="bv. BE0003565737" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-1.5 text-slate-100 font-mono uppercase focus:outline-none focus:border-[#10b981]">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Valuta</label>
+            <input type="text" x-model="editingAsset.currency" list="currencyList" placeholder="EUR" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-1.5 text-slate-100 font-mono uppercase focus:outline-none focus:border-[#10b981]">
+          </div>
         </div>
 
         <div>
           <label class="block text-slate-300 font-semibold mb-1">Naam Stock / ETF</label>
-          <input type="text" x-model="editingAsset.name" placeholder="bv. Aedifica, ASML Holding, iShares Core MSCI World" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-[#10b981]">
+          <input type="text" x-model="editingAsset.name" placeholder="bv. KBC Groep, ASML Holding..." class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-1.5 text-slate-100 focus:outline-none focus:border-[#10b981]">
         </div>
 
         <div class="grid grid-cols-2 gap-2.5">
           <div>
             <label class="block text-slate-300 font-semibold mb-1">API Ticker (Finnhub / FMP)</label>
-            <input type="text" x-model="editingAsset.apiTicker" placeholder="bv. NVDA of KBC.BR" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono focus:outline-none focus:border-[#10b981]">
+            <input type="text" x-model="editingAsset.apiTicker" placeholder="bv. NVDA of KBC.BR" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-1.5 text-slate-100 font-mono focus:outline-none focus:border-[#10b981]">
           </div>
           <div>
             <label class="block text-slate-300 font-semibold mb-1">Google Finance Ticker</label>
-            <input type="text" x-model="editingAsset.ticker" placeholder="bv. NASDAQ:NVDA of EBR:KBC" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono focus:outline-none focus:border-[#10b981]">
+            <input type="text" x-model="editingAsset.ticker" placeholder="bv. NASDAQ:NVDA of EBR:KBC" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-1.5 text-slate-100 font-mono focus:outline-none focus:border-[#10b981]">
           </div>
         </div>
 
-        <div>
-          <label class="block text-slate-300 font-semibold mb-1">Valuta (Currency)</label>
-          <input type="text" x-model="editingAsset.currency" list="currencyList" placeholder="EUR, USD, GBP, GBX, CHF, CAD..." class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono uppercase focus:outline-none focus:border-[#10b981]">
-          <span class="text-[10px] text-slate-400 mt-1 block">Kies uit de lijst of typ de code. Britse pence = <code>GBX</code>, Britse ponden = <code>GBP</code>.</span>
+        <!-- GAK & Positie Parser-Correctie -->
+        <div class="p-3 rounded-xl bg-[#080e22] border border-purple-500/30 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-purple-300">Parser-correctie (GAK & Aantal)</span>
+            <button type="button" x-show="editingAsset.overrideGak !== '' || editingAsset.overrideQty !== ''"
+                    @click="editingAsset.overrideGak = ''; editingAsset.overrideQty = ''"
+                    class="text-[10px] text-slate-400 hover:text-white underline">Reset naar CSV-berekening</button>
+          </div>
+          <p class="text-[10px] text-slate-400">Laat leeg om de automatische CSV-berekening te behouden, of vul een waarde in om een parsefout recht te zetten.</p>
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Gecorrigeerde GAK (EUR)</label>
+              <input type="number" step="any" x-model="editingAsset.overrideGak" :placeholder="'Huidig: ' + (editingAsset.currentGak || 0).toFixed(2)"
+                     class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-2.5 py-1.5 text-slate-100 font-mono">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1">Gecorrigeerd Aantal</label>
+              <input type="number" step="any" x-model="editingAsset.overrideQty" :placeholder="'Huidig: ' + (editingAsset.currentQty || 0).toFixed(4)"
+                     class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-2.5 py-1.5 text-slate-100 font-mono">
+            </div>
+          </div>
+        </div>
+
+        <!-- Tags & Extra Comment -->
+        <div class="p-3 rounded-xl bg-[#080e22] border border-[#10b981]/30 space-y-2">
+          <span class="font-bold text-[#34d399] block">Tags & Notitie (Strategie, Broker, Sector...)</span>
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Tags (gescheiden door komma's)</label>
+            <input type="text" x-model="editingAsset.tagsText" placeholder="bv. Dividend, Kernpositie, Bolero, AI"
+                   class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-2.5 py-1.5 text-slate-100 font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-400 font-semibold mb-1">Extra Comment</label>
+            <input type="text" x-model="editingAsset.comment" placeholder="bv. Lange termijn hold tot 2030"
+                   class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-2.5 py-1.5 text-slate-100">
+          </div>
         </div>
       </div>
 
-      <div class="flex justify-end gap-2 pt-3 border-t border-[#182649]">
-        <button type="button" @click="showEditAssetModal = false" class="bg-[#132247] hover:bg-[#18274f] text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold transition">Annuleren</button>
-        <button type="button" @click="saveEditedAsset()" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow">
-          <span>Opslaan in Backend</span>
+      <div class="p-3 border-t border-[#182649] flex justify-end gap-2 bg-[#080e22]">
+        <button type="button" @click="showEditAssetModal = false" class="bg-[#132247] hover:bg-[#18274f] text-slate-300 px-4 py-1.5 rounded-xl text-xs font-semibold transition">Annuleren</button>
+        <button type="button" @click="saveEditedAsset()" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition shadow">
+          Opslaan
         </button>
       </div>
     </div>
@@ -2346,12 +2602,21 @@
               <label class="block text-slate-400 font-semibold mb-1">Bedrag in EUR *</label>
               <input type="number" step="any" x-model="newManualTx.totalEur" placeholder="bv. 1000.00" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100 font-mono">
             </div>
-            <div class="sm:col-span-2">
+           <div class="sm:col-span-2">
               <label class="block text-slate-400 font-semibold mb-1">Omschrijving</label>
               <input type="text" x-model="newManualTx.description" placeholder="bv. Maandelijkse storting Bolero" class="w-full bg-[#132247] border border-[#1e3260] rounded-xl px-3 py-2 text-slate-100">
             </div>
           </div>
         </template>
+
+        <!-- Tags voor deze transactie -->
+        <div class="bg-[#080e22] p-3 rounded-xl border border-[#1e3260]">
+          <label class="block text-slate-400 font-semibold mb-1">Tags & Extra Comment voor deze transactie (optioneel)</label>
+          <input type="text" x-model="newManualTx.tagsText" placeholder="bv. DCA, Groei, Bijkopen op dip"
+                 class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-3 py-1.5 text-slate-100 font-mono text-xs">
+        </div>
+
+        <!-- Overzicht van eerdere manuele boekingen -->
 
         <!-- Overzicht van eerdere manuele boekingen -->
         <div x-show="manualTransactions.length > 0" class="space-y-1.5 pt-2 border-t border-[#182649]">
@@ -2402,13 +2667,17 @@
         showEditAssetModal: false,
         showManageMappingsModal: false,
         showCorporateActionsModal: false,
-        editingAsset: { isin: '', newIsin: '', name: '', ticker: '', apiTicker: '', currency: 'EUR' },
+       editingAsset: { isin: '', newIsin: '', name: '', ticker: '', apiTicker: '', currency: 'EUR', overrideGak: '', overrideQty: '', currentGak: 0, currentQty: 0, tagsText: '', comment: '' },
         transactions: [],
-        csvBatches: [],            // Lijst van geüploade CSV-bestanden per broker
-        manualTransactions: [],    // Lijst van handmatig ingevoerde transacties & dividenden
+        csvBatches: [],
+        manualTransactions: [],
         selectedBrokerFilter: 'ALL',
-        availableBrokers: ['BUX', 'DEGIRO', 'Bolero', 'Saxo', 'Interactive Brokers', 'Trade Republic', 'Overig'],
-        showCsvUploadModal: false,
+        selectedTagFilter: 'ALL',
+        availableBrokers: ['Bolero', 'BUX'],
+        positionOverrides: JSON.parse(localStorage.getItem('pat_position_overrides') || '{}'),
+        assetTagsMap: JSON.parse(localStorage.getItem('pat_asset_tags') || '{}'),
+        clientDeposits: JSON.parse(localStorage.getItem('pat_client_deposits') || '[]'),
+        newClientDeposit: { person: '', date: '2026-01-01', amount: '', note: '' },showCsvUploadModal: false,
         pendingCsvBroker: 'BUX',
         showManualTxModal: false,
         manualTxTab: 'trade',      // 'trade' | 'dividend' | 'cash'
@@ -2849,16 +3118,24 @@
           }
         },
 
-        openEditAssetModal(isin) {
+openEditAssetModal(isin) {
           const pos = this.positions.find(p => p.isin === isin);
           const mapping = this.assetMapping[isin] || {};
+          const ov = this.positionOverrides[isin] || {};
+          const tagInfo = this.assetTagsMap[isin] || {};
           this.editingAsset = {
             isin: isin,
             newIsin: isin,
             name: this.getAssetDisplayName(pos || isin),
             ticker: mapping.googleTicker || mapping.ticker || '',
             apiTicker: mapping.apiTicker || '',
-            currency: this.getAssetCurrency(isin)
+            currency: this.getAssetCurrency(isin),
+            overrideGak: ov.avgPrice !== undefined && ov.avgPrice !== '' ? ov.avgPrice : '',
+            overrideQty: ov.quantity !== undefined && ov.quantity !== '' ? ov.quantity : '',
+            currentGak: pos ? pos.avgPrice : 0,
+            currentQty: pos ? pos.quantity : 0,
+            tagsText: Array.isArray(tagInfo.tags) ? tagInfo.tags.join(', ') : '',
+            comment: tagInfo.comment || ''
           };
           this.showEditAssetModal = true;
         },
@@ -2873,9 +3150,36 @@
           const cleanApiTicker = (this.editingAsset.apiTicker || '').trim();
           const cleanCurrency = (this.editingAsset.currency || 'EUR').trim().toUpperCase();
 
-          // Als de ISIN gewijzigd is (bv. van BOLERO_... naar echte 12-tekens ISIN)
+          // Verwerk Tags & Comment
+          const parsedTags = String(this.editingAsset.tagsText || '')
+            .split(',')
+            .map(s => s.trim().replace(/^#/, ''))
+            .filter(Boolean);
+          const cleanComment = String(this.editingAsset.comment || '').trim();
+          if (parsedTags.length > 0 || cleanComment) {
+            this.assetTagsMap[targetIsin] = { tags: Array.from(new Set(parsedTags)), comment: cleanComment };
+          } else {
+            delete this.assetTagsMap[targetIsin];
+          }
+          if (oldIsin !== targetIsin) delete this.assetTagsMap[oldIsin];
+          try { localStorage.setItem('pat_asset_tags', JSON.stringify(this.assetTagsMap)); } catch (e) {}
+
+          // Verwerk handmatige GAK / Aantal correctie
+          const rawOvGak = String(this.editingAsset.overrideGak ?? '').trim();
+          const rawOvQty = String(this.editingAsset.overrideQty ?? '').trim();
+          if (rawOvGak !== '' || rawOvQty !== '') {
+            this.positionOverrides[targetIsin] = {
+              avgPrice: rawOvGak !== '' ? parseFloat(rawOvGak) : '',
+              quantity: rawOvQty !== '' ? parseFloat(rawOvQty) : '',
+              comment: cleanComment || 'Handmatige GAK/Aantal correctie'
+            };
+          } else {
+            delete this.positionOverrides[targetIsin];
+          }
+          if (oldIsin !== targetIsin) delete this.positionOverrides[oldIsin];
+          try { localStorage.setItem('pat_position_overrides', JSON.stringify(this.positionOverrides)); } catch (e) {}
+
           if (oldIsin !== targetIsin) {
-            // 1. Verplaats mapping & metadata
             const existingTarget = this.assetMapping[targetIsin] || {};
             const existingOld = this.assetMapping[oldIsin] || {};
             this.assetMapping[targetIsin] = {
@@ -2895,7 +3199,6 @@
               try { localStorage.setItem('pat_stock_metadata', JSON.stringify(this.assetMetadata)); } catch (e) {}
             }
 
-            // 2. Werk alle CSV-batches en manuele transacties bij naar de nieuwe ISIN
             this.csvBatches.forEach(batch => {
               (batch.rows || []).forEach(r => {
                 if (String(r['Asset Id'] || '').trim() === oldIsin) {
@@ -2932,6 +3235,7 @@
 
           this.saveMappingToSheet(targetIsin);
           this.showEditAssetModal = false;
+          this._cachedTimeline = null;
           this.rebuildActiveTransactions();
           this.renderDonutCharts();
           if (this.activeTab === 'twr') this.updateTwrView();
@@ -3591,7 +3895,7 @@ parseNum(val) {
           event.target.value = '';
         },
 
-        // Combineert alle CSV-batches + manuele boekingen en past de actieve broker-filter toe
+       // Combineert alle CSV-batches + manuele boekingen en past broker- én tag-filters toe
         rebuildActiveTransactions() {
           let combined = [];
           this.csvBatches.forEach(batch => {
@@ -3604,12 +3908,58 @@ parseNum(val) {
           });
 
           if (this.selectedBrokerFilter && this.selectedBrokerFilter !== 'ALL') {
-            this.transactions = combined.filter(t => (t.Broker || 'Overig') === this.selectedBrokerFilter);
-          } else {
-            this.transactions = combined;
+            combined = combined.filter(t => (t.Broker || 'Overig') === this.selectedBrokerFilter);
           }
 
+          if (this.selectedTagFilter && this.selectedTagFilter !== 'ALL') {
+            const targetTag = this.selectedTagFilter.toLowerCase();
+            combined = combined.filter(t => {
+              const isin = this.getVal(t, 'Asset Id', 'ISIN');
+              const assetTags = isin ? this.getAssetTags(isin).map(x => x.toLowerCase()) : [];
+              const txTags = Array.isArray(t._tags) ? t._tags.map(x => x.toLowerCase()) : [];
+              const brokerTag = String(t.Broker || '').toLowerCase();
+              return assetTags.includes(targetTag) || txTags.includes(targetTag) || brokerTag === targetTag;
+            });
+          }
+
+          this.transactions = combined;
           this.processNewTransactions();
+        },
+
+        setTagFilter(tag) {
+          this.selectedTagFilter = tag || 'ALL';
+          this._cachedTimeline = null;
+          this.rebuildActiveTransactions();
+          this.renderDonutCharts();
+          if (this.activeTab === 'twr') this.updateTwrView();
+          if (this.activeTab === 'dividenden') this.renderDividendCharts();
+          if (this.activeTab === 'winstbijdrage') this.renderProfitContributionCharts();
+          if (this.activeTab === 'assetDetail') this.updateAssetDetailView();
+        },
+
+        getAssetTags(isin) {
+          const entry = this.assetTagsMap[isin];
+          return (entry && Array.isArray(entry.tags)) ? entry.tags : [];
+        },
+
+        getAssetComment(isin) {
+          const entry = this.assetTagsMap[isin];
+          return (entry && entry.comment) ? String(entry.comment) : '';
+        },
+
+        get allAvailableTags() {
+          const tagSet = new Set(['Bolero', 'BUX']);
+          Object.values(this.assetTagsMap || {}).forEach(entry => {
+            if (entry && Array.isArray(entry.tags)) {
+              entry.tags.forEach(t => { if (t) tagSet.add(t); });
+            }
+          });
+          this.manualTransactions.forEach(mtx => {
+            if (Array.isArray(mtx._tags)) {
+              mtx._tags.forEach(t => { if (t) tagSet.add(t); });
+            }
+          });
+          return Array.from(tagSet).sort((a, b) => a.localeCompare(b));
         },
 
         setBrokerFilter(broker) {
@@ -4645,6 +4995,33 @@ parseNum(val) {
             }
           });
 
+ // Pas eventuele handmatige parser-correcties (GAK & Aantal) toe
+          Object.keys(this.positionOverrides || {}).forEach(isin => {
+            const ov = this.positionOverrides[isin];
+            if (!ov) return;
+            if (!posMap[isin]) {
+              posMap[isin] = {
+                isin: isin,
+                name: this.getAssetDisplayName(isin),
+                quantity: 0,
+                totalCost: 0,
+                avgPrice: 0,
+                isEtf: this.isEtfAsset(this.getAssetDisplayName(isin), isin),
+                caBadge: '',
+                caNote: ''
+              };
+            }
+            if (ov.quantity !== '' && ov.quantity !== undefined && !isNaN(parseFloat(ov.quantity))) {
+              posMap[isin].quantity = parseFloat(ov.quantity);
+            }
+            if (ov.avgPrice !== '' && ov.avgPrice !== undefined && !isNaN(parseFloat(ov.avgPrice))) {
+              posMap[isin].avgPrice = parseFloat(ov.avgPrice);
+            }
+            posMap[isin].totalCost = posMap[isin].quantity * posMap[isin].avgPrice;
+            posMap[isin].isManualOverride = true;
+            posMap[isin].overrideComment = ov.comment || 'Handmatige correctie';
+          });
+
           Object.keys(posMap).forEach(isin => {
             posMap[isin].name = this.getAssetDisplayName(posMap[isin]);
           });
@@ -5221,20 +5598,7 @@ if (timeline.length > 0 && this.totalPortfolioValue > 0) {
             }
           });
 
-          datasets.push({
-            type: 'bar',
-            label: 'Portefeuillewaarde (€)',
-            data: valuePoints,
-            yAxisID: 'yValue',
-            backgroundColor: 'rgba(56, 189, 248, 0.20)',
-            hoverBackgroundColor: 'rgba(56, 189, 248, 0.38)',
-            borderColor: 'rgba(56, 189, 248, 0.45)',
-            borderWidth: 1,
-            borderRadius: 3,
-            barPercentage: 0.85,
-            categoryPercentage: 0.9,
-            order: 10
-          });
+
 
           if (this.chartInstance) {
             this.chartInstance.destroy();
@@ -6144,6 +6508,98 @@ get detailDropdownAssets() {
               returnPct: isFinite(returnPct) ? returnPct : 0
             };
           });
+        },
+
+        addClientDeposit() {
+          const person = String(this.newClientDeposit.person || '').trim();
+          const date = String(this.newClientDeposit.date || '').trim();
+          const amount = parseFloat(this.newClientDeposit.amount);
+          const note = String(this.newClientDeposit.note || '').trim();
+
+          if (!person || !date || isNaN(amount) || amount === 0) {
+            alert('Vul een naam, stortingsdatum en geldig bedrag in.');
+            return;
+          }
+
+          this.clientDeposits.push({
+            id: 'cdep_' + Date.now(),
+            person: person,
+            date: date,
+            amount: amount,
+            note: note
+          });
+
+          try { localStorage.setItem('pat_client_deposits', JSON.stringify(this.clientDeposits)); } catch (e) {}
+          this.newClientDeposit = { person: person, date: new Date().toISOString().split('T')[0], amount: '', note: '' };
+        },
+
+        removeClientDeposit(id) {
+          this.clientDeposits = this.clientDeposits.filter(d => d.id !== id);
+          try { localStorage.setItem('pat_client_deposits', JSON.stringify(this.clientDeposits)); } catch (e) {}
+        },
+
+        // Berekent per storting het exacte cumulatieve TWR-rendement van de portefeuille vanaf de stortingsdatum
+        get computedClientTranches() {
+          if (!this.clientDeposits || this.clientDeposits.length === 0) return [];
+          const timeline = this.buildDailyPortfolioTimeline(this.historyData.dates || []);
+
+          return [...this.clientDeposits]
+            .sort((a, b) => a.date.localeCompare(b.date))
+            .map(dep => {
+              let factor = 1.0;
+              let prevVal = null;
+
+              if (timeline.length > 0) {
+                timeline.forEach(pt => {
+                  if (pt.date >= dep.date) {
+                    if (prevVal !== null && prevVal > 0) {
+                      const subReturn = (pt.value - pt.cashFlow - prevVal) / prevVal;
+                      if (isFinite(subReturn) && subReturn > -0.95 && subReturn < 5) {
+                        factor *= (1 + subReturn);
+                      }
+                    }
+                    prevVal = pt.value;
+                  }
+                });
+              }
+
+              const returnPct = (factor - 1) * 100;
+              const currentVal = dep.amount * factor;
+              return {
+                ...dep,
+                returnPct: isFinite(returnPct) ? returnPct : 0,
+                currentVal: isFinite(currentVal) ? currentVal : dep.amount,
+                pnlEur: (isFinite(currentVal) ? currentVal : dep.amount) - dep.amount
+              };
+            });
+        },
+
+        // Groepeert alle stortingstranches per persoon (bv. Renée & Auguste)
+        get clientSummaryList() {
+          const map = {};
+          this.computedClientTranches.forEach(tr => {
+            if (!map[tr.person]) {
+              map[tr.person] = {
+                person: tr.person,
+                firstDate: tr.date,
+                depositsCount: 0,
+                totalInvested: 0,
+                currentValue: 0,
+                tranches: []
+              };
+            }
+            map[tr.person].depositsCount += 1;
+            map[tr.person].totalInvested += tr.amount;
+            map[tr.person].currentValue += tr.currentVal;
+            map[tr.person].tranches.push(tr);
+            if (tr.date < map[tr.person].firstDate) map[tr.person].firstDate = tr.date;
+          });
+
+          return Object.values(map).map(c => {
+            const pnlEur = c.currentValue - c.totalInvested;
+            const totalReturnPct = c.totalInvested > 0 ? (pnlEur / c.totalInvested) * 100 : 0;
+            return { ...c, pnlEur, totalReturnPct };
+          }).sort((a, b) => b.currentValue - a.currentValue);
         },
 
         get totals() {
