@@ -526,12 +526,13 @@
           </div>
 
 <!-- Grafiek Legende (Alleen TWR % & Benchmarks) -->
-          <div class="flex items-center gap-3 text-[11px] text-slate-400 font-medium bg-[#080e22] px-3 py-1.5 rounded-xl border border-[#1e3260]/60">
+        <div class="flex items-center gap-3 text-[11px] text-slate-400 font-medium bg-[#080e22] px-3 py-1.5 rounded-xl border border-[#1e3260]/60">
             <span class="flex items-center gap-1.5">
               <span class="w-4 h-0.5 bg-[#10b981] inline-block"></span>
               <span>Portefeuille TWR (%)</span>
             </span>
           </div>
+        </div>
 
         <!-- TWR & Waarde Metrics Tegels -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -796,10 +797,6 @@
           </div>
         </div>
       </div>
-
-    </div>
-      </div>
-
     </div>
     </template>
 
@@ -1746,10 +1743,6 @@
           </table>
         </div>
       </div>
-
-    </div>
-      </div>
-
     </div>
     </template>
 
@@ -1840,7 +1833,7 @@
         </div>
       </div>
     </div>
-
+</template>
     <!-- ============================================== -->
     <!-- TAB 9: ASSET MANAGER (PERSONEN & INLEG)        -->
     <!-- ============================================== -->
@@ -1854,36 +1847,44 @@
           <p class="text-xs text-slate-400">Elke storting groeit mee met het exacte dagelijkse TWR-rendement van de portefeuille vanaf die stortingsdatum. Bijstortingen tellen cumulatief mee vanaf hun eigen datum.</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260] text-xs">
-          <div class="sm:col-span-3">
+<div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end bg-[#080e22] p-3.5 rounded-xl border border-[#1e3260] text-xs">
+          <div class="sm:col-span-2">
             <label class="block text-slate-400 font-semibold mb-1">Persoon *</label>
-            <input type="text" x-model="newClientDeposit.person" list="knownClientsList" placeholder="bv. Renée of Auguste"
-                   class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-3 py-1.5 text-slate-100 font-semibold">
+            <input type="text" x-model="newClientDeposit.person" list="knownClientsList" placeholder="bv. Renée"
+                   class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-2.5 py-1.5 text-slate-100 font-semibold">
             <datalist id="knownClientsList">
               <template x-for="c in clientSummaryList" :key="c.person">
                 <option :value="c.person"></option>
               </template>
             </datalist>
           </div>
-          <div class="sm:col-span-3">
-            <label class="block text-slate-400 font-semibold mb-1">Stortingsdatum *</label>
+          <div class="sm:col-span-2">
+            <label class="block text-slate-400 font-semibold mb-1">Type</label>
+            <select x-model="newClientDeposit.type"
+                    class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-2 py-1.5 text-slate-100 font-semibold">
+              <option value="deposit">+ Storting</option>
+              <option value="withdrawal">- Opname (FIFO)</option>
+            </select>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-slate-400 font-semibold mb-1">Datum *</label>
             <input type="date" x-model="newClientDeposit.date"
-                   class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-3 py-1.5 text-slate-100 font-mono">
+                   class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-2.5 py-1.5 text-slate-100 font-mono">
           </div>
           <div class="sm:col-span-2">
             <label class="block text-slate-400 font-semibold mb-1">Bedrag (€) *</label>
             <input type="number" step="any" x-model="newClientDeposit.amount" placeholder="500"
-                   class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-3 py-1.5 text-slate-100 font-mono">
+                   class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-2.5 py-1.5 text-slate-100 font-mono">
           </div>
           <div class="sm:col-span-2">
             <label class="block text-slate-400 font-semibold mb-1">Notitie</label>
             <input type="text" x-model="newClientDeposit.note" placeholder="bv. Startinleg"
-                   class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-3 py-1.5 text-slate-100">
+                   class="w-full bg-[#132247] border border-[#1e3260] rounded-lg px-2.5 py-1.5 text-slate-100">
           </div>
           <div class="sm:col-span-2">
             <button type="button" @click="addClientDeposit()"
                     class="w-full bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-3 py-1.5 rounded-lg transition shadow">
-              + Toevoegen
+              Opslaan
             </button>
           </div>
         </div>
@@ -1986,9 +1987,6 @@
           </table>
         </div>
       </div>
-    </div>
-  </div>
-</div>
     </div>
     </template>
   </div>
@@ -2697,7 +2695,7 @@
         positionOverrides: JSON.parse(localStorage.getItem('pat_position_overrides') || '{}'),
         assetTagsMap: JSON.parse(localStorage.getItem('pat_asset_tags') || '{}'),
         clientDeposits: JSON.parse(localStorage.getItem('pat_client_deposits') || '[]'),
-        newClientDeposit: { person: '', date: '2026-01-01', amount: '', note: '' },showCsvUploadModal: false,
+     newClientDeposit: { person: '', type: 'deposit', date: new Date().toISOString().split('T')[0], amount: '', note: '' },
         pendingCsvBroker: 'BUX',
         showManualTxModal: false,
         manualTxTab: 'trade',      // 'trade' | 'dividend' | 'cash'
@@ -3253,7 +3251,24 @@ openEditAssetModal(isin) {
             this.assetMapping[targetIsin].currency = cleanCurrency;
           }
 
-          this.saveMappingToSheet(targetIsin);
+         this.saveMappingToSheet(targetIsin);
+
+          if (GOOGLE_SCRIPT_URL) {
+            fetch(GOOGLE_SCRIPT_URL, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'saveTagAndOverride',
+                isin: targetIsin,
+                tags: parsedTags.join(', '),
+                comment: cleanComment,
+                overrideGak: rawOvGak,
+                overrideQty: rawOvQty
+              })
+            }).catch(e => console.warn('Sync tags/override mislukt:', e));
+          }
+
           this.showEditAssetModal = false;
           this._cachedTimeline = null;
           this.rebuildActiveTransactions();
@@ -3677,9 +3692,44 @@ async fetchGoogleSheetData() {
             this.peersList = data.peers;
             safeSave('pat_peers', this.peersList);
           }
-          if (Array.isArray(data.financials)) {
+if (Array.isArray(data.financials)) {
             this.financialsList = data.financials;
             safeSave('pat_financials', this.financialsList);
+          }
+
+          if (Array.isArray(data.clients) && data.clients.length > 0) {
+            this.clientDeposits = data.clients.map(c => ({
+              id: String(c.id || ('cdep_' + Math.random())),
+              person: String(c.person || '').trim(),
+              date: String(c.date || '').trim().slice(0, 10),
+              type: String(c.type || 'deposit').trim().toLowerCase(),
+              amount: Math.abs(parseFloat(c.amount) || 0),
+              note: String(c.note || '').trim()
+            })).filter(c => c.person && c.date && c.amount > 0);
+            safeSave('pat_client_deposits', this.clientDeposits);
+          }
+
+          if (Array.isArray(data.tagsOverrides) && data.tagsOverrides.length > 0) {
+            data.tagsOverrides.forEach(row => {
+              const isin = String(row.isin || '').trim().toUpperCase();
+              if (!isin) return;
+              const tags = String(row.tags || '').split(',').map(s => s.trim()).filter(Boolean);
+              const comment = String(row.comment || '').trim();
+              if (tags.length > 0 || comment) {
+                this.assetTagsMap[isin] = { tags: tags, comment: comment };
+              }
+              const ovGak = row.overrideGak !== '' && row.overrideGak !== undefined ? parseFloat(row.overrideGak) : '';
+              const ovQty = row.overrideQty !== '' && row.overrideQty !== undefined ? parseFloat(row.overrideQty) : '';
+              if ((ovGak !== '' && !isNaN(ovGak)) || (ovQty !== '' && !isNaN(ovQty))) {
+                this.positionOverrides[isin] = {
+                  avgPrice: (ovGak !== '' && !isNaN(ovGak)) ? ovGak : '',
+                  quantity: (ovQty !== '' && !isNaN(ovQty)) ? ovQty : '',
+                  comment: comment || 'Gecorrigeerd (Sheet)'
+                };
+              }
+            });
+            safeSave('pat_asset_tags', this.assetTagsMap);
+            safeSave('pat_position_overrides', this.positionOverrides);
           }
 
           if (this.transactions.length > 0) {
@@ -3692,7 +3742,31 @@ async fetchGoogleSheetData() {
           if (this.activeTab === 'winstbijdrage') this.renderProfitContributionCharts();
           if (this.activeTab === 'assetDetail') this.updateAssetDetailView();
         },
-
+async loadUniverseIfNeeded() {
+          if (this.universeList.length > 0 || !GOOGLE_SCRIPT_URL) return;
+          try {
+            const res = await fetch(GOOGLE_SCRIPT_URL + '?mode=universe');
+            const data = await res.json();
+            if (Array.isArray(data.universe)) {
+              this.universeList = data.universe.map(u => ({
+                ticker: String(u.ticker || u['Finance Ticker'] || '').trim(),
+                country: String(u.country || '').trim(),
+                reporting_currency: String(u.reporting_currency || 'EUR').trim().toUpperCase(),
+                description: String(u.description || '').trim(),
+                employees: u.employees ? String(u.employees).trim() : '',
+                exchange_name: String(u.exchange_name || '').trim(),
+                ggroup: String(u.ggroup || '').trim(),
+                gind: String(u.gind || '').trim(),
+                gsector: String(u.gsector || '').trim(),
+                ipo: String(u.ipo || '').trim(),
+                company_name: String(u.company_name || u.name || '').trim(),
+                isin: String(u.isin || u.isisn || u.ISIN || '').trim().toUpperCase()
+              }));
+            }
+          } catch (e) {
+            console.warn('Universe laden mislukt:', e);
+          }
+        },
         async refreshFmpInsightsNow() {
           if (!GOOGLE_SCRIPT_URL) return;
           this.isRefreshingFmp = true;
@@ -6530,34 +6604,54 @@ get detailDropdownAssets() {
           });
         },
 
-        addClientDeposit() {
+       addClientDeposit() {
           const person = String(this.newClientDeposit.person || '').trim();
+          const type = this.newClientDeposit.type || 'deposit';
           const date = String(this.newClientDeposit.date || '').trim();
-          const amount = parseFloat(this.newClientDeposit.amount);
+          const amount = Math.abs(parseFloat(this.newClientDeposit.amount));
           const note = String(this.newClientDeposit.note || '').trim();
 
-          if (!person || !date || isNaN(amount) || amount === 0) {
-            alert('Vul een naam, stortingsdatum en geldig bedrag in.');
+          if (!person || !date || isNaN(amount) || amount <= 0) {
+            alert('Vul een naam, datum en geldig bedrag (> 0) in.');
             return;
           }
 
-          this.clientDeposits.push({
+          const entry = {
             id: 'cdep_' + Date.now(),
             person: person,
+            type: type,
             date: date,
             amount: amount,
             note: note
-          });
+          };
 
+          this.clientDeposits.push(entry);
           try { localStorage.setItem('pat_client_deposits', JSON.stringify(this.clientDeposits)); } catch (e) {}
-          this.newClientDeposit = { person: person, date: new Date().toISOString().split('T')[0], amount: '', note: '' };
+
+          if (GOOGLE_SCRIPT_URL) {
+            fetch(GOOGLE_SCRIPT_URL, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'saveClientEntry', ...entry })
+            }).catch(e => console.warn('Sync client mislukt:', e));
+          }
+
+          this.newClientDeposit = { person: person, type: 'deposit', date: new Date().toISOString().split('T')[0], amount: '', note: '' };
         },
 
         removeClientDeposit(id) {
           this.clientDeposits = this.clientDeposits.filter(d => d.id !== id);
           try { localStorage.setItem('pat_client_deposits', JSON.stringify(this.clientDeposits)); } catch (e) {}
+          if (GOOGLE_SCRIPT_URL) {
+            fetch(GOOGLE_SCRIPT_URL, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'deleteClientEntry', id: id })
+            }).catch(e => console.warn('Verwijderen client mislukt:', e));
+          }
         },
-
         // Berekent per storting het exacte cumulatieve TWR-rendement van de portefeuille vanaf de stortingsdatum
         get computedClientTranches() {
           if (!this.clientDeposits || this.clientDeposits.length === 0) return [];
