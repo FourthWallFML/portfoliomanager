@@ -1167,10 +1167,16 @@
             </select>
           </div>
           <div>
-            <label for="multiBrokerCsvInput" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-2 rounded-xl transition cursor-pointer inline-flex items-center gap-1.5 shadow">
-              <span>2. Selecteer CSV Bestand</span>
-            </label>
-    <input type="file" id="multiBrokerCsvInput" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" @change="handleMultiBrokerCsvUpload($event)" class="sr-only">
+           <button type="button"
+        @click="$refs.csvFileInput.click()"
+        class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-2 rounded-xl transition cursor-pointer inline-flex items-center gap-1.5 shadow">
+  <span>2. Selecteer CSV / Excel Bestand</span>
+</button>
+<input type="file"
+       x-ref="csvFileInput"
+       accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+       @change="handleMultiBrokerCsvUpload($event)"
+       class="hidden">
           </div>
         </div>
 
