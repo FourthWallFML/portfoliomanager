@@ -2073,45 +2073,43 @@ openEditAssetModal(isin) {
           return this.getAssetCurrency(isin) === 'USD';
         },
 
-        hasPriceWarning(pos) {
-          const isin = pos.isin;
-          const ticker = this.assetMapping[isin]?.ticker;
-          const hasLivePrice = (ticker && this.latestPrices[ticker] !== undefined && this.latestPrices[ticker] > 0) ||
-                     (this.latestPrices[isin] !== undefined && this.latestPrices[isin] > 0);
-          const curPrice = this.getAssetPriceInEur(isin);
-          return !hasLivePrice || curPrice === 0;
+       getExactRawPriceForIsin(isin) {
+          // 1. Directe match op unieke ISIN (altijd 100% exact)
+          if (this.latestPrices && this.latestPrices[isin] > 0) {
+            return this.latestPrices[isin];
+          }
+
+          // 2. Exacte match op gekoppelde Google- of API-ticker
+          const m = this.assetMapping[isin] || {};
+          for (const key of [m.googleTicker, m.apiTicker, m.ticker]) {
+            if (!key) continue;
+            const exact = this.latestPrices[key] || this.latestPrices[key.toUpperCase()];
+            if (exact > 0) return exact;
+          }
+
+          // 3. Laatste slotkoers uit Historie
+          const hist = this.getHistoricalPricesForTicker(m.googleTicker || m.ticker || m.apiTicker);
+          if (hist && hist.length > 0) {
+            for (let i = hist.length - 1; i >= 0; i--) {
+              if (hist[i] > 0) return hist[i];
+            }
+          }
+          return 0;
         },
 
-        getPriceWarningTitle(pos) {
-          const curPrice = this.getAssetPriceInEur(pos.isin);
-          if (curPrice === 0) return 'Waarschuwing: Laatste koers staat op 0,00';
-          return 'Geen live koers beschikbaar: gebruikt Gemiddelde AankoopKoers (GAK)';
+        hasPriceWarning(pos) {
+          return this.getExactRawPriceForIsin(pos.isin) <= 0;
         },
 
         getRawOriginalPrice(isin) {
-          const m = this.assetMapping[isin] || {};
-          const candidates = [m.apiTicker, m.ticker, m.googleTicker, isin].filter(Boolean);
-          for (const key of candidates) {
-            if (this.latestPrices[key] !== undefined && this.latestPrices[key] > 0) {
-              return this.latestPrices[key];
-            }
-          }
+          const live = this.getExactRawPriceForIsin(isin);
+          if (live > 0) return live;
           const pos = this.positions.find(p => p.isin === isin);
           return pos ? pos.avgPrice : 0;
         },
 
         formatOriginalPrice(isin) {
-          const ticker = this.assetMapping[isin]?.ticker;
-          let rawPrice = 0;
-          if (ticker && this.latestPrices[ticker] !== undefined) {
-            rawPrice = this.latestPrices[ticker];
-          } else if (this.latestPrices[isin] !== undefined) {
-            rawPrice = this.latestPrices[isin];
-          } else {
-            const pos = this.positions.find(p => p.isin === isin);
-            rawPrice = pos ? pos.avgPrice : 0;
-          }
-
+          const rawPrice = this.getRawOriginalPrice(isin);
           const ccy = this.getAssetCurrency(isin);
           const symbols = {
             'USD': '$', 'GBP': '£', 'GBX': 'p', 'EUR': '€', 'CHF': 'CHF',
@@ -2122,36 +2120,12 @@ openEditAssetModal(isin) {
           return `${sym} ${rawPrice.toFixed(2)} ${ccy}`;
         },
 
-      getAssetPriceInEur(isin) {
-          const m = this.assetMapping[isin] || {};
-          const candidates = [m.apiTicker, m.ticker, m.googleTicker, isin].filter(Boolean);
-          let rawPrice = 0;
-
-          for (const key of candidates) {
-            if (this.latestPrices[key] > 0) {
-              rawPrice = this.latestPrices[key];
-              break;
-            }
-          }
-
+        getAssetPriceInEur(isin) {
+          const rawPrice = this.getExactRawPriceForIsin(isin);
           if (rawPrice <= 0) {
-            const hist = this.getHistoricalPricesForIsin
-              ? this.getHistoricalPricesForIsin(isin)
-              : this.getHistoricalPricesForTicker(m.googleTicker || m.ticker || m.apiTicker);
-            if (hist && hist.length > 0) {
-              for (let i = hist.length - 1; i >= 0; i--) {
-                if (hist[i] > 0) {
-                  rawPrice = hist[i];
-                  break;
-                }
-              }
-            }
+            const pos = this.positions.find(p => p.isin === isin);
+            return pos ? pos.avgPrice : 0;
           }
-  // Laatste redmiddel: GAK (is al in EUR, dus direct returnen!)
-  if (rawPrice <= 0) {
-    const pos = this.positions.find(p => p.isin === isin);
-    return pos ? pos.avgPrice : 0;
-  }
 
           const ccy = this.getAssetCurrency(isin);
           if (ccy === 'EUR') return rawPrice;
@@ -2174,7 +2148,6 @@ openEditAssetModal(isin) {
 
           return rawPrice * fxRate;
         },
-
         get closedPositionsList() {
           let map = {};
           this.transactions.forEach(tx => {
@@ -2545,18 +2518,15 @@ saveInlineMapping(isin, rawTicker, rawCcy) {
 
           this.syncStatus = `Opslaan ${ticker || isin}...`;
 
-          fetch(GOOGLE_SCRIPT_URL, {
+         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(payload)
           }).then(() => {
-            this.syncStatus = `Opgeslagen: ${ticker || isin} (${currency})`;
+            this.syncStatus = `Opgeslagen: ${ticker || isin} (${currency}) — koers ophalen...`;
             this.uploadMessage = `Asset ${mappingItem.name || isin} bijgewerkt: ticker '${ticker}', valuta '${currency}'.`;
             this.renderDonutCharts();
-            if (this.activeTab === 'twr') this.updateTwrView();
-            if (this.activeTab === 'dividenden') this.renderDividendCharts();
-            if (this.activeTab === 'assetDetail') this.updateAssetDetailView();
+            setTimeout(() => this.fetchGoogleSheetData(), 2500);
           }).catch(err => {
             console.error('Fout bij verzenden naar backend:', err);
             this.syncStatus = 'Fout bij opslaan';
