@@ -3185,10 +3185,12 @@ parseNum(val) {
               }
               } else if (catRaw === 'aankoop' || catRaw === 'verkoop') {
               const isBuy = (catRaw === 'aankoop');
-              const netTradeEur = Math.abs(netCashEur);
+              const netAbsEur = Math.abs(netCashEur);
               const feeEur = Math.round(feeOrig * toEurRate * 100) / 100;
               const tobEur = Math.round(rvOrTaxOrig * toEurRate * 100) / 100;
 
+              // Aankoop = negatief kasbedrag (cash omlaag, aandelen omhoog)
+              // Verkoop = positief kasbedrag (cash omhoog, aandelen omlaag)
               outRows.push({
                 Broker: broker,
                 'Transaction Time (CET)': timestamp,
@@ -3199,9 +3201,10 @@ parseNum(val) {
                 'Asset Name': cleanName,
                 'Asset Currency': ccy,
                 'Asset Quantity': qty,
-                'Transaction Amount': isBuy ? -netTradeEur : netTradeEur,
+                'Transaction Amount': isBuy ? -netAbsEur : netAbsEur,
                 'Profit And Loss Amount': 0,
                 'Transaction Description': desc
+              });
               });
 
               if (feeEur > 0) {
