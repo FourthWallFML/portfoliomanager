@@ -1670,6 +1670,13 @@
                 rows: legacyRows.map(r => ({ ...r, Broker: r.Broker || 'BUX' }))
               });
               try { localStorage.setItem('pat_csv_batches', JSON.stringify(this.csvBatches)); } catch (e) {}
+              if (GOOGLE_SCRIPT_URL) {
+              fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'saveCsvBatch', batch: batchObj })
+              }).catch(e => console.warn('Sync CSV-batch mislukt:', e));
+            }
             }
           }
 
@@ -2426,7 +2433,11 @@ async fetchGoogleSheetData() {
             })).filter(c => c.person && c.date && c.amount > 0);
             safeSave('pat_client_deposits', this.clientDeposits);
           }
-
+if (Array.isArray(data.csvBatches) && data.csvBatches.length > 0) {
+            this.csvBatches = data.csvBatches;
+            safeSave('pat_csv_batches', this.csvBatches);
+            this.rebuildActiveTransactions();
+          }
           if (Array.isArray(data.manualTransactions)) {
             const rebuiltManual = [];
             data.manualTransactions.forEach(mtx => {
@@ -3305,9 +3316,22 @@ parseNum(val) {
           };
         },
 
-        removeCsvBatch(index) {
+removeCsvBatch(index) {
+          const removed = this.csvBatches[index];
           this.csvBatches.splice(index, 1);
           try { localStorage.setItem('pat_csv_batches', JSON.stringify(this.csvBatches)); } catch (e) {}
+          if (GOOGLE_SCRIPT_URL && removed) {
+            fetch(GOOGLE_SCRIPT_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({
+                action: 'deleteCsvBatch',
+                id: removed.id,
+                broker: removed.broker,
+                fileName: removed.fileName
+              })
+            }).catch(e => console.warn('Verwijderen CSV-batch mislukt:', e));
+          }
           this.rebuildActiveTransactions();
           this.renderDonutCharts();
         },
@@ -4183,54 +4207,71 @@ if (timeline.length > 0 && this.totalPortfolioValue > 0) {
         },
         // Berekent per storting het exacte cumulatieve TWR-rendement van de portefeuille vanaf de stortingsdatum
 get computedClientTranches() {
-       if (!this.clientDeposits || this.clientDeposits.length === 0) return [];
-       const timeline = this.buildDailyPortfolioTimeline(this.historyData.dates || []);
+  if (!this.clientDeposits || this.clientDeposits.length === 0) return [];
 
-       return [...this.clientDeposits]
-         .sort((a, b) => a.date.localeCompare(b.date))
-         .map(dep => {
-           let factor = 1.0;
-           let prevVal = null;
+  // Bouw de tijdlijn altijd op over alle ingeladen transacties (ongeacht broker/tag filter)
+  const allTx = [];
+  (this.csvBatches || []).forEach(batch => {
+    (batch.rows || []).forEach(r => allTx.push({ ...r, Broker: r.Broker || batch.broker || 'Overig' }));
+  });
+  (this.manualTransactions || []).forEach(mtx => {
+    allTx.push({ ...mtx, Broker: mtx.Broker || 'Overig' });
+  });
 
-           if (timeline.length > 0) {
-             // Zoek laatste bekende portefeuillewaarde t/m dep.date als startbasis
-             for (let i = 0; i < timeline.length; i++) {
-               if (timeline[i].date <= dep.date && timeline[i].value > 0) {
-                 prevVal = timeline[i].value;
-               } else if (timeline[i].date > dep.date) {
-                 break;
-               }
-             }
+  const savedTx = this.transactions;
+  const savedCache = this._cachedTimeline;
+  const savedCacheKey = this._cachedTimelineKey;
 
-             // Compound dagelijkse TWR-rendementen voor alle dagen >= dep.date
-             for (let i = 0; i < timeline.length; i++) {
-               const pt = timeline[i];
-               if (pt.date < dep.date) continue;
+  this.transactions = allTx;
+  this._cachedTimeline = null;
+  const timeline = this.buildDailyPortfolioTimeline(this.historyData.dates || []);
 
-               if (prevVal !== null && prevVal > 0) {
-                 // Op de stortingsdag zelf telt de nieuwe storting van dep.amount niet als koerswinst
-                 const dayCf = (pt.date === dep.date) ? (pt.cashFlow - dep.amount) : pt.cashFlow;
-                 const subReturn = (pt.value - dayCf - prevVal) / prevVal;
-                 if (isFinite(subReturn) && subReturn > -0.95 && subReturn < 5) {
-                   factor *= (1 + subReturn);
-                 }
-               }
-               if (pt.value > 0) {
-                 prevVal = pt.value;
-               }
-             }
-           }
+  this.transactions = savedTx;
+  this._cachedTimeline = savedCache;
+  this._cachedTimelineKey = savedCacheKey;
 
-           const returnPct = (factor - 1) * 100;
-           const currentVal = dep.amount * factor;
-           return {
-             ...dep,
-             returnPct: isFinite(returnPct) ? returnPct : 0,
-             currentVal: isFinite(currentVal) ? currentVal : dep.amount,
-             pnlEur: (isFinite(currentVal) ? currentVal : dep.amount) - dep.amount
-           };
-         });
-     },
+  return [...this.clientDeposits]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map(dep => {
+      let factor = 1.0;
+      let prevVal = null;
+
+      if (timeline.length > 0) {
+        for (let i = 0; i < timeline.length; i++) {
+          if (timeline[i].date <= dep.date && timeline[i].value >= 10) {
+            prevVal = timeline[i].value;
+          } else if (timeline[i].date > dep.date) {
+            break;
+          }
+        }
+
+        for (let i = 0; i < timeline.length; i++) {
+          const pt = timeline[i];
+          if (pt.date < dep.date) continue;
+
+          if (prevVal !== null && prevVal >= 10 && pt.value >= 10) {
+            const dayCf = (pt.date === dep.date) ? (pt.cashFlow - dep.amount) : pt.cashFlow;
+            const subReturn = (pt.value - dayCf - prevVal) / prevVal;
+            if (isFinite(subReturn) && subReturn > -0.5 && subReturn < 0.5) {
+              factor *= (1 + subReturn);
+            }
+          }
+          if (pt.value >= 10) {
+            prevVal = pt.value;
+          }
+        }
+      }
+
+      const returnPct = (factor - 1) * 100;
+      const currentVal = dep.amount * factor;
+      return {
+        ...dep,
+        returnPct: isFinite(returnPct) ? returnPct : 0,
+        currentVal: isFinite(currentVal) ? currentVal : dep.amount,
+        pnlEur: (isFinite(currentVal) ? currentVal : dep.amount) - dep.amount
+      };
+    });
+},
 
         // Groepeert alle stortingstranches per persoon (bv. Renée & Auguste)
         get clientSummaryList() {
