@@ -93,8 +93,8 @@
           </span>
         </div>
 
-<!-- Rechts: Snelle + Boeking knop & Uitklapbaar Beheer-menu (Upload, Sync, Backup, Reset) -->
-        <div class="flex items-center gap-1.5 relative" x-data="{ openToolsMenu: false }" @click.outside="openToolsMenu = false">
+        <!-- Rechts: Snelle + Boeking knop & Uitklapbaar Beheer-menu (Upload, Sync, Backup, Reset) -->
+        <div class="flex items-center gap-1.5 relative" x-data="{ openToolsMenu: false }">
           <button type="button"
                   @click="showManualTxModal = true"
                   title="Manuele transactie of dividend toevoegen"
@@ -112,6 +112,7 @@
           <!-- Verborgen Beheer Dropdown -->
           <button type="button"
                   @click="openToolsMenu = !openToolsMenu"
+                  @click.outside="openToolsMenu = false"
                   title="Bestanden uploaden, Backup & Reset"
                   class="bg-[#132247] hover:bg-[#182b59] text-slate-200 border border-[#1e3260] px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1">
             <svg class="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -234,11 +235,11 @@
 
       <!-- GECOMBINEERDE HOOFD-CONTAINER -->
       <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl">
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-[#182649]">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-[#182649]">
           <div class="flex flex-col justify-center">
             <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Waarde Portefeuille</span>
             <div class="text-3xl sm:text-4xl font-black text-slate-100 mt-1" x-text="formatCurrency(totalPortfolioValue)"></div>
-            <span class="text-[11px] text-slate-400 mt-0.5" x-text="'Waarvan cash: ' + formatCurrency(cashBalance)"></span>
+            <span class="text-[11px] text-slate-400 mt-0.5">Inclusief contant saldo</span>
           </div>
           <div class="flex flex-col justify-center md:items-end">
             <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Totale Winst / Verlies</span>
@@ -247,7 +248,7 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 pt-4 text-xs">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 text-xs">
           <div>
             <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold">Stortingen (Deposits)</span>
             <div class="text-base font-bold text-slate-200 mt-0.5 font-mono" x-text="formatCurrency(totals.deposits)"></div>
@@ -255,10 +256,6 @@
           <div>
             <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold">Afhalingen (Withdrawals)</span>
             <div class="text-base font-bold text-slate-200 mt-0.5 font-mono" x-text="formatCurrency(totals.withdrawals)"></div>
-          </div>
-          <div>
-            <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold">Cash Positie</span>
-            <div class="text-base font-bold text-[#38bdf8] mt-0.5 font-mono" x-text="formatCurrency(cashBalance)"></div>
           </div>
 
           <div @click="showClosedPositionsModal = true" class="cursor-pointer group">
@@ -276,6 +273,8 @@
             </span>
             <div class="text-base font-bold mt-0.5 font-mono underline decoration-dotted underline-offset-4" :class="unrealizedPnL >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="formatCurrency(unrealizedPnL)"></div>
           </div>
+
+
         </div>
       </div>
 
@@ -336,82 +335,6 @@
             </div>
           </div>
         </div>
-
-        <!-- OVERZICHT VAN BOEKINGEN & OPNAMES -->
-      <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-4"
-           x-data="{ ledgerFilter: 'ALL' }">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-[#182649]">
-          <div>
-            <h3 class="text-sm font-bold text-slate-200">Boekingen & Opnames</h3>
-            <p class="text-[11px] text-slate-400">Chronologisch overzicht van stortingen, opnames, aan-/verkopen en kosten.</p>
-          </div>
-          <div class="flex flex-wrap items-center gap-1.5 text-xs">
-            <button type="button" @click="ledgerFilter = 'ALL'"
-                    :class="ledgerFilter === 'ALL' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#080e22] text-slate-300 border border-[#1e3260]'"
-                    class="px-2.5 py-1 rounded-lg transition">Alles</button>
-            <button type="button" @click="ledgerFilter = 'CASHFLOW'"
-                    :class="ledgerFilter === 'CASHFLOW' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#080e22] text-slate-300 border border-[#1e3260]'"
-                    class="px-2.5 py-1 rounded-lg transition">Stortingen & Opnames</button>
-            <button type="button" @click="ledgerFilter = 'TRADES'"
-                    :class="ledgerFilter === 'TRADES' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#080e22] text-slate-300 border border-[#1e3260]'"
-                    class="px-2.5 py-1 rounded-lg transition">Aan- & Verkopen</button>
-            <button type="button" @click="ledgerFilter = 'MANUAL'"
-                    :class="ledgerFilter === 'MANUAL' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#080e22] text-slate-300 border border-[#1e3260]'"
-                    class="px-2.5 py-1 rounded-lg transition">Manueel</button>
-          </div>
-        </div>
-
-        <div class="overflow-x-auto max-h-80">
-          <table class="w-full text-left border-collapse text-xs">
-            <thead class="sticky top-0 bg-[#080e22] text-slate-400 text-[10px] uppercase tracking-wider font-semibold">
-              <tr>
-                <th class="p-3">Datum</th>
-                <th class="p-3">Broker</th>
-                <th class="p-3">Type</th>
-                <th class="p-3">Asset / Omschrijving</th>
-                <th class="p-3 text-right">Aantal</th>
-                <th class="p-3 text-right">Bedrag (EUR)</th>
-                <th class="p-3 text-right">Actie</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-[#182649]/60">
-              <template x-for="(row, idx) in getFilteredLedgerEntries(ledgerFilter)" :key="row._key + '_' + idx">
-                <tr class="hover:bg-[#132247]/40 transition">
-                  <td class="p-3 font-mono text-slate-400 whitespace-nowrap" x-text="row.date"></td>
-                  <td class="p-3">
-                    <span class="px-1.5 py-0.5 rounded bg-[#132247] text-[#38bdf8] border border-[#1e3260] text-[10px] font-semibold" x-text="row.broker"></span>
-                  </td>
-                  <td class="p-3 font-semibold"
-                      :class="row.category === 'withdrawals' ? 'text-[#f87171]' : (row.category === 'deposits' ? 'text-[#34d399]' : 'text-slate-200')"
-                      x-text="row.typeLabel"></td>
-                  <td class="p-3 text-slate-200 max-w-xs truncate" :title="row.description" x-text="row.assetOrDesc"></td>
-                  <td class="p-3 text-right font-mono text-slate-300" x-text="row.qty > 0 ? row.qty.toFixed(4) : '—'"></td>
-                  <td class="p-3 text-right font-mono font-bold whitespace-nowrap"
-                      :class="row.amount >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'"
-                      x-text="(row.amount >= 0 ? '+' : '') + formatCurrency(row.amount)"></td>
-                  <td class="p-3 text-right">
-                    <template x-if="row.isManual && row.manualId">
-                      <button type="button" @click="removeManualTransaction(row.manualId)"
-                              title="Verwijder manuele boeking"
-                              class="text-[#f87171] hover:text-white bg-[#800020]/20 hover:bg-[#800020]/40 px-2 py-0.5 rounded text-[11px] font-bold transition">
-                        ✕
-                      </button>
-                    </template>
-                    <template x-if="!row.isManual">
-                      <span class="text-[10px] text-slate-600 font-mono">CSV</span>
-                    </template>
-                  </td>
-                </tr>
-              </template>
-              <template x-if="getFilteredLedgerEntries(ledgerFilter).length === 0">
-                <tr>
-                  <td colspan="7" class="p-8 text-center text-slate-500 italic">Geen boekingen of opnames gevonden voor dit filter.</td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
-        </div>
-      </div>
 
         <!-- Kosten & Compensaties -->
         <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl flex flex-col justify-between">
@@ -1245,16 +1168,10 @@
             </select>
           </div>
           <div>
-           <button type="button"
-        @click="$refs.csvFileInput.click()"
-        class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-2 rounded-xl transition cursor-pointer inline-flex items-center gap-1.5 shadow">
-  <span>2. Selecteer CSV / Excel Bestand</span>
-</button>
-<input type="file"
-       x-ref="csvFileInput"
-       accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
-       @change="handleMultiBrokerCsvUpload($event)"
-       class="hidden">
+            <label for="multiBrokerCsvInput" class="bg-[#10b981] hover:bg-[#059669] text-slate-950 font-bold px-4 py-2 rounded-xl transition cursor-pointer inline-flex items-center gap-1.5 shadow">
+              <span>2. Selecteer CSV Bestand</span>
+            </label>
+    <input type="file" id="multiBrokerCsvInput" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" @change="handleMultiBrokerCsvUpload($event)" class="sr-only">
           </div>
         </div>
 
@@ -1486,7 +1403,6 @@
         showEditAssetModal: false,
         showManageMappingsModal: false,
         showCorporateActionsModal: false,
-        showCsvUploadModal: false,
        editingAsset: { isin: '', newIsin: '', name: '', ticker: '', apiTicker: '', currency: 'EUR', overrideGak: '', overrideQty: '', currentGak: 0, currentQty: 0, tagsText: '', comment: '' },
         transactions: [],
         csvBatches: [],
@@ -1673,9 +1589,8 @@
             }
           }
 
-// Voegt alle batches + manuele boekingen samen en berekent direct de posities
+          // Voegt alle batches + manuele boekingen samen en berekent direct de posities
           this.rebuildActiveTransactions();
-          this._cachedTimeline = null;
           // --- EINDE STAP 2B ---
 
           this.fetchGoogleSheetData();
@@ -2158,43 +2073,45 @@ openEditAssetModal(isin) {
           return this.getAssetCurrency(isin) === 'USD';
         },
 
-       getExactRawPriceForIsin(isin) {
-          // 1. Directe match op unieke ISIN (altijd 100% exact)
-          if (this.latestPrices && this.latestPrices[isin] > 0) {
-            return this.latestPrices[isin];
-          }
-
-          // 2. Exacte match op gekoppelde Google- of API-ticker
-          const m = this.assetMapping[isin] || {};
-          for (const key of [m.googleTicker, m.apiTicker, m.ticker]) {
-            if (!key) continue;
-            const exact = this.latestPrices[key] || this.latestPrices[key.toUpperCase()];
-            if (exact > 0) return exact;
-          }
-
-          // 3. Laatste slotkoers uit Historie
-          const hist = this.getHistoricalPricesForTicker(m.googleTicker || m.ticker || m.apiTicker);
-          if (hist && hist.length > 0) {
-            for (let i = hist.length - 1; i >= 0; i--) {
-              if (hist[i] > 0) return hist[i];
-            }
-          }
-          return 0;
+        hasPriceWarning(pos) {
+          const isin = pos.isin;
+          const ticker = this.assetMapping[isin]?.ticker;
+          const hasLivePrice = (ticker && this.latestPrices[ticker] !== undefined && this.latestPrices[ticker] > 0) ||
+                     (this.latestPrices[isin] !== undefined && this.latestPrices[isin] > 0);
+          const curPrice = this.getAssetPriceInEur(isin);
+          return !hasLivePrice || curPrice === 0;
         },
 
-        hasPriceWarning(pos) {
-          return this.getExactRawPriceForIsin(pos.isin) <= 0;
+        getPriceWarningTitle(pos) {
+          const curPrice = this.getAssetPriceInEur(pos.isin);
+          if (curPrice === 0) return 'Waarschuwing: Laatste koers staat op 0,00';
+          return 'Geen live koers beschikbaar: gebruikt Gemiddelde AankoopKoers (GAK)';
         },
 
         getRawOriginalPrice(isin) {
-          const live = this.getExactRawPriceForIsin(isin);
-          if (live > 0) return live;
+          const m = this.assetMapping[isin] || {};
+          const candidates = [m.apiTicker, m.ticker, m.googleTicker, isin].filter(Boolean);
+          for (const key of candidates) {
+            if (this.latestPrices[key] !== undefined && this.latestPrices[key] > 0) {
+              return this.latestPrices[key];
+            }
+          }
           const pos = this.positions.find(p => p.isin === isin);
           return pos ? pos.avgPrice : 0;
         },
 
         formatOriginalPrice(isin) {
-          const rawPrice = this.getRawOriginalPrice(isin);
+          const ticker = this.assetMapping[isin]?.ticker;
+          let rawPrice = 0;
+          if (ticker && this.latestPrices[ticker] !== undefined) {
+            rawPrice = this.latestPrices[ticker];
+          } else if (this.latestPrices[isin] !== undefined) {
+            rawPrice = this.latestPrices[isin];
+          } else {
+            const pos = this.positions.find(p => p.isin === isin);
+            rawPrice = pos ? pos.avgPrice : 0;
+          }
+
           const ccy = this.getAssetCurrency(isin);
           const symbols = {
             'USD': '$', 'GBP': '£', 'GBX': 'p', 'EUR': '€', 'CHF': 'CHF',
@@ -2205,12 +2122,36 @@ openEditAssetModal(isin) {
           return `${sym} ${rawPrice.toFixed(2)} ${ccy}`;
         },
 
-        getAssetPriceInEur(isin) {
-          const rawPrice = this.getExactRawPriceForIsin(isin);
-          if (rawPrice <= 0) {
-            const pos = this.positions.find(p => p.isin === isin);
-            return pos ? pos.avgPrice : 0;
+      getAssetPriceInEur(isin) {
+          const m = this.assetMapping[isin] || {};
+          const candidates = [m.apiTicker, m.ticker, m.googleTicker, isin].filter(Boolean);
+          let rawPrice = 0;
+
+          for (const key of candidates) {
+            if (this.latestPrices[key] > 0) {
+              rawPrice = this.latestPrices[key];
+              break;
+            }
           }
+
+          if (rawPrice <= 0) {
+            const hist = this.getHistoricalPricesForIsin
+              ? this.getHistoricalPricesForIsin(isin)
+              : this.getHistoricalPricesForTicker(m.googleTicker || m.ticker || m.apiTicker);
+            if (hist && hist.length > 0) {
+              for (let i = hist.length - 1; i >= 0; i--) {
+                if (hist[i] > 0) {
+                  rawPrice = hist[i];
+                  break;
+                }
+              }
+            }
+          }
+  // Laatste redmiddel: GAK (is al in EUR, dus direct returnen!)
+  if (rawPrice <= 0) {
+    const pos = this.positions.find(p => p.isin === isin);
+    return pos ? pos.avgPrice : 0;
+  }
 
           const ccy = this.getAssetCurrency(isin);
           if (ccy === 'EUR') return rawPrice;
@@ -2233,6 +2174,7 @@ openEditAssetModal(isin) {
 
           return rawPrice * fxRate;
         },
+
         get closedPositionsList() {
           let map = {};
           this.transactions.forEach(tx => {
@@ -2603,15 +2545,18 @@ saveInlineMapping(isin, rawTicker, rawCcy) {
 
           this.syncStatus = `Opslaan ${ticker || isin}...`;
 
-         fetch(GOOGLE_SCRIPT_URL, {
+          fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           }).then(() => {
-            this.syncStatus = `Opgeslagen: ${ticker || isin} (${currency}) — koers ophalen...`;
+            this.syncStatus = `Opgeslagen: ${ticker || isin} (${currency})`;
             this.uploadMessage = `Asset ${mappingItem.name || isin} bijgewerkt: ticker '${ticker}', valuta '${currency}'.`;
             this.renderDonutCharts();
-            setTimeout(() => this.fetchGoogleSheetData(), 2500);
+            if (this.activeTab === 'twr') this.updateTwrView();
+            if (this.activeTab === 'dividenden') this.renderDividendCharts();
+            if (this.activeTab === 'assetDetail') this.updateAssetDetailView();
           }).catch(err => {
             console.error('Fout bij verzenden naar backend:', err);
             this.syncStatus = 'Fout bij opslaan';
@@ -2621,7 +2566,7 @@ saveInlineMapping(isin, rawTicker, rawCcy) {
 parseNum(val) {
           if (val === null || val === undefined || val === '') return 0;
           if (typeof val === 'number') return val;
-          let s = String(val).trim().replace(/['" €£$]/g, '');
+          let s = String(val).trim().replace(/[\u00a0'" €£$]/g, '');
           if (s.includes('.') && s.includes(',')) {
             s = s.replace(/\./g, '').replace(',', '.');
           } else if (s.includes(',')) {
@@ -3061,14 +3006,12 @@ parseNum(val) {
           return t;
         },
 
-        // Normaliseert kolommen van andere brokers (inclusief het aangepaste Bolero Transacties Totaal formaat)
+        // Normaliseert kolommen van andere brokers (inclusief Bolero / KBC cashmovements.csv met ';' en non-breaking spaces)
         normalizeBrokerCsvRow(row, broker) {
-          // 1. Als de CSV al standaard BUX/PAT-kolommen heeft
           if (row['Transaction Category'] !== undefined) {
             return { ...row, Broker: broker };
           }
 
-          // 2. Nieuw aangepast KBC / Bolero formaat ("Categorie", "Omschrijving / Effect", "Netto Cash Bedrag")
           if (row['Categorie'] !== undefined && row['Netto Cash Bedrag'] !== undefined) {
             const datum = this.getVal(row, 'Datum');
             if (!datum) return [];
@@ -3083,14 +3026,13 @@ parseNum(val) {
             const qty = Math.abs(this.parseNum(this.getVal(row, 'Aantal')));
             const unitPrice = Math.abs(this.parseNum(this.getVal(row, 'Transactieprijs')));
             const rvOrTaxOrig = Math.abs(this.parseNum(this.getVal(row, 'Roerende Voorheffing')));
-            const netCashEur = this.parseNum(this.getVal(row, 'Netto Cash Bedrag'));
-            const ccy = (this.getVal(row, 'Munt') || 'EUR').toUpperCase();
+            const rawNetCash = this.getVal(row, 'Netto Cash Bedrag');
+            const netCashEur = this.parseNum(rawNetCash);
+            const ccy = (this.getVal(row, 'Munt') || 'EUR').trim().toUpperCase();
             const feeOrig = Math.abs(this.parseNum(this.getVal(row, 'Makelaarsloon')));
             const fxRaw = this.parseNum(this.getVal(row, 'Wisselkoers'));
-            // Wisselkoers in bestand is EUR->Munt (bv. 0.862 GBP/EUR of 1.178 USD/EUR), dus 1/fxRaw = Munt->EUR
             const toEurRate = (ccy === 'EUR' || fxRaw <= 0) ? 1.0 : (1.0 / fxRaw);
 
-            // Zuivere effectnaam opschonen & ticker vooraf registreren in assetMapping
             const cleanName = desc
               .replace(/^(Aankoop|Verkoop)\s+Online\s+/i, '')
               .replace(/^Uitbetaling\s+dividenden\s+(CP\s+)?/i, '')
@@ -3185,12 +3127,11 @@ parseNum(val) {
               }
             } else if (catRaw === 'aankoop' || catRaw === 'verkoop') {
               const isBuy = (catRaw === 'aankoop');
+              const netAbsEur = Math.abs(netCashEur);
               const feeEur = Math.round(feeOrig * toEurRate * 100) / 100;
               const tobEur = Math.round(rvOrTaxOrig * toEurRate * 100) / 100;
-              const grossTradeEur = isBuy
-                ? Math.max(0, Math.abs(netCashEur) - feeEur - tobEur)
-                : (Math.abs(netCashEur) + feeEur + tobEur);
 
+              // Bij aankoop daalt cash met netAbsEur; bij verkoop stijgt cash met netAbsEur
               outRows.push({
                 Broker: broker,
                 'Transaction Time (CET)': timestamp,
@@ -3201,7 +3142,7 @@ parseNum(val) {
                 'Asset Name': cleanName,
                 'Asset Currency': ccy,
                 'Asset Quantity': qty,
-                'Transaction Amount': isBuy ? -grossTradeEur : grossTradeEur,
+                'Transaction Amount': isBuy ? -netAbsEur : netAbsEur,
                 'Profit And Loss Amount': 0,
                 'Transaction Description': desc
               });
@@ -3233,7 +3174,6 @@ parseNum(val) {
                 });
               }
             } else if (catRaw === 'effectentransfer') {
-              // Inkomende transfer (bv. 10x KBC @ €85,68) toevoegen als positie-inbreng zonder kas-impact
               const transferValEur = Math.round(qty * unitPrice * toEurRate * 100) / 100;
               outRows.push({
                 Broker: broker,
@@ -3254,7 +3194,6 @@ parseNum(val) {
             return outRows;
           }
 
-          // 3. Fallback voor overige generieke broker-CSV's
           const dateVal = this.getVal(row, 'Datum', 'Date', 'Transaction Time (CET)', 'Boekingsdatum');
           const timeVal = this.getVal(row, 'Tijd', 'Time') || '12:00:00';
           const isin = this.getVal(row, 'ISIN', 'Asset Id').toUpperCase();
@@ -4182,55 +4121,40 @@ if (timeline.length > 0 && this.totalPortfolioValue > 0) {
           }
         },
         // Berekent per storting het exacte cumulatieve TWR-rendement van de portefeuille vanaf de stortingsdatum
-get computedClientTranches() {
-       if (!this.clientDeposits || this.clientDeposits.length === 0) return [];
-       const timeline = this.buildDailyPortfolioTimeline(this.historyData.dates || []);
+        get computedClientTranches() {
+          if (!this.clientDeposits || this.clientDeposits.length === 0) return [];
+          const timeline = this.buildDailyPortfolioTimeline(this.historyData.dates || []);
 
-       return [...this.clientDeposits]
-         .sort((a, b) => a.date.localeCompare(b.date))
-         .map(dep => {
-           let factor = 1.0;
-           let prevVal = null;
+          return [...this.clientDeposits]
+            .sort((a, b) => a.date.localeCompare(b.date))
+            .map(dep => {
+              let factor = 1.0;
+              let prevVal = null;
 
-           if (timeline.length > 0) {
-             // Zoek laatste bekende portefeuillewaarde t/m dep.date als startbasis
-             for (let i = 0; i < timeline.length; i++) {
-               if (timeline[i].date <= dep.date && timeline[i].value > 0) {
-                 prevVal = timeline[i].value;
-               } else if (timeline[i].date > dep.date) {
-                 break;
-               }
-             }
+              if (timeline.length > 0) {
+                timeline.forEach(pt => {
+                  if (pt.date >= dep.date) {
+                    if (prevVal !== null && prevVal > 0) {
+                      const subReturn = (pt.value - pt.cashFlow - prevVal) / prevVal;
+                      if (isFinite(subReturn) && subReturn > -0.95 && subReturn < 5) {
+                        factor *= (1 + subReturn);
+                      }
+                    }
+                    prevVal = pt.value;
+                  }
+                });
+              }
 
-             // Compound dagelijkse TWR-rendementen voor alle dagen >= dep.date
-             for (let i = 0; i < timeline.length; i++) {
-               const pt = timeline[i];
-               if (pt.date < dep.date) continue;
-
-               if (prevVal !== null && prevVal > 0) {
-                 // Op de stortingsdag zelf telt de nieuwe storting van dep.amount niet als koerswinst
-                 const dayCf = (pt.date === dep.date) ? (pt.cashFlow - dep.amount) : pt.cashFlow;
-                 const subReturn = (pt.value - dayCf - prevVal) / prevVal;
-                 if (isFinite(subReturn) && subReturn > -0.95 && subReturn < 5) {
-                   factor *= (1 + subReturn);
-                 }
-               }
-               if (pt.value > 0) {
-                 prevVal = pt.value;
-               }
-             }
-           }
-
-           const returnPct = (factor - 1) * 100;
-           const currentVal = dep.amount * factor;
-           return {
-             ...dep,
-             returnPct: isFinite(returnPct) ? returnPct : 0,
-             currentVal: isFinite(currentVal) ? currentVal : dep.amount,
-             pnlEur: (isFinite(currentVal) ? currentVal : dep.amount) - dep.amount
-           };
-         });
-     },
+              const returnPct = (factor - 1) * 100;
+              const currentVal = dep.amount * factor;
+              return {
+                ...dep,
+                returnPct: isFinite(returnPct) ? returnPct : 0,
+                currentVal: isFinite(currentVal) ? currentVal : dep.amount,
+                pnlEur: (isFinite(currentVal) ? currentVal : dep.amount) - dep.amount
+              };
+            });
+        },
 
         // Groepeert alle stortingstranches per persoon (bv. Renée & Auguste)
         get clientSummaryList() {
@@ -4447,473 +4371,6 @@ get computedClientTranches() {
 
         formatCurrency(val) {
           return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val || 0);
-        },
-
-        computeUnifiedLedger() {
-          let posMap = {};
-          let pendingCaDebits = [];
-          let closedByMerger = [];
-          let closedMap = {};
-
-          let deposits = 0;
-          let withdrawals = 0;
-          let realizedPnL = 0;
-          let cash = 0;
-
-          let sortedTx = [...this.transactions].sort((a, b) => {
-            const ta = this.getVal(a, 'Transaction Time (CET)', 'Date', 'Time');
-            const tb = this.getVal(b, 'Transaction Time (CET)', 'Date', 'Time');
-            return ta.localeCompare(tb);
-          });
-
-          let runningQty = {};
-          let caDirections = {};
-
-          sortedTx.forEach((tx, idx) => {
-            const category = this.getVal(tx, 'Transaction Category');
-            const type = this.getVal(tx, 'Transaction Type');
-            const transferType = this.getVal(tx, 'Transfer Type').toUpperCase();
-            const desc = this.getVal(tx, 'Transaction Description').toUpperCase();
-            const isin = this.getVal(tx, 'Asset Id', 'ISIN');
-            const rawQty = this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity'));
-            const qty = Math.abs(rawQty);
-
-            if (!isin || DUMMY_ISINS.includes(isin)) return;
-
-            if (category === 'trades') {
-              if (type === 'Buy Trade' && (transferType === 'CASH_DEBIT' || transferType === '')) {
-                runningQty[isin] = (runningQty[isin] || 0) + qty;
-              } else if (type === 'Sell Trade' && (transferType === 'CASH_CREDIT' || transferType === '')) {
-                runningQty[isin] = Math.max(0, (runningQty[isin] || 0) - qty);
-              }
-            } else if (category === 'corporate_actions') {
-              if (transferType.includes('CASH')) {
-                caDirections[idx] = 'CASH';
-              } else if (qty === 0) {
-                caDirections[idx] = 'NONE';
-              } else if (
-                rawQty < 0 ||
-                ['DEBIT', 'OUT', 'SELL', 'REMOVE', 'WITHDRAW'].some(k => transferType.includes(k)) ||
-                ['DEBIT', 'OUT', 'REMOVAL', 'EXCHANGE FROM'].some(k => desc.includes(k))
-              ) {
-                caDirections[idx] = 'DEBIT';
-                runningQty[isin] = Math.max(0, (runningQty[isin] || 0) - qty);
-              } else if (
-                ['CREDIT', 'IN', 'BUY', 'ADD', 'DEPOSIT'].some(k => transferType.includes(k)) ||
-                ['CREDIT', 'ADDITION', 'EXCHANGE TO'].some(k => desc.includes(k))
-              ) {
-                caDirections[idx] = 'CREDIT';
-                runningQty[isin] = (runningQty[isin] || 0) + qty;
-              } else {
-                if ((runningQty[isin] || 0) > 0.0001) {
-                  caDirections[idx] = 'DEBIT';
-                  runningQty[isin] = Math.max(0, (runningQty[isin] || 0) - qty);
-                } else {
-                  caDirections[idx] = 'CREDIT';
-                  runningQty[isin] = (runningQty[isin] || 0) + qty;
-                }
-              }
-            }
-          });
-
-          const prioMap = { 'DEBIT': 1, 'CASH': 2, 'CREDIT': 3, 'NONE': 4 };
-          let indexedTx = sortedTx.map((tx, idx) => ({ tx, idx }));
-          indexedTx.sort((a, b) => {
-            const ta = this.getVal(a.tx, 'Transaction Time (CET)', 'Date', 'Time');
-            const tb = this.getVal(b.tx, 'Transaction Time (CET)', 'Date', 'Time');
-            const bucketA = ta.slice(0, 16);
-            const bucketB = tb.slice(0, 16);
-            if (bucketA !== bucketB) return bucketA.localeCompare(bucketB);
-
-            const catA = this.getVal(a.tx, 'Transaction Category');
-            const catB = this.getVal(b.tx, 'Transaction Category');
-            const pA = catA === 'trades' ? 0 : (prioMap[caDirections[a.idx]] || 3);
-            const pB = catB === 'trades' ? 0 : (prioMap[caDirections[b.idx]] || 3);
-            if (pA !== pB) return pA - pB;
-            return ta.localeCompare(tb);
-          });
-
-          indexedTx.forEach(({ tx, idx }) => {
-            const category = this.getVal(tx, 'Transaction Category');
-            const type = this.getVal(tx, 'Transaction Type');
-            const transferType = this.getVal(tx, 'Transfer Type').toUpperCase();
-            const isin = this.getVal(tx, 'Asset Id', 'ISIN');
-            const name = this.getVal(tx, 'Asset Name', 'Name');
-            const rawQty = this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity'));
-            const qty = Math.abs(rawQty);
-            const rawAmt = this.parseNum(this.getVal(tx, 'Transaction Amount', 'Amount'));
-            const eurAmount = Math.abs(rawAmt);
-            const txTime = this.getVal(tx, 'Transaction Time (CET)', 'Date', 'Time');
-            const txDate = txTime.split(' ')[0];
-
-            if (category === 'deposits') {
-              deposits += eurAmount;
-              cash += rawAmt;
-              return;
-            }
-            if (category === 'withdrawals') {
-              withdrawals += eurAmount;
-              cash -= eurAmount;
-              return;
-            }
-            if (category === 'fees' || category === 'tax') {
-              cash -= eurAmount;
-              return;
-            }
-            if (category === 'dividends' && (transferType === 'CASH_CREDIT' || transferType === 'CASH_DEBIT')) {
-              cash += rawAmt;
-              return;
-            }
-            if (category === 'interest' || category === 'others') {
-              cash += rawAmt;
-              return;
-            }
-
-            if (!isin || DUMMY_ISINS.includes(isin)) return;
-            const resolvedName = this.getAssetDisplayName({ isin, name });
-
-            if (category === 'trades') {
-              if (!posMap[isin]) {
-                posMap[isin] = {
-                  isin: isin,
-                  name: resolvedName,
-                  quantity: 0,
-                  totalCost: 0,
-                  avgPrice: 0,
-                  isEtf: this.isEtfAsset(resolvedName, isin),
-                  caBadge: '',
-                  caNote: ''
-                };
-              }
-
-              if (type === 'Buy Trade' && (transferType === 'CASH_DEBIT' || transferType === '')) {
-                posMap[isin].quantity += qty;
-                posMap[isin].totalCost += eurAmount;
-                if (transferType === 'CASH_DEBIT') cash += rawAmt;
-              }
-              else if (type === 'Sell Trade' && (transferType === 'CASH_CREDIT' || transferType === '')) {
-                let avg = posMap[isin].quantity > 0 ? posMap[isin].totalCost / posMap[isin].quantity : 0;
-                const explicitPnl = this.parseNum(this.getVal(tx, 'Profit And Loss Amount'));
-                const tradePnl = explicitPnl !== 0 ? explicitPnl : (eurAmount - (qty * avg));
-                realizedPnL += tradePnl;
-
-                if (!closedMap[isin]) {
-                  closedMap[isin] = {
-                    isin: isin,
-                    name: resolvedName,
-                    soldQuantity: 0,
-                    realizedPnL: 0,
-                    note: ''
-                  };
-                }
-                closedMap[isin].soldQuantity += qty;
-                closedMap[isin].realizedPnL += tradePnl;
-
-                posMap[isin].quantity = Math.max(0, posMap[isin].quantity - qty);
-                posMap[isin].totalCost = Math.max(0, posMap[isin].totalCost - (qty * avg));
-                if (transferType === 'CASH_CREDIT') cash += rawAmt;
-              }
-
-              if (posMap[isin].quantity > 0.000001) {
-                posMap[isin].avgPrice = posMap[isin].totalCost / posMap[isin].quantity;
-              } else {
-                posMap[isin].quantity = 0;
-                posMap[isin].avgPrice = 0;
-                posMap[isin].totalCost = 0;
-              }
-            }
-            else if (category === 'corporate_actions') {
-              if (!posMap[isin]) {
-                posMap[isin] = {
-                  isin: isin,
-                  name: resolvedName,
-                  quantity: 0,
-                  totalCost: 0,
-                  avgPrice: 0,
-                  isEtf: this.isEtfAsset(resolvedName, isin),
-                  caBadge: '',
-                  caNote: ''
-                };
-              }
-
-              const dir = caDirections[idx];
-
-              if (dir === 'DEBIT' && qty > 0) {
-                let currentGak = posMap[isin].quantity > 0 ? (posMap[isin].totalCost / posMap[isin].quantity) : 0;
-                let closedQty = Math.min(posMap[isin].quantity, qty);
-                let removedCost = Math.min(posMap[isin].totalCost, closedQty * currentGak);
-
-                posMap[isin].quantity = Math.max(0, posMap[isin].quantity - qty);
-                posMap[isin].totalCost = Math.max(0, posMap[isin].totalCost - removedCost);
-                posMap[isin].avgPrice = posMap[isin].quantity > 0.000001 ? (posMap[isin].totalCost / posMap[isin].quantity) : 0;
-
-                pendingCaDebits.push({
-                  fromIsin: isin,
-                  fromName: resolvedName,
-                  closedQty: closedQty,
-                  closedGak: currentGak,
-                  remainingCost: removedCost,
-                  date: txDate
-                });
-              }
-              else if (dir === 'CREDIT' && qty > 0) {
-                let inheritedCost = 0;
-                let sourceDebit = null;
-
-                const matchingRule = this.corporateActions.find(ca => ca.type === 'merger' && ca.toIsin === isin);
-                if (matchingRule) {
-                  const dIdx = pendingCaDebits.findIndex(d => d.fromIsin === matchingRule.fromIsin && d.remainingCost > 0);
-                  if (dIdx !== -1) {
-                    sourceDebit = pendingCaDebits.splice(dIdx, 1)[0];
-                  }
-                }
-                if (!sourceDebit && pendingCaDebits.length > 0) {
-                  sourceDebit = pendingCaDebits.shift();
-                }
-
-                if (sourceDebit) {
-                  inheritedCost = sourceDebit.remainingCost;
-                  if (sourceDebit.fromIsin !== isin) {
-                    closedByMerger.push({
-                      isin: sourceDebit.fromIsin,
-                      name: sourceDebit.fromName,
-                      closedQuantity: sourceDebit.closedQty,
-                      note: `Overname / Wissel → ${resolvedName} (GAK ${this.formatCurrency(sourceDebit.closedGak)})`
-                    });
-                  }
-                }
-
-                const convertedGak = qty > 0 ? (inheritedCost / qty) : 0;
-                const hadExistingShares = posMap[isin].quantity > 0.0001;
-
-                posMap[isin].quantity += qty;
-                posMap[isin].totalCost += inheritedCost;
-                posMap[isin].avgPrice = posMap[isin].quantity > 0.000001 ? (posMap[isin].totalCost / posMap[isin].quantity) : 0;
-                posMap[isin].caBadge = sourceDebit && sourceDebit.fromIsin !== isin ? 'Overname' : 'CA';
-                posMap[isin].caNote = sourceDebit && sourceDebit.fromIsin !== isin
-                  ? `Conversie ${sourceDebit.fromName}: geconverteerde GAK ${this.formatCurrency(convertedGak)}${hadExistingShares ? ' samengevoegd met bestaande positie' : ''}`
-                  : `Corporate Action (${type || 'CSV'}): GAK aangepast naar ${this.formatCurrency(posMap[isin].avgPrice)}`;
-              }
-              else if (dir === 'CASH') {
-                if (transferType === 'CASH_CREDIT' || transferType === 'CASH_DEBIT') cash += rawAmt;
-                if (rawAmt > 0 && pendingCaDebits.length > 0) {
-                  pendingCaDebits[0].remainingCost = Math.max(0, pendingCaDebits[0].remainingCost - rawAmt);
-                }
-              }
-            }
-          });
-
-          this.corporateActions.forEach(ca => {
-            if (ca.type === 'rename') {
-              const isin = ca.isin;
-              if (posMap[isin]) {
-                posMap[isin].name = ca.newName;
-                posMap[isin].caBadge = 'Naam';
-                posMap[isin].caNote = `Hernoemd naar ${ca.newName}`;
-              }
-            }
-            else if (ca.type === 'split') {
-              const isin = ca.isin;
-              const factor = parseFloat(ca.factor);
-              if (posMap[isin] && posMap[isin].quantity > 0.0001 && factor > 0) {
-                if (ca.mode === 'divide') {
-                  posMap[isin].quantity = posMap[isin].quantity / factor;
-                  posMap[isin].caBadge = `÷${factor}`;
-                  posMap[isin].caNote = `Reverse Split: aantal gedeeld door ${factor} met behoud van totale aankoopwaarde`;
-                } else {
-                  posMap[isin].quantity = posMap[isin].quantity * factor;
-                  posMap[isin].caBadge = `×${factor}`;
-                  posMap[isin].caNote = `Aandelensplitsing: aantal vermenigvuldigd met ${factor} met behoud van totale aankoopwaarde`;
-                }
-                posMap[isin].avgPrice = posMap[isin].totalCost / posMap[isin].quantity;
-              }
-            }
-            else if (ca.type === 'merger') {
-              const fromIsin = ca.fromIsin;
-              const toIsin = ca.toIsin;
-              const ratio = parseFloat(ca.ratio) || 1;
-              const cashBoot = parseFloat(ca.cashBoot) || 0;
-
-              if (posMap[fromIsin] && posMap[fromIsin].quantity > 0.0001) {
-                const oldQty = posMap[fromIsin].quantity;
-                const oldGak = posMap[fromIsin].avgPrice;
-                const oldCost = posMap[fromIsin].totalCost;
-                const fromName = this.getAssetDisplayName(posMap[fromIsin]);
-
-                const newQty = oldQty * ratio;
-                const transferredCost = Math.max(0, oldCost - cashBoot);
-                const convertedGak = newQty > 0 ? (transferredCost / newQty) : 0;
-
-                posMap[fromIsin].quantity = 0;
-                posMap[fromIsin].totalCost = 0;
-                posMap[fromIsin].avgPrice = 0;
-
-                const targetName = ca.toName || this.getAssetDisplayName(toIsin);
-
-                closedByMerger.push({
-                  isin: fromIsin,
-                  name: fromName,
-                  closedQuantity: oldQty,
-                  note: `Overname / Wissel → ${targetName} (afgesloten aan GAK ${this.formatCurrency(oldGak)})`
-                });
-
-                if (!posMap[toIsin]) {
-                  posMap[toIsin] = {
-                    isin: toIsin,
-                    name: targetName,
-                    quantity: 0,
-                    totalCost: 0,
-                    avgPrice: 0,
-                    isEtf: this.isEtfAsset(targetName, toIsin),
-                    caBadge: '',
-                    caNote: ''
-                  };
-                }
-
-                const hadExistingShares = posMap[toIsin].quantity > 0.0001;
-                posMap[toIsin].quantity += newQty;
-                posMap[toIsin].totalCost += transferredCost;
-                posMap[toIsin].avgPrice = posMap[toIsin].quantity > 0.000001 ? (posMap[toIsin].totalCost / posMap[toIsin].quantity) : 0;
-                posMap[toIsin].caBadge = 'Overname';
-                posMap[toIsin].caNote = `Conversie ${fromName} (1:${ratio}): geconverteerde GAK ${this.formatCurrency(convertedGak)}${hadExistingShares ? ' samengevoegd met bestaande positie' : ''}`;
-              }
-            }
-          });
-
-          Object.keys(this.positionOverrides || {}).forEach(isin => {
-            const ov = this.positionOverrides[isin];
-            if (!ov) return;
-            if (!posMap[isin]) {
-              posMap[isin] = {
-                isin: isin,
-                name: this.getAssetDisplayName(isin),
-                quantity: 0,
-                totalCost: 0,
-                avgPrice: 0,
-                isEtf: this.isEtfAsset(this.getAssetDisplayName(isin), isin),
-                caBadge: '',
-                caNote: ''
-              };
-            }
-            if (ov.quantity !== '' && ov.quantity !== undefined && !isNaN(parseFloat(ov.quantity))) {
-              posMap[isin].quantity = parseFloat(ov.quantity);
-            }
-            if (ov.avgPrice !== '' && ov.avgPrice !== undefined && !isNaN(parseFloat(ov.avgPrice))) {
-              posMap[isin].avgPrice = parseFloat(ov.avgPrice);
-            }
-            posMap[isin].totalCost = posMap[isin].quantity * posMap[isin].avgPrice;
-            posMap[isin].isManualOverride = true;
-            posMap[isin].overrideComment = ov.comment || 'Handmatige correctie';
-          });
-
-          Object.keys(posMap).forEach(isin => {
-            posMap[isin].name = this.getAssetDisplayName(posMap[isin]);
-          });
-
-          closedByMerger.forEach(mc => {
-            if (!closedMap[mc.isin]) {
-              closedMap[mc.isin] = {
-                isin: mc.isin,
-                name: mc.name,
-                soldQuantity: mc.closedQuantity,
-                realizedPnL: 0,
-                note: mc.note
-              };
-            } else {
-              closedMap[mc.isin].soldQuantity += mc.closedQuantity;
-              closedMap[mc.isin].note = mc.note;
-            }
-          });
-
-          return {
-            positions: Object.values(posMap).filter(p => p.quantity > 0.0001),
-            mergerClosedPositions: closedByMerger,
-            closedPositionsList: Object.values(closedMap),
-            deposits: deposits,
-            withdrawals: withdrawals,
-            realizedPnL: realizedPnL,
-            cashBalance: Math.max(0, cash)
-          };
-        },
-
-        calculatePositions() {
-          const led = this.computeUnifiedLedger();
-          this.mergerClosedPositions = led.mergerClosedPositions;
-          this.positions = led.positions;
-        },
-
-        get closedPositionsList() {
-          return this.computeUnifiedLedger().closedPositionsList;
-        },
-
-        get totals() {
-          const led = this.computeUnifiedLedger();
-          return { deposits: led.deposits, withdrawals: led.withdrawals, realizedPnL: led.realizedPnL };
-        },
-
-        get cashBalance() {
-          return this.computeUnifiedLedger().cashBalance;
-        },
-        getFilteredLedgerEntries(filter = 'ALL') {
-          const typeLabels = {
-            deposits: 'Storting',
-            withdrawals: 'Opname',
-            trades: 'Trade',
-            dividends: 'Dividend',
-            fees: 'Kost',
-            tax: 'Taks (TOB)',
-            interest: 'Rente',
-            others: 'Overig'
-          };
-
-          const mapped = (this.transactions || []).map((tx, i) => {
-            const cat = String(this.getVal(tx, 'Transaction Category') || 'others').toLowerCase();
-            const txType = this.getVal(tx, 'Transaction Type');
-            const isin = this.getVal(tx, 'Asset Id', 'ISIN');
-            const rawName = this.getVal(tx, 'Asset Name', 'Name');
-            const desc = this.getVal(tx, 'Transaction Description');
-            const amt = this.parseNum(this.getVal(tx, 'Transaction Amount', 'Amount'));
-            const qty = Math.abs(this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity')));
-            const ts = this.getVal(tx, 'Transaction Time (CET)', 'Date', 'Time') || '';
-            const isManual = Boolean(tx._manualId);
-
-            let typeLabel = typeLabels[cat] || txType || cat;
-            if (cat === 'trades') {
-              typeLabel = txType && txType.toLowerCase().includes('sell') ? 'Verkoop' : 'Aankoop';
-            } else if (txType && /withdrawal|opname/i.test(txType)) {
-              typeLabel = 'Opname';
-            } else if (txType && /deposit|storting/i.test(txType)) {
-              typeLabel = 'Storting';
-            }
-
-            const assetOrDesc = isin
-              ? (this.getAssetDisplayName({ isin, name: rawName }) || desc || isin)
-              : (desc || rawName || typeLabel);
-
-            return {
-              _key: tx._manualId || ('tx_' + i),
-              ts: ts,
-              date: ts.split(' ')[0] || '—',
-              broker: tx.Broker || 'Overig',
-              category: cat,
-              typeLabel: typeLabel,
-              assetOrDesc: assetOrDesc,
-              description: desc || assetOrDesc,
-              qty: qty,
-              amount: amt,
-              isManual: isManual,
-              manualId: tx._manualId || ''
-            };
-          });
-
-          const filtered = mapped.filter(row => {
-            if (filter === 'CASHFLOW') return row.category === 'deposits' || row.category === 'withdrawals';
-            if (filter === 'TRADES') return row.category === 'trades';
-            if (filter === 'MANUAL') return row.isManual;
-            return true;
-          });
-
-          return filtered.sort((a, b) => b.ts.localeCompare(a.ts));
         }
       }
     }
