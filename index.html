@@ -3183,13 +3183,11 @@ parseNum(val) {
                   'Transaction Description': `Roerende voorheffing ${cleanName}`
                 });
               }
-            } else if (catRaw === 'aankoop' || catRaw === 'verkoop') {
+              } else if (catRaw === 'aankoop' || catRaw === 'verkoop') {
               const isBuy = (catRaw === 'aankoop');
+              const netTradeEur = Math.abs(netCashEur);
               const feeEur = Math.round(feeOrig * toEurRate * 100) / 100;
               const tobEur = Math.round(rvOrTaxOrig * toEurRate * 100) / 100;
-              const grossTradeEur = isBuy
-                ? Math.max(0, Math.abs(netCashEur) - feeEur - tobEur)
-                : (Math.abs(netCashEur) + feeEur + tobEur);
 
               outRows.push({
                 Broker: broker,
@@ -3201,7 +3199,7 @@ parseNum(val) {
                 'Asset Name': cleanName,
                 'Asset Currency': ccy,
                 'Asset Quantity': qty,
-                'Transaction Amount': isBuy ? -grossTradeEur : grossTradeEur,
+                'Transaction Amount': isBuy ? -netTradeEur : netTradeEur,
                 'Profit And Loss Amount': 0,
                 'Transaction Description': desc
               });
