@@ -1590,7 +1590,10 @@
           }
 
           // Voegt alle batches + manuele boekingen samen en berekent direct de posities
-          this.rebuildActiveTransactions();
+         rebuildActiveTransactions() {
+       this._cachedTimeline = null;
+       this._cachedTimelineKey = '';
+       let combined = [];
           // --- EINDE STAP 2B ---
 
           this.fetchGoogleSheetData();
@@ -4097,40 +4100,55 @@ if (timeline.length > 0 && this.totalPortfolioValue > 0) {
           }
         },
         // Berekent per storting het exacte cumulatieve TWR-rendement van de portefeuille vanaf de stortingsdatum
-        get computedClientTranches() {
-          if (!this.clientDeposits || this.clientDeposits.length === 0) return [];
-          const timeline = this.buildDailyPortfolioTimeline(this.historyData.dates || []);
+get computedClientTranches() {
+       if (!this.clientDeposits || this.clientDeposits.length === 0) return [];
+       const timeline = this.buildDailyPortfolioTimeline(this.historyData.dates || []);
 
-          return [...this.clientDeposits]
-            .sort((a, b) => a.date.localeCompare(b.date))
-            .map(dep => {
-              let factor = 1.0;
-              let prevVal = null;
+       return [...this.clientDeposits]
+         .sort((a, b) => a.date.localeCompare(b.date))
+         .map(dep => {
+           let factor = 1.0;
+           let prevVal = null;
 
-              if (timeline.length > 0) {
-                timeline.forEach(pt => {
-                  if (pt.date >= dep.date) {
-                    if (prevVal !== null && prevVal > 0) {
-                      const subReturn = (pt.value - pt.cashFlow - prevVal) / prevVal;
-                      if (isFinite(subReturn) && subReturn > -0.95 && subReturn < 5) {
-                        factor *= (1 + subReturn);
-                      }
-                    }
-                    prevVal = pt.value;
-                  }
-                });
-              }
+           if (timeline.length > 0) {
+             // Zoek laatste bekende portefeuillewaarde t/m dep.date als startbasis
+             for (let i = 0; i < timeline.length; i++) {
+               if (timeline[i].date <= dep.date && timeline[i].value > 0) {
+                 prevVal = timeline[i].value;
+               } else if (timeline[i].date > dep.date) {
+                 break;
+               }
+             }
 
-              const returnPct = (factor - 1) * 100;
-              const currentVal = dep.amount * factor;
-              return {
-                ...dep,
-                returnPct: isFinite(returnPct) ? returnPct : 0,
-                currentVal: isFinite(currentVal) ? currentVal : dep.amount,
-                pnlEur: (isFinite(currentVal) ? currentVal : dep.amount) - dep.amount
-              };
-            });
-        },
+             // Compound dagelijkse TWR-rendementen voor alle dagen >= dep.date
+             for (let i = 0; i < timeline.length; i++) {
+               const pt = timeline[i];
+               if (pt.date < dep.date) continue;
+
+               if (prevVal !== null && prevVal > 0) {
+                 // Op de stortingsdag zelf telt de nieuwe storting van dep.amount niet als koerswinst
+                 const dayCf = (pt.date === dep.date) ? (pt.cashFlow - dep.amount) : pt.cashFlow;
+                 const subReturn = (pt.value - dayCf - prevVal) / prevVal;
+                 if (isFinite(subReturn) && subReturn > -0.95 && subReturn < 5) {
+                   factor *= (1 + subReturn);
+                 }
+               }
+               if (pt.value > 0) {
+                 prevVal = pt.value;
+               }
+             }
+           }
+
+           const returnPct = (factor - 1) * 100;
+           const currentVal = dep.amount * factor;
+           return {
+             ...dep,
+             returnPct: isFinite(returnPct) ? returnPct : 0,
+             currentVal: isFinite(currentVal) ? currentVal : dep.amount,
+             pnlEur: (isFinite(currentVal) ? currentVal : dep.amount) - dep.amount
+           };
+         });
+     },
 
         // Groepeert alle stortingstranches per persoon (bv. Renée & Auguste)
         get clientSummaryList() {
