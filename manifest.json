@@ -1,9 +1,12 @@
 {
+  "id": "./",
   "name": "Key Analysis - Portfolio Insights",
   "short_name": "Key Analysis",
-  "description": "Portfolio Analysis & Time-Weighted Return (TWR) Tool",
-  "start_url": "index.html",
+  "description": "Portfolio Analysis, Time-Weighted Return (TWR), Dividenden, Fiscaal & Multi-Broker Asset Manager.",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#070d1e",
   "theme_color": "#070d1e",
   "icons": [
@@ -11,13 +14,19 @@
       "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
