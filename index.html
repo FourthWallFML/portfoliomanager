@@ -1595,11 +1595,8 @@
             }
           }
 
-          // Voegt alle batches + manuele boekingen samen en berekent direct de posities
-         rebuildActiveTransactions() {
-       this._cachedTimeline = null;
-       this._cachedTimelineKey = '';
-       let combined = [];
+// Voegt alle batches + manuele boekingen samen en berekent direct de posities
+          this.rebuildActiveTransactions();
           // --- EINDE STAP 2B ---
 
           this.fetchGoogleSheetData();
