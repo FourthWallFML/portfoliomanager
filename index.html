@@ -1766,10 +1766,12 @@
         peersList: JSON.parse(localStorage.getItem('pat_peers') || '[]'),
         financialsList: JSON.parse(localStorage.getItem('pat_financials') || '[]'),
         isRefreshingFmp: false,
+        twrHistory: JSON.parse(localStorage.getItem('pat_twr_history') || '[]'),
         marketFeedFilter: 'ALL',
         _cachedTimeline: null,
         _cachedTimelineKey: '',
         _cachedSignals: {},
+        
 
         initApp() {
           window.addEventListener('pwa-install-ready', () => {
@@ -2689,10 +2691,13 @@ if (Array.isArray(data.csvBatches) && data.csvBatches.length > 0) {
             this.benchmarkConfigs = data.benchmarks;
             safeSave('pat_benchmarks', this.benchmarkConfigs);
           }
+          if (Array.isArray(data.twrHistory) && data.twrHistory.length > 0) {
+            this.twrHistory = data.twrHistory;
+            safeSave('pat_twr_history', this.twrHistory);
+          }
           if (this.activeTab === 'twr') {
             this.$nextTick(() => this.updateTwrView());
           }
-
           if (Array.isArray(data.tagsOverrides) && data.tagsOverrides.length > 0) {
             data.tagsOverrides.forEach(row => {
               const isin = String(row.isin || '').trim().toUpperCase();
@@ -4523,8 +4528,37 @@ getHorizonStartDate(horizonKey, endDateStr) {
           return valid;
         },
 
+        getActiveTwrTimeline(forceTotal = false) {
+          const isFiltered = !forceTotal && (
+            (this.selectedBrokerFilter && this.selectedBrokerFilter !== 'ALL') ||
+            (this.selectedTagFilter && this.selectedTagFilter !== 'ALL')
+          );
+
+          if (isFiltered || !this.twrHistory || this.twrHistory.length < 2) {
+            return this.buildPureTwrTimeline();
+          }
+
+          const timeline = this.twrHistory.map(pt => ({
+            date: pt.date,
+            dailyReturn: pt.dailyReturn
+          }));
+
+          // Plak live intraday-dag van vandaag erachter
+          const todayStr = new Date().toISOString().slice(0, 10);
+          if (this.todaySummary && this.todaySummary.prevTotalValue > 0 && timeline.length > 0) {
+            const liveRet = this.todaySummary.portfolioDeltaPct / 100;
+            const last = timeline[timeline.length - 1];
+            if (last.date === todayStr) {
+              last.dailyReturn = liveRet;
+            } else if (todayStr > last.date) {
+              timeline.push({ date: todayStr, dailyReturn: liveRet });
+            }
+          }
+
+          return timeline;
+        },
  computeTwrSeriesForHorizon(horizonKey) {
-          const timeline = this.buildPureTwrTimeline();
+   const timeline = this.getActiveTwrTimeline(false);
           if (timeline.length < 2) {
             return { dates: [], values: [], totalReturnPct: 0, startDate: '', endDate: '' };
           }
@@ -4787,23 +4821,12 @@ getHorizonStartDate(horizonKey, endDateStr) {
             }).catch(e => console.warn('Verwijderen client mislukt:', e));
           }
         },
-        // Berekent per storting het exacte cumulatieve TWR-rendement van de portefeuille vanaf de stortingsdatum
-get computedClientTranches() {
+// Berekent per storting het exacte cumulatieve TWR-rendement van de portefeuille vanaf de stortingsdatum
+        get computedClientTranches() {
           if (!this.clientDeposits || this.clientDeposits.length === 0) return [];
 
-          // Gebruik altijd alle ingeladen transacties (ongeacht broker/tag filter)
-          const allTx = [];
-          (this.csvBatches || []).forEach(batch => {
-            (batch.rows || []).forEach(r => allTx.push({ ...r, Broker: r.Broker || batch.broker || 'Overig' }));
-          });
-          (this.manualTransactions || []).forEach(mtx => {
-            allTx.push({ ...mtx, Broker: mtx.Broker || 'Overig' });
-          });
-
-          const savedTx = this.transactions;
-          this.transactions = allTx;
-          const timeline = this.buildPureTwrTimeline();
-          this.transactions = savedTx;
+          // Altijd volledige portefeuille-TWR gebruiken (ongeacht actief broker/tag-filter)
+          const timeline = this.getActiveTwrTimeline(true);
 
           return [...this.clientDeposits]
             .sort((a, b) => a.date.localeCompare(b.date))
