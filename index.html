@@ -168,6 +168,13 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
         <span class="text-xs font-semibold">Dashboard</span>
       </button>
+      <button @click="destroyTabCharts('twr'); activeTab = 'twr'; $nextTick(() => updateTwrView())"
+          title="TWR Portfolio View — Rendement vs. Benchmarks"
+          :class="activeTab === 'twr' ? 'bg-[#132247] text-[#34d399] border-b-2 border-[#10b981]' : 'text-slate-400 hover:text-slate-200 hover:bg-[#0b142c]'"
+          class="px-3 py-1.5 rounded-t-lg transition flex items-center gap-1.5 shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+        <span class="text-xs font-semibold">TWR View</span>
+      </button>
 
       <button @click="destroyTabCharts('posities'); activeTab = 'posities'"
           title="Openstaande Posities, Koersen & Tags"
@@ -471,6 +478,140 @@
       </div>
     </div>
 
+    <!-- ============================================== -->
+    <!-- TAB: TWR PORTFOLIO VIEW (GRAFIEK + CIJFERS)    -->
+    <!-- ============================================== -->
+    <template x-if="activeTab === 'twr'">
+    <div class="space-y-5">
+
+      <!-- 1. KPI-KAARTEN: 1D / 1W / 1M / 3M / 6M / YTD / 1Y / 2Y / MAX -->
+      <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-4 shadow-xl space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-sm font-bold text-slate-100">Portefeuille TWR per Horizon</h2>
+            <p class="text-[11px] text-slate-400">Klik op een periode om de grafiek hieronder direct op die horizon te zetten.</p>
+          </div>
+          <span class="text-[11px] font-mono text-slate-400"
+                x-text="currentTwrMetrics.startDate ? (currentTwrMetrics.startDate + ' → ' + currentTwrMetrics.endDate) : ''"></span>
+        </div>
+
+        <div class="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2 text-xs">
+          <template x-for="h in twrHorizonSummary.horizons" :key="h.key">
+            <button type="button"
+                    @click="twrHorizon = h.key; updateTwrView()"
+                    :class="twrHorizon === h.key ? 'bg-[#132247] border-[#10b981] ring-1 ring-[#10b981]/50' : 'bg-[#080e22] border-[#1e3260]/80 hover:border-[#38bdf8]/50'"
+                    class="p-2.5 rounded-xl border text-left transition flex flex-col justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400" x-text="h.label"></span>
+              <span class="text-sm font-black font-mono mt-1"
+                    :class="h.portfolioPct >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'"
+                    x-text="formatSignedPct(h.portfolioPct)"></span>
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <!-- 2. TWR GRAFIEK MET BENCHMARKS -->
+      <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#182649]">
+          <div>
+            <h3 class="text-sm font-bold text-slate-100">TWR Grafiek — Portefeuille vs. Benchmarks</h3>
+            <p class="text-[11px] text-slate-400">Cumulatief Time-Weighted Return (%) in EUR, genormaliseerd op 0% aan het begin van de gekozen periode.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-1">
+            <template x-for="h in twrHorizonSummary.horizons" :key="'btn_' + h.key">
+              <button type="button"
+                      @click="twrHorizon = h.key; updateTwrView()"
+                      :class="twrHorizon === h.key ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#080e22] text-slate-300 border border-[#1e3260] hover:text-white'"
+                      class="px-2.5 py-1 rounded-lg text-[11px] font-mono transition"
+                      x-text="h.label"></button>
+            </template>
+          </div>
+        </div>
+
+        <div class="relative h-72 sm:h-80 w-full">
+          <canvas id="twrPortfolioChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 3. CIJFERS-OVERZICHT: PORTEFEUILLE VS BENCHMARKS OP ALLE 9 HORIZONTEN -->
+      <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] shadow-xl overflow-hidden">
+        <div class="p-4 border-b border-[#182649] flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-sm font-bold text-slate-100">Rendement & Alpha Matrix (Portefeuille vs. Benchmarks)</h3>
+            <p class="text-[11px] text-slate-400">Onder elk benchmark-rendement staat de directe delta (in procentpunten) van jouw portefeuille t.o.v. die benchmark.</p>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-right border-collapse">
+            <thead>
+              <tr class="bg-[#080e22] text-slate-400 border-b border-[#182649] uppercase text-[10px]">
+                <th class="text-left px-4 py-3 font-semibold sticky left-0 bg-[#080e22]">Portefeuille / Benchmark</th>
+                <template x-for="h in twrHorizonSummary.horizons" :key="'th_' + h.key">
+                  <th class="px-3 py-3 font-mono font-bold cursor-pointer hover:text-white transition"
+                      :class="twrHorizon === h.key ? 'text-[#34d399]' : ''"
+                      @click="twrHorizon = h.key; updateTwrView()"
+                      x-text="h.label"></th>
+                </template>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#182649] font-mono">
+              <!-- Rij 1: Mijn Portefeuille -->
+              <tr class="bg-[#132247]/40">
+                <td class="text-left px-4 py-3 font-sans font-bold text-slate-100 sticky left-0 bg-[#0f1c3d] whitespace-nowrap">
+                  <span class="inline-block w-2.5 h-2.5 rounded-full bg-[#10b981] mr-2"></span>Mijn Portefeuille (TWR)
+                </td>
+                <template x-for="h in twrHorizonSummary.horizons" :key="'port_' + h.key">
+                  <td class="px-3 py-3 font-black whitespace-nowrap"
+                      :class="h.portfolioPct >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'"
+                      x-text="formatSignedPct(h.portfolioPct)"></td>
+                </template>
+              </tr>
+
+              <!-- Rijen 2+: Elke actieve Benchmark + Delta -->
+              <template x-for="bm in twrHorizonSummary.benchmarks" :key="bm.ticker">
+                <tr class="hover:bg-[#132247]/25 transition">
+                  <td class="text-left px-4 py-2.5 font-sans sticky left-0 bg-[#0b142c] whitespace-nowrap">
+                    <div class="flex items-center gap-2">
+                      <span class="inline-block w-2.5 h-2.5 rounded-full shrink-0" :style="'background:' + bm.color"></span>
+                      <span class="font-semibold text-slate-200" x-text="bm.label"></span>
+                    </div>
+                    <div class="text-[10px] text-slate-500 pl-4">Delta (Port − BM)</div>
+                  </td>
+                  <template x-for="h in twrHorizonSummary.horizons" :key="bm.ticker + '_' + h.key">
+                    <td class="px-3 py-2.5 whitespace-nowrap">
+                      <template x-if="bm.values[h.key] !== null && bm.values[h.key] !== undefined">
+                        <div>
+                          <div class="font-bold"
+                               :class="bm.values[h.key] >= 0 ? 'text-slate-200' : 'text-slate-400'"
+                               x-text="formatSignedPct(bm.values[h.key])"></div>
+                          <div class="text-[10px] font-semibold"
+                               :class="(h.portfolioPct - bm.values[h.key]) >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'"
+                               x-text="((h.portfolioPct - bm.values[h.key]) >= 0 ? '+' : '') + (h.portfolioPct - bm.values[h.key]).toFixed(2).replace('.', ',') + ' pp'"></div>
+                        </div>
+                      </template>
+                      <template x-if="bm.values[h.key] === null || bm.values[h.key] === undefined">
+                        <span class="text-slate-600">—</span>
+                      </template>
+                    </td>
+                  </template>
+                </tr>
+              </template>
+
+              <template x-if="twrHorizonSummary.benchmarks.length === 0">
+                <tr>
+                  <td colspan="10" class="px-4 py-5 text-center font-sans text-slate-500 italic">
+                    Geen actieve benchmarks gevonden in tabblad 'Benchmarks' / 'Historie'.
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+    </template>
 
 <!-- TAB 3: POSITIES & KOERSEN (MET SORTEREN & CA)  -->
     <!-- ============================================== -->
@@ -2544,6 +2685,13 @@ if (Array.isArray(data.csvBatches) && data.csvBatches.length > 0) {
             safeSave('pat_manual_transactions', this.manualTransactions);
             this.rebuildActiveTransactions();
           }
+          if (Array.isArray(data.benchmarks) && data.benchmarks.length > 0) {
+            this.benchmarkConfigs = data.benchmarks;
+            safeSave('pat_benchmarks', this.benchmarkConfigs);
+          }
+          if (this.activeTab === 'twr') {
+            this.$nextTick(() => this.updateTwrView());
+          }
 
           if (Array.isArray(data.tagsOverrides) && data.tagsOverrides.length > 0) {
             data.tagsOverrides.forEach(row => {
@@ -4200,11 +4348,265 @@ if (timeline.length > 0 && this.totalPortfolioValue > 0) {
         },
 
         // Haalt de procentuele benchmark-reeks (%) dynamisch uit de backend historyData (zonder hardcoded data)
+getHorizonStartDate(horizonKey, endDateStr) {
+          if (!endDateStr || horizonKey === 'MAX') return '1900-01-01';
+          const end = new Date(endDateStr + 'T12:00:00Z');
+          const d = new Date(end.getTime());
+          switch (horizonKey) {
+            case '1W': d.setUTCDate(d.getUTCDate() - 7); break;
+            case '1M': d.setUTCMonth(d.getUTCMonth() - 1); break;
+            case '3M': d.setUTCMonth(d.getUTCMonth() - 3); break;
+            case '6M': d.setUTCMonth(d.getUTCMonth() - 6); break;
+            case 'YTD': return `${end.getUTCFullYear()}-01-01`;
+            case '1Y': d.setUTCFullYear(d.getUTCFullYear() - 1); break;
+            case '2Y': d.setUTCFullYear(d.getUTCFullYear() - 2); break;
+            default: return '1900-01-01';
+          }
+          return d.toISOString().slice(0, 10);
+        },
 
+        // Combineert de historische tijdlijn met de actuele intraday-waarde van vandaag (indien beschikbaar)
+        getTwrTimelineWithLive() {
+          const base = this.buildDailyPortfolioTimeline(this.historyData.dates || []);
+          const valid = base.filter(pt => pt.value >= 10).map(pt => ({ ...pt }));
+          if (valid.length === 0) return [];
+
+          const todayStr = new Date().toISOString().slice(0, 10);
+          const liveVal = this.todaySummary && this.todaySummary.liveTotalValue > 0
+            ? this.todaySummary.liveTotalValue
+            : this.totalPortfolioValue;
+
+          if (liveVal >= 10) {
+            const last = valid[valid.length - 1];
+            if (last.date === todayStr) {
+              last.value = liveVal;
+            } else if (todayStr > last.date) {
+              valid.push({ date: todayStr, value: liveVal, cashFlow: 0 });
+            }
+          }
+          return valid;
+        },
+
+        computeTwrSeriesForHorizon(horizonKey) {
+          const valid = this.getTwrTimelineWithLive();
+          if (valid.length < 2) {
+            return { dates: [], values: [], totalReturnPct: 0, startDate: '', endDate: '' };
+          }
+
+          let startIdx = 0;
+          if (horizonKey === '1D') {
+            startIdx = Math.max(0, valid.length - 2);
+          } else {
+            const endDate = valid[valid.length - 1].date;
+            const startTarget = this.getHorizonStartDate(horizonKey, endDate);
+            for (let i = 0; i < valid.length; i++) {
+              if (valid[i].date <= startTarget) startIdx = i;
+              else break;
+            }
+          }
+
+          const slice = valid.slice(startIdx);
+          if (slice.length < 2) {
+            return { dates: [], values: [], totalReturnPct: 0, startDate: '', endDate: '' };
+          }
+
+          const dates = [slice[0].date];
+          const values = [0];
+          let factor = 1.0;
+
+          for (let i = 1; i < slice.length; i++) {
+            const prev = slice[i - 1];
+            const cur = slice[i];
+            if (prev.value >= 10) {
+              const subRet = (cur.value - cur.cashFlow - prev.value) / prev.value;
+              if (isFinite(subRet) && subRet > -0.5 && subRet < 0.5) {
+                factor *= (1 + subRet);
+              }
+            }
+            dates.push(cur.date);
+            values.push((factor - 1) * 100);
+          }
+
+          return {
+            dates,
+            values,
+            totalReturnPct: (factor - 1) * 100,
+            startDate: dates[0],
+            endDate: dates[dates.length - 1]
+          };
+        },
+
+        getBenchmarkReturnSeries(bm, targetDates) {
+          if (!targetDates || targetDates.length < 2) return null;
+          const rawSeries = this.getHistoricalPricesForTicker(bm.ticker);
+          const allDates = this.historyData.dates || [];
+          if (!rawSeries || allDates.length === 0) return null;
+
+          const dateToIdx = {};
+          allDates.forEach((d, i) => { dateToIdx[d] = i; });
+
+          const todayStr = new Date().toISOString().slice(0, 10);
+          const bmKey = String(bm.ticker || '').trim().toUpperCase();
+          const liveBmRaw = (this.livePrices && (this.livePrices[bmKey] || this.livePrices[bm.ticker])) || 0;
+
+          const ccy = String(bm.currency || 'EUR').toUpperCase();
+          const fxTicker = (ccy === 'GBX') ? 'CURRENCY:GBPEUR' : `CURRENCY:${ccy}EUR`;
+          const fxSeries = (ccy !== 'EUR' && this.historyData.prices) ? this.historyData.prices[fxTicker] : null;
+
+          let basePrice = null;
+          let lastPrice = null;
+          const pctSeries = [];
+
+          targetDates.forEach(d => {
+            const idx = dateToIdx[d];
+            let p = null;
+
+            if (d === todayStr && liveBmRaw > 0) {
+              p = liveBmRaw;
+            } else if (idx !== undefined && rawSeries[idx] > 0) {
+              p = rawSeries[idx];
+            }
+
+            if (p !== null && ccy !== 'EUR') {
+              let fx = (idx !== undefined && fxSeries && fxSeries[idx] > 0)
+                ? fxSeries[idx]
+                : ((this.rates && (this.rates[ccy] || this.rates[ccy + 'EUR'])) || 1.0);
+              if (ccy === 'GBX' && fx > 0.5) fx /= 100.0;
+              p *= fx;
+            }
+
+            if (p !== null && p > 0) lastPrice = p;
+            if (basePrice === null && lastPrice !== null) basePrice = lastPrice;
+
+            if (basePrice && lastPrice) {
+              pctSeries.push(((lastPrice / basePrice) - 1) * 100);
+            } else {
+              pctSeries.push(null);
+            }
+          });
+
+          return pctSeries.some(v => v !== null) ? pctSeries : null;
+        },
+
+        get twrHorizonSummary() {
+          const horizonDefs = [
+            { key: '1D', label: '1D' },
+            { key: '1W', label: '1W' },
+            { key: '1M', label: '1M' },
+            { key: '3M', label: '3M' },
+            { key: '6M', label: '6M' },
+            { key: 'YTD', label: 'YTD' },
+            { key: '1Y', label: '1Y' },
+            { key: '2Y', label: '2Y' },
+            { key: 'MAX', label: 'MAX' }
+          ];
+
+          const activeBms = (this.benchmarkConfigs || []).filter(b => b.enabled !== false && b.ticker);
+          const bmRows = activeBms.map((bm, idx) => ({
+            ticker: bm.ticker,
+            label: bm.label || bm.ticker,
+            color: bm.color || ['#38bdf8', '#f59e0b', '#a855f7', '#ec4899'][idx % 4],
+            values: {}
+          }));
+
+          const horizons = horizonDefs.map(h => {
+            const res = this.computeTwrSeriesForHorizon(h.key);
+            const portfolioPct = isFinite(res.totalReturnPct) ? res.totalReturnPct : 0;
+
+            bmRows.forEach((bmRow, idx) => {
+              const series = this.getBenchmarkReturnSeries(activeBms[idx], res.dates);
+              let lastVal = null;
+              if (series) {
+                for (let i = series.length - 1; i >= 0; i--) {
+                  if (series[i] !== null && isFinite(series[i])) {
+                    lastVal = series[i];
+                    break;
+                  }
+                }
+              }
+              bmRow.values[h.key] = lastVal;
+            });
+
+            return { ...h, portfolioPct };
+          });
+
+          return { horizons, benchmarks: bmRows };
+        },
+
+        updateTwrView() {
+          const twr = this.computeTwrSeriesForHorizon(this.twrHorizon);
+          this.currentTwrMetrics = {
+            returnPct: twr.totalReturnPct,
+            startDate: twr.startDate,
+            endDate: twr.endDate,
+            athPct: twr.values.length ? Math.max(...twr.values) : 0
+          };
+
+          const canvas = document.getElementById('twrPortfolioChart');
+          if (!canvas) return;
+          if (this.chartInstance) {
+            this.chartInstance.destroy();
+            this.chartInstance = null;
+          }
+
+          const datasets = [{
+            label: 'Mijn Portefeuille (TWR %)',
+            data: twr.values,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.12)',
+            borderWidth: 2.5,
+            pointRadius: twr.dates.length <= 5 ? 3 : 0,
+            fill: true,
+            tension: 0.15
+          }];
+
+          const activeBms = (this.benchmarkConfigs || []).filter(b => b.enabled !== false && b.ticker);
+          activeBms.forEach((bm, idx) => {
+            const bmSeries = this.getBenchmarkReturnSeries(bm, twr.dates);
+            if (bmSeries) {
+              datasets.push({
+                label: bm.label || bm.ticker,
+                data: bmSeries,
+                borderColor: bm.color || ['#38bdf8', '#f59e0b', '#a855f7', '#ec4899'][idx % 4],
+                borderWidth: 1.8,
+                borderDash: [4, 3],
+                pointRadius: twr.dates.length <= 5 ? 2 : 0,
+                fill: false,
+                tension: 0.15
+              });
+            }
+          });
+
+          this.chartInstance = new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: { labels: twr.dates, datasets },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: { mode: 'index', intersect: false },
+              plugins: {
+                legend: { labels: { color: '#cbd5e1', font: { size: 11 } } },
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y !== null ? (ctx.parsed.y >= 0 ? '+' : '') + ctx.parsed.y.toFixed(2) + '%' : '—'}`
+                  }
+                }
+              },
+              scales: {
+                x: { ticks: { color: '#94a3b8', maxTicksLimit: 8, font: { size: 10 } }, grid: { color: '#182649' } },
+                y: { ticks: { color: '#94a3b8', callback: v => v + '%', font: { size: 10 } }, grid: { color: '#182649' } }
+              }
+            }
+          });
+        },
         destroyTabCharts(nextTab) {
           if (nextTab !== 'dashboard') {
             if (this.allocationChartInstance) { this.allocationChartInstance.destroy(); this.allocationChartInstance = null; }
             if (this.costsChartInstance) { this.costsChartInstance.destroy(); this.costsChartInstance = null; }
+          if (nextTab !== 'twr' && this.chartInstance) {
+            this.chartInstance.destroy();
+            this.chartInstance = null;
+          }
           }
         },
 
