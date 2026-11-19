@@ -234,11 +234,11 @@
 
       <!-- GECOMBINEERDE HOOFD-CONTAINER -->
       <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-[#182649]">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-[#182649]">
           <div class="flex flex-col justify-center">
             <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Waarde Portefeuille</span>
             <div class="text-3xl sm:text-4xl font-black text-slate-100 mt-1" x-text="formatCurrency(totalPortfolioValue)"></div>
-            <span class="text-[11px] text-slate-400 mt-0.5">Inclusief contant saldo</span>
+            <span class="text-[11px] text-slate-400 mt-0.5" x-text="'Waarvan cash: ' + formatCurrency(cashBalance)"></span>
           </div>
           <div class="flex flex-col justify-center md:items-end">
             <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Totale Winst / Verlies</span>
@@ -247,7 +247,7 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 text-xs">
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 pt-4 text-xs">
           <div>
             <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold">Stortingen (Deposits)</span>
             <div class="text-base font-bold text-slate-200 mt-0.5 font-mono" x-text="formatCurrency(totals.deposits)"></div>
@@ -255,6 +255,10 @@
           <div>
             <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold">Afhalingen (Withdrawals)</span>
             <div class="text-base font-bold text-slate-200 mt-0.5 font-mono" x-text="formatCurrency(totals.withdrawals)"></div>
+          </div>
+          <div>
+            <span class="text-slate-400 uppercase tracking-wider text-[10px] font-semibold">Cash Positie</span>
+            <div class="text-base font-bold text-[#38bdf8] mt-0.5 font-mono" x-text="formatCurrency(cashBalance)"></div>
           </div>
 
           <div @click="showClosedPositionsModal = true" class="cursor-pointer group">
@@ -272,8 +276,6 @@
             </span>
             <div class="text-base font-bold mt-0.5 font-mono underline decoration-dotted underline-offset-4" :class="unrealizedPnL >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'" x-text="formatCurrency(unrealizedPnL)"></div>
           </div>
-
-
         </div>
       </div>
 
@@ -334,6 +336,82 @@
             </div>
           </div>
         </div>
+
+        <!-- OVERZICHT VAN BOEKINGEN & OPNAMES -->
+      <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl space-y-4"
+           x-data="{ ledgerFilter: 'ALL' }">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-[#182649]">
+          <div>
+            <h3 class="text-sm font-bold text-slate-200">Boekingen & Opnames</h3>
+            <p class="text-[11px] text-slate-400">Chronologisch overzicht van stortingen, opnames, aan-/verkopen en kosten.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5 text-xs">
+            <button type="button" @click="ledgerFilter = 'ALL'"
+                    :class="ledgerFilter === 'ALL' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#080e22] text-slate-300 border border-[#1e3260]'"
+                    class="px-2.5 py-1 rounded-lg transition">Alles</button>
+            <button type="button" @click="ledgerFilter = 'CASHFLOW'"
+                    :class="ledgerFilter === 'CASHFLOW' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#080e22] text-slate-300 border border-[#1e3260]'"
+                    class="px-2.5 py-1 rounded-lg transition">Stortingen & Opnames</button>
+            <button type="button" @click="ledgerFilter = 'TRADES'"
+                    :class="ledgerFilter === 'TRADES' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#080e22] text-slate-300 border border-[#1e3260]'"
+                    class="px-2.5 py-1 rounded-lg transition">Aan- & Verkopen</button>
+            <button type="button" @click="ledgerFilter = 'MANUAL'"
+                    :class="ledgerFilter === 'MANUAL' ? 'bg-[#10b981] text-slate-950 font-bold' : 'bg-[#080e22] text-slate-300 border border-[#1e3260]'"
+                    class="px-2.5 py-1 rounded-lg transition">Manueel</button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto max-h-80">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="sticky top-0 bg-[#080e22] text-slate-400 text-[10px] uppercase tracking-wider font-semibold">
+              <tr>
+                <th class="p-3">Datum</th>
+                <th class="p-3">Broker</th>
+                <th class="p-3">Type</th>
+                <th class="p-3">Asset / Omschrijving</th>
+                <th class="p-3 text-right">Aantal</th>
+                <th class="p-3 text-right">Bedrag (EUR)</th>
+                <th class="p-3 text-right">Actie</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#182649]/60">
+              <template x-for="(row, idx) in getFilteredLedgerEntries(ledgerFilter)" :key="row._key + '_' + idx">
+                <tr class="hover:bg-[#132247]/40 transition">
+                  <td class="p-3 font-mono text-slate-400 whitespace-nowrap" x-text="row.date"></td>
+                  <td class="p-3">
+                    <span class="px-1.5 py-0.5 rounded bg-[#132247] text-[#38bdf8] border border-[#1e3260] text-[10px] font-semibold" x-text="row.broker"></span>
+                  </td>
+                  <td class="p-3 font-semibold"
+                      :class="row.category === 'withdrawals' ? 'text-[#f87171]' : (row.category === 'deposits' ? 'text-[#34d399]' : 'text-slate-200')"
+                      x-text="row.typeLabel"></td>
+                  <td class="p-3 text-slate-200 max-w-xs truncate" :title="row.description" x-text="row.assetOrDesc"></td>
+                  <td class="p-3 text-right font-mono text-slate-300" x-text="row.qty > 0 ? row.qty.toFixed(4) : '—'"></td>
+                  <td class="p-3 text-right font-mono font-bold whitespace-nowrap"
+                      :class="row.amount >= 0 ? 'text-[#34d399]' : 'text-[#f87171]'"
+                      x-text="(row.amount >= 0 ? '+' : '') + formatCurrency(row.amount)"></td>
+                  <td class="p-3 text-right">
+                    <template x-if="row.isManual && row.manualId">
+                      <button type="button" @click="removeManualTransaction(row.manualId)"
+                              title="Verwijder manuele boeking"
+                              class="text-[#f87171] hover:text-white bg-[#800020]/20 hover:bg-[#800020]/40 px-2 py-0.5 rounded text-[11px] font-bold transition">
+                        ✕
+                      </button>
+                    </template>
+                    <template x-if="!row.isManual">
+                      <span class="text-[10px] text-slate-600 font-mono">CSV</span>
+                    </template>
+                  </td>
+                </tr>
+              </template>
+              <template x-if="getFilteredLedgerEntries(ledgerFilter).length === 0">
+                <tr>
+                  <td colspan="7" class="p-8 text-center text-slate-500 italic">Geen boekingen of opnames gevonden voor dit filter.</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
         <!-- Kosten & Compensaties -->
         <div class="bg-[#0b142c] rounded-2xl border border-[#1b2b52] p-5 shadow-xl flex flex-col justify-between">
@@ -4775,6 +4853,67 @@ get computedClientTranches() {
 
         get cashBalance() {
           return this.computeUnifiedLedger().cashBalance;
+        },
+        getFilteredLedgerEntries(filter = 'ALL') {
+          const typeLabels = {
+            deposits: 'Storting',
+            withdrawals: 'Opname',
+            trades: 'Trade',
+            dividends: 'Dividend',
+            fees: 'Kost',
+            tax: 'Taks (TOB)',
+            interest: 'Rente',
+            others: 'Overig'
+          };
+
+          const mapped = (this.transactions || []).map((tx, i) => {
+            const cat = String(this.getVal(tx, 'Transaction Category') || 'others').toLowerCase();
+            const txType = this.getVal(tx, 'Transaction Type');
+            const isin = this.getVal(tx, 'Asset Id', 'ISIN');
+            const rawName = this.getVal(tx, 'Asset Name', 'Name');
+            const desc = this.getVal(tx, 'Transaction Description');
+            const amt = this.parseNum(this.getVal(tx, 'Transaction Amount', 'Amount'));
+            const qty = Math.abs(this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity')));
+            const ts = this.getVal(tx, 'Transaction Time (CET)', 'Date', 'Time') || '';
+            const isManual = Boolean(tx._manualId);
+
+            let typeLabel = typeLabels[cat] || txType || cat;
+            if (cat === 'trades') {
+              typeLabel = txType && txType.toLowerCase().includes('sell') ? 'Verkoop' : 'Aankoop';
+            } else if (txType && /withdrawal|opname/i.test(txType)) {
+              typeLabel = 'Opname';
+            } else if (txType && /deposit|storting/i.test(txType)) {
+              typeLabel = 'Storting';
+            }
+
+            const assetOrDesc = isin
+              ? (this.getAssetDisplayName({ isin, name: rawName }) || desc || isin)
+              : (desc || rawName || typeLabel);
+
+            return {
+              _key: tx._manualId || ('tx_' + i),
+              ts: ts,
+              date: ts.split(' ')[0] || '—',
+              broker: tx.Broker || 'Overig',
+              category: cat,
+              typeLabel: typeLabel,
+              assetOrDesc: assetOrDesc,
+              description: desc || assetOrDesc,
+              qty: qty,
+              amount: amt,
+              isManual: isManual,
+              manualId: tx._manualId || ''
+            };
+          });
+
+          const filtered = mapped.filter(row => {
+            if (filter === 'CASHFLOW') return row.category === 'deposits' || row.category === 'withdrawals';
+            if (filter === 'TRADES') return row.category === 'trades';
+            if (filter === 'MANUAL') return row.isManual;
+            return true;
+          });
+
+          return filtered.sort((a, b) => b.ts.localeCompare(a.ts));
         }
       }
     }
