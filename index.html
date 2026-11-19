@@ -4132,7 +4132,143 @@ getHistoricalPricesForTicker(rawTicker) {
 
           return null;
         },
+// Bouwt een zuivere benchmark-achtige TWR-tijdlijn op basis van posities (zonder cashflow-ruis)
+        buildPureTwrTimeline() {
+          const allDates = this.historyData.dates || [];
+          if (allDates.length < 2 || !this.transactions || this.transactions.length === 0) return [];
 
+          // 1. Groepeer transacties en dividenden per datum
+          const txByDate = {};
+          const divByDate = {};
+
+          this.transactions.forEach(tx => {
+            const rawDate = this.getVal(tx, 'Transaction Time (CET)', 'Date', 'Time');
+            const d = String(rawDate || '').split(' ')[0];
+            if (!d) return;
+
+            const cat = this.getVal(tx, 'Transaction Category');
+            const type = this.getVal(tx, 'Transaction Type');
+            const trType = this.getVal(tx, 'Transfer Type').toUpperCase();
+            const isin = this.getVal(tx, 'Asset Id', 'ISIN');
+            const qty = Math.abs(this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity')));
+            const amt = this.parseNum(this.getVal(tx, 'Transaction Amount', 'Amount'));
+
+            if (cat === 'dividends' || type.toLowerCase().includes('dividend')) {
+              divByDate[d] = (divByDate[d] || 0) + Math.abs(amt);
+              return;
+            }
+
+            if (cat === 'trades' && isin && !DUMMY_ISINS.includes(isin) && qty > 0) {
+              if (!txByDate[d]) txByDate[d] = [];
+              if (type === 'Buy Trade' && (trType === 'CASH_DEBIT' || trType === '')) {
+                txByDate[d].push({ isin, deltaQty: qty });
+              } else if (type === 'Sell Trade' && (trType === 'CASH_CREDIT' || trType === '')) {
+                txByDate[d].push({ isin, deltaQty: -qty });
+              }
+            }
+          });
+
+          // 2. Haal historische koersreeksen (in EUR) op per ISIN
+          const dateToIdx = {};
+          allDates.forEach((d, i) => { dateToIdx[d] = i; });
+
+          const getHistPriceEur = (isin, idx) => {
+            const m = this.assetMapping[isin];
+            if (!m) return 0;
+            const series = this.getHistoricalPricesForTicker(m.googleTicker || m.ticker || m.apiTicker);
+            if (!series || !series[idx] || series[idx] <= 0) return 0;
+
+            let p = series[idx];
+            const ccy = String(m.currency || 'EUR').toUpperCase();
+            if (ccy !== 'EUR') {
+              const fxTicker = (ccy === 'GBX') ? 'CURRENCY:GBPEUR' : `CURRENCY:${ccy}EUR`;
+              const fxSeries = this.historyData.prices ? this.historyData.prices[fxTicker] : null;
+              let fx = (fxSeries && fxSeries[idx] > 0) ? fxSeries[idx] : ((this.rates && (this.rates[ccy] || this.rates[ccy + 'EUR'])) || 1.0);
+              if (ccy === 'GBX' && fx > 0.5) fx /= 100.0;
+              p *= fx;
+            }
+            return p;
+          };
+
+          // 3. Loop dag voor dag: bereken eerst dagrendement op posities van gisteren, update daarna posities van vandaag
+          const holdings = {};
+          const prevPriceEur = {};
+          const timeline = [];
+
+          // Verwerk eventuele transacties van vóór de eerste historiedatum
+          const firstHistDate = allDates[0];
+          Object.keys(txByDate).sort().forEach(d => {
+            if (d < firstHistDate) {
+              txByDate[d].forEach(t => {
+                holdings[t.isin] = Math.max(0, (holdings[t.isin] || 0) + t.deltaQty);
+              });
+            }
+          });
+
+          for (let i = 0; i < allDates.length; i++) {
+            const d = allDates[i];
+            let startVal = 0;
+            let endVal = 0;
+
+            Object.keys(holdings).forEach(isin => {
+              const q = holdings[isin];
+              if (q <= 0.00001) return;
+
+              const pToday = getHistPriceEur(isin, i) || prevPriceEur[isin] || 0;
+              const pPrev = prevPriceEur[isin] || pToday;
+
+              if (pPrev > 0 && pToday > 0) {
+                startVal += q * pPrev;
+                endVal += q * pToday;
+              }
+            });
+
+            const divToday = divByDate[d] || 0;
+            const dailyReturn = startVal >= 1 ? ((endVal - startVal + divToday) / startVal) : 0;
+
+            // Update prijzen naar vandaag
+            Object.keys(holdings).forEach(isin => {
+              const pToday = getHistPriceEur(isin, i);
+              if (pToday > 0) prevPriceEur[isin] = pToday;
+            });
+
+            // Pas transacties van vandaag toe voor de posities van morgen
+            if (txByDate[d]) {
+              txByDate[d].forEach(t => {
+                holdings[t.isin] = Math.max(0, (holdings[t.isin] || 0) + t.deltaQty);
+                if (!prevPriceEur[t.isin]) {
+                  const p = getHistPriceEur(t.isin, i);
+                  if (p > 0) prevPriceEur[t.isin] = p;
+                }
+              });
+            }
+
+            // Bewaar alleen dagen vanaf het moment dat er effectief aandelen in portefeuille zitten
+            const hasHoldings = Object.values(holdings).some(q => q > 0.00001);
+            if (hasHoldings || startVal >= 1) {
+              timeline.push({
+                date: d,
+                dailyReturn: (isFinite(dailyReturn) && dailyReturn > -0.5 && dailyReturn < 0.5) ? dailyReturn : 0
+              });
+            }
+          }
+
+          // 4. Voeg actuele intraday-dag (vandaag) toe op basis van todaySummary
+          const todayStr = new Date().toISOString().slice(0, 10);
+          if (this.todaySummary && this.todaySummary.prevTotalValue > 0 && timeline.length > 0) {
+            const liveRet = this.todaySummary.portfolioDeltaPct / 100;
+            const last = timeline[timeline.length - 1];
+            if (last.date === todayStr) {
+              last.dailyReturn = liveRet;
+            } else if (todayStr > last.date) {
+              timeline.push({ date: todayStr, dailyReturn: liveRet });
+            }
+          }
+
+          return timeline;
+        },
+
+        
        buildDailyPortfolioTimeline(allDates) {
           const cacheKey = `${this.transactions.length}_${this.selectedBrokerFilter}_${(allDates || []).length}_${Math.round(this.totalPortfolioValue)}_${this.corporateActions.length}`;
           if (this._cachedTimeline && this._cachedTimelineKey === cacheKey) {
@@ -4387,43 +4523,32 @@ getHorizonStartDate(horizonKey, endDateStr) {
           return valid;
         },
 
-        computeTwrSeriesForHorizon(horizonKey) {
-          const valid = this.getTwrTimelineWithLive();
-          if (valid.length < 2) {
+ computeTwrSeriesForHorizon(horizonKey) {
+          const timeline = this.buildPureTwrTimeline();
+          if (timeline.length < 2) {
             return { dates: [], values: [], totalReturnPct: 0, startDate: '', endDate: '' };
           }
 
           let startIdx = 0;
           if (horizonKey === '1D') {
-            startIdx = Math.max(0, valid.length - 2);
+            startIdx = Math.max(0, timeline.length - 2);
           } else {
-            const endDate = valid[valid.length - 1].date;
+            const endDate = timeline[timeline.length - 1].date;
             const startTarget = this.getHorizonStartDate(horizonKey, endDate);
-            for (let i = 0; i < valid.length; i++) {
-              if (valid[i].date <= startTarget) startIdx = i;
+            for (let i = 0; i < timeline.length; i++) {
+              if (timeline[i].date <= startTarget) startIdx = i;
               else break;
             }
           }
 
-          const slice = valid.slice(startIdx);
-          if (slice.length < 2) {
-            return { dates: [], values: [], totalReturnPct: 0, startDate: '', endDate: '' };
-          }
-
+          const slice = timeline.slice(startIdx);
           const dates = [slice[0].date];
           const values = [0];
           let factor = 1.0;
 
           for (let i = 1; i < slice.length; i++) {
-            const prev = slice[i - 1];
-            const cur = slice[i];
-            if (prev.value >= 10) {
-              const subRet = (cur.value - cur.cashFlow - prev.value) / prev.value;
-              if (isFinite(subRet) && subRet > -0.5 && subRet < 0.5) {
-                factor *= (1 + subRet);
-              }
-            }
-            dates.push(cur.date);
+            factor *= (1 + slice[i].dailyReturn);
+            dates.push(slice[i].date);
             values.push((factor - 1) * 100);
           }
 
@@ -4664,72 +4789,46 @@ getHorizonStartDate(horizonKey, endDateStr) {
         },
         // Berekent per storting het exacte cumulatieve TWR-rendement van de portefeuille vanaf de stortingsdatum
 get computedClientTranches() {
-  if (!this.clientDeposits || this.clientDeposits.length === 0) return [];
+          if (!this.clientDeposits || this.clientDeposits.length === 0) return [];
 
-  // Bouw de tijdlijn altijd op over alle ingeladen transacties (ongeacht broker/tag filter)
-  const allTx = [];
-  (this.csvBatches || []).forEach(batch => {
-    (batch.rows || []).forEach(r => allTx.push({ ...r, Broker: r.Broker || batch.broker || 'Overig' }));
-  });
-  (this.manualTransactions || []).forEach(mtx => {
-    allTx.push({ ...mtx, Broker: mtx.Broker || 'Overig' });
-  });
+          // Gebruik altijd alle ingeladen transacties (ongeacht broker/tag filter)
+          const allTx = [];
+          (this.csvBatches || []).forEach(batch => {
+            (batch.rows || []).forEach(r => allTx.push({ ...r, Broker: r.Broker || batch.broker || 'Overig' }));
+          });
+          (this.manualTransactions || []).forEach(mtx => {
+            allTx.push({ ...mtx, Broker: mtx.Broker || 'Overig' });
+          });
 
-  const savedTx = this.transactions;
-  const savedCache = this._cachedTimeline;
-  const savedCacheKey = this._cachedTimelineKey;
+          const savedTx = this.transactions;
+          this.transactions = allTx;
+          const timeline = this.buildPureTwrTimeline();
+          this.transactions = savedTx;
 
-  this.transactions = allTx;
-  this._cachedTimeline = null;
-  const timeline = this.buildDailyPortfolioTimeline(this.historyData.dates || []);
+          return [...this.clientDeposits]
+            .sort((a, b) => a.date.localeCompare(b.date))
+            .map(dep => {
+              let factor = 1.0;
 
-  this.transactions = savedTx;
-  this._cachedTimeline = savedCache;
-  this._cachedTimelineKey = savedCacheKey;
-
-  return [...this.clientDeposits]
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .map(dep => {
-      let factor = 1.0;
-      let prevVal = null;
-
-      if (timeline.length > 0) {
-            // 1. Zoek de slotwaarde van de portefeuille op (of vlak voor) de stortingsdatum
-            for (let i = 0; i < timeline.length; i++) {
-              if (timeline[i].date <= dep.date && timeline[i].value >= 10) {
-                prevVal = timeline[i].value;
-              } else if (timeline[i].date > dep.date) {
-                break;
-              }
-            }
-
-            // 2. Compound het zuivere portefeuille-TWR voor alle dagen NA de stortingsdatum
-            for (let i = 0; i < timeline.length; i++) {
-              const pt = timeline[i];
-              if (pt.date <= dep.date) continue;
-
-              if (prevVal !== null && prevVal >= 10 && pt.value >= 10) {
-                const subReturn = (pt.value - pt.cashFlow - prevVal) / prevVal;
-                if (isFinite(subReturn) && subReturn > -0.5 && subReturn < 0.5) {
-                  factor *= (1 + subReturn);
+              if (timeline.length > 0) {
+                for (let i = 0; i < timeline.length; i++) {
+                  const pt = timeline[i];
+                  if (pt.date > dep.date && isFinite(pt.dailyReturn)) {
+                    factor *= (1 + pt.dailyReturn);
+                  }
                 }
               }
-              if (pt.value >= 10) {
-                prevVal = pt.value;
-              }
-            }
-          }
 
-      const returnPct = (factor - 1) * 100;
-      const currentVal = dep.amount * factor;
-      return {
-        ...dep,
-        returnPct: isFinite(returnPct) ? returnPct : 0,
-        currentVal: isFinite(currentVal) ? currentVal : dep.amount,
-        pnlEur: (isFinite(currentVal) ? currentVal : dep.amount) - dep.amount
-      };
-    });
-},
+              const returnPct = (factor - 1) * 100;
+              const currentVal = dep.amount * factor;
+              return {
+                ...dep,
+                returnPct: isFinite(returnPct) ? returnPct : 0,
+                currentVal: isFinite(currentVal) ? currentVal : dep.amount,
+                pnlEur: (isFinite(currentVal) ? currentVal : dep.amount) - dep.amount
+              };
+            });
+        },
 
         // Groepeert alle stortingstranches per persoon (bv. Renée & Auguste)
         get clientSummaryList() {
