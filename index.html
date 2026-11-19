@@ -4347,6 +4347,412 @@ if (timeline.length > 0 && this.totalPortfolioValue > 0) {
 
         formatCurrency(val) {
           return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val || 0);
+        },
+
+        computeUnifiedLedger() {
+          let posMap = {};
+          let pendingCaDebits = [];
+          let closedByMerger = [];
+          let closedMap = {};
+
+          let deposits = 0;
+          let withdrawals = 0;
+          let realizedPnL = 0;
+          let cash = 0;
+
+          let sortedTx = [...this.transactions].sort((a, b) => {
+            const ta = this.getVal(a, 'Transaction Time (CET)', 'Date', 'Time');
+            const tb = this.getVal(b, 'Transaction Time (CET)', 'Date', 'Time');
+            return ta.localeCompare(tb);
+          });
+
+          let runningQty = {};
+          let caDirections = {};
+
+          sortedTx.forEach((tx, idx) => {
+            const category = this.getVal(tx, 'Transaction Category');
+            const type = this.getVal(tx, 'Transaction Type');
+            const transferType = this.getVal(tx, 'Transfer Type').toUpperCase();
+            const desc = this.getVal(tx, 'Transaction Description').toUpperCase();
+            const isin = this.getVal(tx, 'Asset Id', 'ISIN');
+            const rawQty = this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity'));
+            const qty = Math.abs(rawQty);
+
+            if (!isin || DUMMY_ISINS.includes(isin)) return;
+
+            if (category === 'trades') {
+              if (type === 'Buy Trade' && (transferType === 'CASH_DEBIT' || transferType === '')) {
+                runningQty[isin] = (runningQty[isin] || 0) + qty;
+              } else if (type === 'Sell Trade' && (transferType === 'CASH_CREDIT' || transferType === '')) {
+                runningQty[isin] = Math.max(0, (runningQty[isin] || 0) - qty);
+              }
+            } else if (category === 'corporate_actions') {
+              if (transferType.includes('CASH')) {
+                caDirections[idx] = 'CASH';
+              } else if (qty === 0) {
+                caDirections[idx] = 'NONE';
+              } else if (
+                rawQty < 0 ||
+                ['DEBIT', 'OUT', 'SELL', 'REMOVE', 'WITHDRAW'].some(k => transferType.includes(k)) ||
+                ['DEBIT', 'OUT', 'REMOVAL', 'EXCHANGE FROM'].some(k => desc.includes(k))
+              ) {
+                caDirections[idx] = 'DEBIT';
+                runningQty[isin] = Math.max(0, (runningQty[isin] || 0) - qty);
+              } else if (
+                ['CREDIT', 'IN', 'BUY', 'ADD', 'DEPOSIT'].some(k => transferType.includes(k)) ||
+                ['CREDIT', 'ADDITION', 'EXCHANGE TO'].some(k => desc.includes(k))
+              ) {
+                caDirections[idx] = 'CREDIT';
+                runningQty[isin] = (runningQty[isin] || 0) + qty;
+              } else {
+                if ((runningQty[isin] || 0) > 0.0001) {
+                  caDirections[idx] = 'DEBIT';
+                  runningQty[isin] = Math.max(0, (runningQty[isin] || 0) - qty);
+                } else {
+                  caDirections[idx] = 'CREDIT';
+                  runningQty[isin] = (runningQty[isin] || 0) + qty;
+                }
+              }
+            }
+          });
+
+          const prioMap = { 'DEBIT': 1, 'CASH': 2, 'CREDIT': 3, 'NONE': 4 };
+          let indexedTx = sortedTx.map((tx, idx) => ({ tx, idx }));
+          indexedTx.sort((a, b) => {
+            const ta = this.getVal(a.tx, 'Transaction Time (CET)', 'Date', 'Time');
+            const tb = this.getVal(b.tx, 'Transaction Time (CET)', 'Date', 'Time');
+            const bucketA = ta.slice(0, 16);
+            const bucketB = tb.slice(0, 16);
+            if (bucketA !== bucketB) return bucketA.localeCompare(bucketB);
+
+            const catA = this.getVal(a.tx, 'Transaction Category');
+            const catB = this.getVal(b.tx, 'Transaction Category');
+            const pA = catA === 'trades' ? 0 : (prioMap[caDirections[a.idx]] || 3);
+            const pB = catB === 'trades' ? 0 : (prioMap[caDirections[b.idx]] || 3);
+            if (pA !== pB) return pA - pB;
+            return ta.localeCompare(tb);
+          });
+
+          indexedTx.forEach(({ tx, idx }) => {
+            const category = this.getVal(tx, 'Transaction Category');
+            const type = this.getVal(tx, 'Transaction Type');
+            const transferType = this.getVal(tx, 'Transfer Type').toUpperCase();
+            const isin = this.getVal(tx, 'Asset Id', 'ISIN');
+            const name = this.getVal(tx, 'Asset Name', 'Name');
+            const rawQty = this.parseNum(this.getVal(tx, 'Asset Quantity', 'Quantity'));
+            const qty = Math.abs(rawQty);
+            const rawAmt = this.parseNum(this.getVal(tx, 'Transaction Amount', 'Amount'));
+            const eurAmount = Math.abs(rawAmt);
+            const txTime = this.getVal(tx, 'Transaction Time (CET)', 'Date', 'Time');
+            const txDate = txTime.split(' ')[0];
+
+            if (category === 'deposits') {
+              deposits += eurAmount;
+              cash += rawAmt;
+              return;
+            }
+            if (category === 'withdrawals') {
+              withdrawals += eurAmount;
+              cash -= eurAmount;
+              return;
+            }
+            if (category === 'fees' || category === 'tax') {
+              cash -= eurAmount;
+              return;
+            }
+            if (category === 'dividends' && (transferType === 'CASH_CREDIT' || transferType === 'CASH_DEBIT')) {
+              cash += rawAmt;
+              return;
+            }
+            if (category === 'interest' || category === 'others') {
+              cash += rawAmt;
+              return;
+            }
+
+            if (!isin || DUMMY_ISINS.includes(isin)) return;
+            const resolvedName = this.getAssetDisplayName({ isin, name });
+
+            if (category === 'trades') {
+              if (!posMap[isin]) {
+                posMap[isin] = {
+                  isin: isin,
+                  name: resolvedName,
+                  quantity: 0,
+                  totalCost: 0,
+                  avgPrice: 0,
+                  isEtf: this.isEtfAsset(resolvedName, isin),
+                  caBadge: '',
+                  caNote: ''
+                };
+              }
+
+              if (type === 'Buy Trade' && (transferType === 'CASH_DEBIT' || transferType === '')) {
+                posMap[isin].quantity += qty;
+                posMap[isin].totalCost += eurAmount;
+                if (transferType === 'CASH_DEBIT') cash += rawAmt;
+              }
+              else if (type === 'Sell Trade' && (transferType === 'CASH_CREDIT' || transferType === '')) {
+                let avg = posMap[isin].quantity > 0 ? posMap[isin].totalCost / posMap[isin].quantity : 0;
+                const explicitPnl = this.parseNum(this.getVal(tx, 'Profit And Loss Amount'));
+                const tradePnl = explicitPnl !== 0 ? explicitPnl : (eurAmount - (qty * avg));
+                realizedPnL += tradePnl;
+
+                if (!closedMap[isin]) {
+                  closedMap[isin] = {
+                    isin: isin,
+                    name: resolvedName,
+                    soldQuantity: 0,
+                    realizedPnL: 0,
+                    note: ''
+                  };
+                }
+                closedMap[isin].soldQuantity += qty;
+                closedMap[isin].realizedPnL += tradePnl;
+
+                posMap[isin].quantity = Math.max(0, posMap[isin].quantity - qty);
+                posMap[isin].totalCost = Math.max(0, posMap[isin].totalCost - (qty * avg));
+                if (transferType === 'CASH_CREDIT') cash += rawAmt;
+              }
+
+              if (posMap[isin].quantity > 0.000001) {
+                posMap[isin].avgPrice = posMap[isin].totalCost / posMap[isin].quantity;
+              } else {
+                posMap[isin].quantity = 0;
+                posMap[isin].avgPrice = 0;
+                posMap[isin].totalCost = 0;
+              }
+            }
+            else if (category === 'corporate_actions') {
+              if (!posMap[isin]) {
+                posMap[isin] = {
+                  isin: isin,
+                  name: resolvedName,
+                  quantity: 0,
+                  totalCost: 0,
+                  avgPrice: 0,
+                  isEtf: this.isEtfAsset(resolvedName, isin),
+                  caBadge: '',
+                  caNote: ''
+                };
+              }
+
+              const dir = caDirections[idx];
+
+              if (dir === 'DEBIT' && qty > 0) {
+                let currentGak = posMap[isin].quantity > 0 ? (posMap[isin].totalCost / posMap[isin].quantity) : 0;
+                let closedQty = Math.min(posMap[isin].quantity, qty);
+                let removedCost = Math.min(posMap[isin].totalCost, closedQty * currentGak);
+
+                posMap[isin].quantity = Math.max(0, posMap[isin].quantity - qty);
+                posMap[isin].totalCost = Math.max(0, posMap[isin].totalCost - removedCost);
+                posMap[isin].avgPrice = posMap[isin].quantity > 0.000001 ? (posMap[isin].totalCost / posMap[isin].quantity) : 0;
+
+                pendingCaDebits.push({
+                  fromIsin: isin,
+                  fromName: resolvedName,
+                  closedQty: closedQty,
+                  closedGak: currentGak,
+                  remainingCost: removedCost,
+                  date: txDate
+                });
+              }
+              else if (dir === 'CREDIT' && qty > 0) {
+                let inheritedCost = 0;
+                let sourceDebit = null;
+
+                const matchingRule = this.corporateActions.find(ca => ca.type === 'merger' && ca.toIsin === isin);
+                if (matchingRule) {
+                  const dIdx = pendingCaDebits.findIndex(d => d.fromIsin === matchingRule.fromIsin && d.remainingCost > 0);
+                  if (dIdx !== -1) {
+                    sourceDebit = pendingCaDebits.splice(dIdx, 1)[0];
+                  }
+                }
+                if (!sourceDebit && pendingCaDebits.length > 0) {
+                  sourceDebit = pendingCaDebits.shift();
+                }
+
+                if (sourceDebit) {
+                  inheritedCost = sourceDebit.remainingCost;
+                  if (sourceDebit.fromIsin !== isin) {
+                    closedByMerger.push({
+                      isin: sourceDebit.fromIsin,
+                      name: sourceDebit.fromName,
+                      closedQuantity: sourceDebit.closedQty,
+                      note: `Overname / Wissel → ${resolvedName} (GAK ${this.formatCurrency(sourceDebit.closedGak)})`
+                    });
+                  }
+                }
+
+                const convertedGak = qty > 0 ? (inheritedCost / qty) : 0;
+                const hadExistingShares = posMap[isin].quantity > 0.0001;
+
+                posMap[isin].quantity += qty;
+                posMap[isin].totalCost += inheritedCost;
+                posMap[isin].avgPrice = posMap[isin].quantity > 0.000001 ? (posMap[isin].totalCost / posMap[isin].quantity) : 0;
+                posMap[isin].caBadge = sourceDebit && sourceDebit.fromIsin !== isin ? 'Overname' : 'CA';
+                posMap[isin].caNote = sourceDebit && sourceDebit.fromIsin !== isin
+                  ? `Conversie ${sourceDebit.fromName}: geconverteerde GAK ${this.formatCurrency(convertedGak)}${hadExistingShares ? ' samengevoegd met bestaande positie' : ''}`
+                  : `Corporate Action (${type || 'CSV'}): GAK aangepast naar ${this.formatCurrency(posMap[isin].avgPrice)}`;
+              }
+              else if (dir === 'CASH') {
+                if (transferType === 'CASH_CREDIT' || transferType === 'CASH_DEBIT') cash += rawAmt;
+                if (rawAmt > 0 && pendingCaDebits.length > 0) {
+                  pendingCaDebits[0].remainingCost = Math.max(0, pendingCaDebits[0].remainingCost - rawAmt);
+                }
+              }
+            }
+          });
+
+          this.corporateActions.forEach(ca => {
+            if (ca.type === 'rename') {
+              const isin = ca.isin;
+              if (posMap[isin]) {
+                posMap[isin].name = ca.newName;
+                posMap[isin].caBadge = 'Naam';
+                posMap[isin].caNote = `Hernoemd naar ${ca.newName}`;
+              }
+            }
+            else if (ca.type === 'split') {
+              const isin = ca.isin;
+              const factor = parseFloat(ca.factor);
+              if (posMap[isin] && posMap[isin].quantity > 0.0001 && factor > 0) {
+                if (ca.mode === 'divide') {
+                  posMap[isin].quantity = posMap[isin].quantity / factor;
+                  posMap[isin].caBadge = `÷${factor}`;
+                  posMap[isin].caNote = `Reverse Split: aantal gedeeld door ${factor} met behoud van totale aankoopwaarde`;
+                } else {
+                  posMap[isin].quantity = posMap[isin].quantity * factor;
+                  posMap[isin].caBadge = `×${factor}`;
+                  posMap[isin].caNote = `Aandelensplitsing: aantal vermenigvuldigd met ${factor} met behoud van totale aankoopwaarde`;
+                }
+                posMap[isin].avgPrice = posMap[isin].totalCost / posMap[isin].quantity;
+              }
+            }
+            else if (ca.type === 'merger') {
+              const fromIsin = ca.fromIsin;
+              const toIsin = ca.toIsin;
+              const ratio = parseFloat(ca.ratio) || 1;
+              const cashBoot = parseFloat(ca.cashBoot) || 0;
+
+              if (posMap[fromIsin] && posMap[fromIsin].quantity > 0.0001) {
+                const oldQty = posMap[fromIsin].quantity;
+                const oldGak = posMap[fromIsin].avgPrice;
+                const oldCost = posMap[fromIsin].totalCost;
+                const fromName = this.getAssetDisplayName(posMap[fromIsin]);
+
+                const newQty = oldQty * ratio;
+                const transferredCost = Math.max(0, oldCost - cashBoot);
+                const convertedGak = newQty > 0 ? (transferredCost / newQty) : 0;
+
+                posMap[fromIsin].quantity = 0;
+                posMap[fromIsin].totalCost = 0;
+                posMap[fromIsin].avgPrice = 0;
+
+                const targetName = ca.toName || this.getAssetDisplayName(toIsin);
+
+                closedByMerger.push({
+                  isin: fromIsin,
+                  name: fromName,
+                  closedQuantity: oldQty,
+                  note: `Overname / Wissel → ${targetName} (afgesloten aan GAK ${this.formatCurrency(oldGak)})`
+                });
+
+                if (!posMap[toIsin]) {
+                  posMap[toIsin] = {
+                    isin: toIsin,
+                    name: targetName,
+                    quantity: 0,
+                    totalCost: 0,
+                    avgPrice: 0,
+                    isEtf: this.isEtfAsset(targetName, toIsin),
+                    caBadge: '',
+                    caNote: ''
+                  };
+                }
+
+                const hadExistingShares = posMap[toIsin].quantity > 0.0001;
+                posMap[toIsin].quantity += newQty;
+                posMap[toIsin].totalCost += transferredCost;
+                posMap[toIsin].avgPrice = posMap[toIsin].quantity > 0.000001 ? (posMap[toIsin].totalCost / posMap[toIsin].quantity) : 0;
+                posMap[toIsin].caBadge = 'Overname';
+                posMap[toIsin].caNote = `Conversie ${fromName} (1:${ratio}): geconverteerde GAK ${this.formatCurrency(convertedGak)}${hadExistingShares ? ' samengevoegd met bestaande positie' : ''}`;
+              }
+            }
+          });
+
+          Object.keys(this.positionOverrides || {}).forEach(isin => {
+            const ov = this.positionOverrides[isin];
+            if (!ov) return;
+            if (!posMap[isin]) {
+              posMap[isin] = {
+                isin: isin,
+                name: this.getAssetDisplayName(isin),
+                quantity: 0,
+                totalCost: 0,
+                avgPrice: 0,
+                isEtf: this.isEtfAsset(this.getAssetDisplayName(isin), isin),
+                caBadge: '',
+                caNote: ''
+              };
+            }
+            if (ov.quantity !== '' && ov.quantity !== undefined && !isNaN(parseFloat(ov.quantity))) {
+              posMap[isin].quantity = parseFloat(ov.quantity);
+            }
+            if (ov.avgPrice !== '' && ov.avgPrice !== undefined && !isNaN(parseFloat(ov.avgPrice))) {
+              posMap[isin].avgPrice = parseFloat(ov.avgPrice);
+            }
+            posMap[isin].totalCost = posMap[isin].quantity * posMap[isin].avgPrice;
+            posMap[isin].isManualOverride = true;
+            posMap[isin].overrideComment = ov.comment || 'Handmatige correctie';
+          });
+
+          Object.keys(posMap).forEach(isin => {
+            posMap[isin].name = this.getAssetDisplayName(posMap[isin]);
+          });
+
+          closedByMerger.forEach(mc => {
+            if (!closedMap[mc.isin]) {
+              closedMap[mc.isin] = {
+                isin: mc.isin,
+                name: mc.name,
+                soldQuantity: mc.closedQuantity,
+                realizedPnL: 0,
+                note: mc.note
+              };
+            } else {
+              closedMap[mc.isin].soldQuantity += mc.closedQuantity;
+              closedMap[mc.isin].note = mc.note;
+            }
+          });
+
+          return {
+            positions: Object.values(posMap).filter(p => p.quantity > 0.0001),
+            mergerClosedPositions: closedByMerger,
+            closedPositionsList: Object.values(closedMap),
+            deposits: deposits,
+            withdrawals: withdrawals,
+            realizedPnL: realizedPnL,
+            cashBalance: Math.max(0, cash)
+          };
+        },
+
+        calculatePositions() {
+          const led = this.computeUnifiedLedger();
+          this.mergerClosedPositions = led.mergerClosedPositions;
+          this.positions = led.positions;
+        },
+
+        get closedPositionsList() {
+          return this.computeUnifiedLedger().closedPositionsList;
+        },
+
+        get totals() {
+          const led = this.computeUnifiedLedger();
+          return { deposits: led.deposits, withdrawals: led.withdrawals, realizedPnL: led.realizedPnL };
+        },
+
+        get cashBalance() {
+          return this.computeUnifiedLedger().cashBalance;
         }
       }
     }
