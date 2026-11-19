@@ -18,7 +18,2238 @@
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <script type="module">// \0rolldown/runtime.js
+    
+    <style>
+/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
+@layer properties {
+  @supports (((-webkit-hyphens: none)) and (not (margin-trim: block))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
+    *, :before, :after, ::backdrop {
+      --tw-translate-x: 0;
+      --tw-translate-y: 0;
+      --tw-translate-z: 0;
+      --tw-rotate-x: initial;
+      --tw-rotate-y: initial;
+      --tw-rotate-z: initial;
+      --tw-skew-x: initial;
+      --tw-skew-y: initial;
+      --tw-space-y-reverse: 0;
+      --tw-divide-y-reverse: 0;
+      --tw-border-style: solid;
+      --tw-gradient-position: initial;
+      --tw-gradient-from: #0000;
+      --tw-gradient-via: #0000;
+      --tw-gradient-to: #0000;
+      --tw-gradient-stops: initial;
+      --tw-gradient-via-stops: initial;
+      --tw-gradient-from-position: 0%;
+      --tw-gradient-via-position: 50%;
+      --tw-gradient-to-position: 100%;
+      --tw-font-weight: initial;
+      --tw-tracking: initial;
+      --tw-ordinal: initial;
+      --tw-slashed-zero: initial;
+      --tw-numeric-figure: initial;
+      --tw-numeric-spacing: initial;
+      --tw-numeric-fraction: initial;
+      --tw-shadow: 0 0 #0000;
+      --tw-shadow-color: initial;
+      --tw-shadow-alpha: 100%;
+      --tw-inset-shadow: 0 0 #0000;
+      --tw-inset-shadow-color: initial;
+      --tw-inset-shadow-alpha: 100%;
+      --tw-ring-color: initial;
+      --tw-ring-shadow: 0 0 #0000;
+      --tw-inset-ring-color: initial;
+      --tw-inset-ring-shadow: 0 0 #0000;
+      --tw-ring-inset: initial;
+      --tw-ring-offset-width: 0px;
+      --tw-ring-offset-color: #fff;
+      --tw-ring-offset-shadow: 0 0 #0000;
+      --tw-outline-style: solid;
+      --tw-blur: initial;
+      --tw-brightness: initial;
+      --tw-contrast: initial;
+      --tw-grayscale: initial;
+      --tw-hue-rotate: initial;
+      --tw-invert: initial;
+      --tw-opacity: initial;
+      --tw-saturate: initial;
+      --tw-sepia: initial;
+      --tw-drop-shadow: initial;
+      --tw-drop-shadow-color: initial;
+      --tw-drop-shadow-alpha: 100%;
+      --tw-drop-shadow-size: initial;
+    }
+  }
+}
+
+@layer theme {
+  :root, :host {
+    --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --color-amber-300: oklch(87.9% .169 91.605);
+    --color-amber-400: oklch(82.8% .189 84.429);
+    --color-emerald-200: oklch(90.5% .093 164.15);
+    --color-emerald-300: oklch(84.5% .143 164.978);
+    --color-emerald-400: oklch(76.5% .177 163.223);
+    --color-emerald-500: oklch(69.6% .17 162.48);
+    --color-sky-400: oklch(74.6% .16 232.661);
+    --color-sky-500: oklch(68.5% .169 237.323);
+    --color-violet-300: oklch(81.1% .111 293.571);
+    --color-rose-300: oklch(81% .117 11.638);
+    --color-rose-400: oklch(71.2% .194 13.428);
+    --color-rose-500: oklch(64.5% .246 16.439);
+    --color-rose-950: oklch(27.1% .105 12.094);
+    --color-slate-50: oklch(98.4% .003 247.858);
+    --color-slate-100: oklch(96.8% .007 247.896);
+    --color-slate-200: oklch(92.9% .013 255.508);
+    --color-slate-300: oklch(86.9% .022 252.894);
+    --color-slate-400: oklch(70.4% .04 256.788);
+    --color-slate-500: oklch(55.4% .046 257.417);
+    --color-slate-600: oklch(44.6% .043 257.281);
+    --color-slate-950: oklch(12.9% .042 264.695);
+    --color-black: #000;
+    --color-white: #fff;
+    --spacing: .25rem;
+    --container-sm: 24rem;
+    --container-md: 28rem;
+    --container-2xl: 42rem;
+    --container-3xl: 48rem;
+    --container-7xl: 80rem;
+    --text-xs: .75rem;
+    --text-xs--line-height: calc(1 / .75);
+    --text-sm: .875rem;
+    --text-sm--line-height: calc(1.25 / .875);
+    --text-base: 1rem;
+    --text-base--line-height: calc(1.5 / 1);
+    --text-lg: 1.125rem;
+    --text-lg--line-height: calc(1.75 / 1.125);
+    --text-3xl: 1.875rem;
+    --text-3xl--line-height: calc(2.25 / 1.875);
+    --text-4xl: 2.25rem;
+    --text-4xl--line-height: calc(2.5 / 2.25);
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+    --tracking-tight: -.025em;
+    --radius-sm: .25rem;
+    --radius-md: .375rem;
+    --radius-lg: .5rem;
+    --radius-xl: .75rem;
+    --animate-spin: spin 1s linear infinite;
+    --animate-pulse: pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;
+    --default-transition-duration: .15s;
+    --default-transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+    --default-font-family: var(--font-sans);
+    --default-mono-font-family: var(--font-mono);
+  }
+}
+
+@layer base {
+  *, :after, :before, ::backdrop {
+    box-sizing: border-box;
+    border: 0 solid;
+    margin: 0;
+    padding: 0;
+  }
+
+  ::file-selector-button {
+    box-sizing: border-box;
+    border: 0 solid;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, :host {
+    -webkit-text-size-adjust: 100%;
+    tab-size: 4;
+    line-height: 1.5;
+    font-family: var(--default-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
+    font-feature-settings: var(--default-font-feature-settings, normal);
+    font-variation-settings: var(--default-font-variation-settings, normal);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  hr {
+    height: 0;
+    color: inherit;
+    border-top-width: 1px;
+  }
+
+  abbr:where([title]) {
+    -webkit-text-decoration: underline dotted;
+    text-decoration: underline dotted;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  a {
+    color: inherit;
+    -webkit-text-decoration: inherit;
+    -webkit-text-decoration: inherit;
+    -webkit-text-decoration: inherit;
+    text-decoration: inherit;
+  }
+
+  b, strong {
+    font-weight: bolder;
+  }
+
+  code, kbd, samp, pre {
+    font-family: var(--default-mono-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+    font-feature-settings: var(--default-mono-font-feature-settings, normal);
+    font-variation-settings: var(--default-mono-font-variation-settings, normal);
+    font-size: 1em;
+  }
+
+  small {
+    font-size: 80%;
+  }
+
+  sub, sup {
+    vertical-align: baseline;
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+  }
+
+  sub {
+    bottom: -.25em;
+  }
+
+  sup {
+    top: -.5em;
+  }
+
+  table {
+    text-indent: 0;
+    border-color: inherit;
+    border-collapse: collapse;
+  }
+
+  :-moz-focusring:where(:not(iframe)) {
+    outline: auto;
+  }
+
+  progress {
+    vertical-align: baseline;
+  }
+
+  summary {
+    display: list-item;
+  }
+
+  ol, ul, menu {
+    list-style: none;
+  }
+
+  img, svg, video, canvas, audio, iframe, embed, object {
+    vertical-align: middle;
+    display: block;
+  }
+
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  button, input, select, optgroup, textarea {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    opacity: 1;
+    background-color: #0000;
+    border-radius: 0;
+  }
+
+  ::file-selector-button {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    opacity: 1;
+    background-color: #0000;
+    border-radius: 0;
+  }
+
+  :where(select:is([multiple], [size])) optgroup {
+    font-weight: bolder;
+  }
+
+  :where(select:is([multiple], [size])) optgroup option {
+    padding-inline-start: 20px;
+  }
+
+  ::file-selector-button {
+    margin-inline-end: 4px;
+  }
+
+  ::placeholder {
+    opacity: 1;
+  }
+
+  @supports (not ((-webkit-appearance: -apple-pay-button))) or (contain-intrinsic-size: 1px) {
+    ::placeholder {
+      color: currentColor;
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      ::placeholder {
+        color: color-mix(in oklab, currentcolor 50%, transparent);
+      }
+    }
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  ::-webkit-search-decoration {
+    -webkit-appearance: none;
+  }
+
+  ::-webkit-date-and-time-value {
+    min-height: 1lh;
+    text-align: inherit;
+  }
+
+  ::-webkit-datetime-edit {
+    display: inline-flex;
+  }
+
+  ::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+  }
+
+  ::-webkit-datetime-edit {
+    padding-block: 0;
+  }
+
+  ::-webkit-datetime-edit-year-field {
+    padding-block: 0;
+  }
+
+  ::-webkit-datetime-edit-month-field {
+    padding-block: 0;
+  }
+
+  ::-webkit-datetime-edit-day-field {
+    padding-block: 0;
+  }
+
+  ::-webkit-datetime-edit-hour-field {
+    padding-block: 0;
+  }
+
+  ::-webkit-datetime-edit-minute-field {
+    padding-block: 0;
+  }
+
+  ::-webkit-datetime-edit-second-field {
+    padding-block: 0;
+  }
+
+  ::-webkit-datetime-edit-millisecond-field {
+    padding-block: 0;
+  }
+
+  ::-webkit-datetime-edit-meridiem-field {
+    padding-block: 0;
+  }
+
+  ::-webkit-calendar-picker-indicator {
+    line-height: 1;
+  }
+
+  :-moz-ui-invalid {
+    box-shadow: none;
+  }
+
+  button, input:where([type="button"], [type="reset"], [type="submit"]) {
+    appearance: button;
+  }
+
+  ::file-selector-button {
+    appearance: button;
+  }
+
+  ::-webkit-inner-spin-button {
+    height: auto;
+  }
+
+  ::-webkit-outer-spin-button {
+    height: auto;
+  }
+
+  [hidden]:where(:not([hidden="until-found"])) {
+    display: none !important;
+  }
+
+  html, body {
+    color: #f1f5f9;
+    font-family: var(--font-sans);
+    background-color: #070d1e;
+  }
+}
+
+@layer components;
+
+@layer utilities {
+  .pointer-events-none {
+    pointer-events: none;
+  }
+
+  .visible {
+    visibility: visible;
+  }
+
+  .absolute {
+    position: absolute;
+  }
+
+  .fixed {
+    position: fixed;
+  }
+
+  .relative {
+    position: relative;
+  }
+
+  .static {
+    position: static;
+  }
+
+  .sticky {
+    position: sticky;
+  }
+
+  .inset-0 {
+    inset: 0;
+  }
+
+  .top-1 {
+    top: var(--spacing);
+  }
+
+  .top-1\/2 {
+    top: 50%;
+  }
+
+  .top-10 {
+    top: calc(var(--spacing) * 10);
+  }
+
+  .right-0 {
+    right: 0;
+  }
+
+  .left-0 {
+    left: 0;
+  }
+
+  .left-3 {
+    left: calc(var(--spacing) * 3);
+  }
+
+  .z-40 {
+    z-index: 40;
+  }
+
+  .z-50 {
+    z-index: 50;
+  }
+
+  .container {
+    width: 100%;
+  }
+
+  @media (min-width: 40rem) {
+    .container {
+      max-width: 40rem;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .container {
+      max-width: 48rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .container {
+      max-width: 64rem;
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .container {
+      max-width: 80rem;
+    }
+  }
+
+  @media (min-width: 96rem) {
+    .container {
+      max-width: 96rem;
+    }
+  }
+
+  .-m-1 {
+    margin: calc(var(--spacing) * -1);
+  }
+
+  .mx-auto {
+    margin-inline: auto;
+  }
+
+  .my-1 {
+    margin-block: var(--spacing);
+  }
+
+  .mt-0 {
+    margin-top: 0;
+  }
+
+  .mt-0\.5 {
+    margin-top: calc(var(--spacing) * .5);
+  }
+
+  .mt-1 {
+    margin-top: var(--spacing);
+  }
+
+  .mt-1\.5 {
+    margin-top: calc(var(--spacing) * 1.5);
+  }
+
+  .mr-2 {
+    margin-right: calc(var(--spacing) * 2);
+  }
+
+  .mb-1 {
+    margin-bottom: var(--spacing);
+  }
+
+  .mb-3 {
+    margin-bottom: calc(var(--spacing) * 3);
+  }
+
+  .mb-5 {
+    margin-bottom: calc(var(--spacing) * 5);
+  }
+
+  .ml-1 {
+    margin-left: var(--spacing);
+  }
+
+  .ml-1\.5 {
+    margin-left: calc(var(--spacing) * 1.5);
+  }
+
+  .ml-2 {
+    margin-left: calc(var(--spacing) * 2);
+  }
+
+  .block {
+    display: block;
+  }
+
+  .contents {
+    display: contents;
+  }
+
+  .flex {
+    display: flex;
+  }
+
+  .grid {
+    display: grid;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .inline {
+    display: inline;
+  }
+
+  .inline-block {
+    display: inline-block;
+  }
+
+  .inline-flex {
+    display: inline-flex;
+  }
+
+  .table {
+    display: table;
+  }
+
+  .table-cell {
+    display: table-cell;
+  }
+
+  .table-column {
+    display: table-column;
+  }
+
+  .table-column-group {
+    display: table-column-group;
+  }
+
+  .table-row {
+    display: table-row;
+  }
+
+  .table-row-group {
+    display: table-row-group;
+  }
+
+  .h-2 {
+    height: calc(var(--spacing) * 2);
+  }
+
+  .h-2\.5 {
+    height: calc(var(--spacing) * 2.5);
+  }
+
+  .h-3 {
+    height: calc(var(--spacing) * 3);
+  }
+
+  .h-3\.5 {
+    height: calc(var(--spacing) * 3.5);
+  }
+
+  .h-4 {
+    height: calc(var(--spacing) * 4);
+  }
+
+  .h-6 {
+    height: calc(var(--spacing) * 6);
+  }
+
+  .h-10 {
+    height: calc(var(--spacing) * 10);
+  }
+
+  .h-16 {
+    height: calc(var(--spacing) * 16);
+  }
+
+  .h-44 {
+    height: calc(var(--spacing) * 44);
+  }
+
+  .h-72 {
+    height: calc(var(--spacing) * 72);
+  }
+
+  .h-full {
+    height: 100%;
+  }
+
+  .max-h-40 {
+    max-height: calc(var(--spacing) * 40);
+  }
+
+  .max-h-\[90vh\] {
+    max-height: 90vh;
+  }
+
+  .min-h-screen {
+    min-height: 100vh;
+  }
+
+  .w-2 {
+    width: calc(var(--spacing) * 2);
+  }
+
+  .w-2\.5 {
+    width: calc(var(--spacing) * 2.5);
+  }
+
+  .w-3 {
+    width: calc(var(--spacing) * 3);
+  }
+
+  .w-3\.5 {
+    width: calc(var(--spacing) * 3.5);
+  }
+
+  .w-4 {
+    width: calc(var(--spacing) * 4);
+  }
+
+  .w-6 {
+    width: calc(var(--spacing) * 6);
+  }
+
+  .w-14 {
+    width: calc(var(--spacing) * 14);
+  }
+
+  .w-28 {
+    width: calc(var(--spacing) * 28);
+  }
+
+  .w-32 {
+    width: calc(var(--spacing) * 32);
+  }
+
+  .w-44 {
+    width: calc(var(--spacing) * 44);
+  }
+
+  .w-48 {
+    width: calc(var(--spacing) * 48);
+  }
+
+  .w-56 {
+    width: calc(var(--spacing) * 56);
+  }
+
+  .w-full {
+    width: 100%;
+  }
+
+  .max-w-2xl {
+    max-width: var(--container-2xl);
+  }
+
+  .max-w-3xl {
+    max-width: var(--container-3xl);
+  }
+
+  .max-w-7xl {
+    max-width: var(--container-7xl);
+  }
+
+  .max-w-\[220px\] {
+    max-width: 220px;
+  }
+
+  .max-w-\[240px\] {
+    max-width: 240px;
+  }
+
+  .max-w-\[260px\] {
+    max-width: 260px;
+  }
+
+  .max-w-md {
+    max-width: var(--container-md);
+  }
+
+  .min-w-0 {
+    min-width: 0;
+  }
+
+  .flex-1 {
+    flex: 1;
+  }
+
+  .flex-shrink {
+    flex-shrink: 1;
+  }
+
+  .shrink-0 {
+    flex-shrink: 0;
+  }
+
+  .border-collapse {
+    border-collapse: collapse;
+  }
+
+  .-translate-y-1 {
+    --tw-translate-y: calc(var(--spacing) * -1);
+    translate: var(--tw-translate-x) var(--tw-translate-y);
+  }
+
+  .-translate-y-1\/2 {
+    --tw-translate-y: calc(calc(1 / 2 * 100%) * -1);
+    translate: var(--tw-translate-x) var(--tw-translate-y);
+  }
+
+  .transform {
+    transform: var(--tw-rotate-x, ) var(--tw-rotate-y, ) var(--tw-rotate-z, ) var(--tw-skew-x, ) var(--tw-skew-y, );
+  }
+
+  .animate-pulse {
+    animation: var(--animate-pulse);
+  }
+
+  .animate-spin {
+    animation: var(--animate-spin);
+  }
+
+  .cursor-pointer {
+    cursor: pointer;
+  }
+
+  .resize {
+    resize: both;
+  }
+
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .flex-col {
+    flex-direction: column;
+  }
+
+  .flex-wrap {
+    flex-wrap: wrap;
+  }
+
+  .items-center {
+    align-items: center;
+  }
+
+  .items-end {
+    align-items: flex-end;
+  }
+
+  .items-start {
+    align-items: flex-start;
+  }
+
+  .items-stretch {
+    align-items: stretch;
+  }
+
+  .justify-between {
+    justify-content: space-between;
+  }
+
+  .justify-center {
+    justify-content: center;
+  }
+
+  .justify-end {
+    justify-content: flex-end;
+  }
+
+  .gap-1 {
+    gap: var(--spacing);
+  }
+
+  .gap-1\.5 {
+    gap: calc(var(--spacing) * 1.5);
+  }
+
+  .gap-2 {
+    gap: calc(var(--spacing) * 2);
+  }
+
+  .gap-2\.5 {
+    gap: calc(var(--spacing) * 2.5);
+  }
+
+  .gap-3 {
+    gap: calc(var(--spacing) * 3);
+  }
+
+  .gap-4 {
+    gap: calc(var(--spacing) * 4);
+  }
+
+  .gap-5 {
+    gap: calc(var(--spacing) * 5);
+  }
+
+  .gap-6 {
+    gap: calc(var(--spacing) * 6);
+  }
+
+  :where(.space-y-1 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(var(--spacing) * var(--tw-space-y-reverse));
+    margin-block-end: calc(var(--spacing) * calc(1 - var(--tw-space-y-reverse)));
+  }
+
+  :where(.space-y-1\.5 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * 1.5) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * 1.5) * calc(1 - var(--tw-space-y-reverse)));
+  }
+
+  :where(.space-y-2 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
+  }
+
+  :where(.space-y-3 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * 3) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-y-reverse)));
+  }
+
+  :where(.space-y-4 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * 4) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-y-reverse)));
+  }
+
+  :where(.space-y-5 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * 5) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * 5) * calc(1 - var(--tw-space-y-reverse)));
+  }
+
+  :where(.space-y-6 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * 6) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * 6) * calc(1 - var(--tw-space-y-reverse)));
+  }
+
+  .gap-x-1 {
+    column-gap: var(--spacing);
+  }
+
+  .gap-x-1\.5 {
+    column-gap: calc(var(--spacing) * 1.5);
+  }
+
+  :where(.divide-y > :not(:last-child)) {
+    --tw-divide-y-reverse: 0;
+    border-bottom-style: var(--tw-border-style);
+    border-top-style: var(--tw-border-style);
+    border-top-width: calc(1px * var(--tw-divide-y-reverse));
+    border-bottom-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
+  }
+
+  :where(.divide-\[\#182649\] > :not(:last-child)) {
+    border-color: #182649;
+  }
+
+  .truncate {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .overflow-hidden {
+    overflow: hidden;
+  }
+
+  .overflow-x-auto {
+    overflow-x: auto;
+  }
+
+  .overflow-y-auto {
+    overflow-y: auto;
+  }
+
+  .rounded {
+    border-radius: .25rem;
+  }
+
+  .rounded-full {
+    border-radius: 2147483647px;
+  }
+
+  .rounded-lg {
+    border-radius: var(--radius-lg);
+  }
+
+  .rounded-md {
+    border-radius: var(--radius-md);
+  }
+
+  .rounded-sm {
+    border-radius: var(--radius-sm);
+  }
+
+  .rounded-xl {
+    border-radius: var(--radius-xl);
+  }
+
+  .rounded-t-xl {
+    border-top-left-radius: var(--radius-xl);
+    border-top-right-radius: var(--radius-xl);
+  }
+
+  .border {
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+  }
+
+  .border-2 {
+    border-style: var(--tw-border-style);
+    border-width: 2px;
+  }
+
+  .border-t {
+    border-top-style: var(--tw-border-style);
+    border-top-width: 1px;
+  }
+
+  .border-b {
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 1px;
+  }
+
+  .border-b-2 {
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 2px;
+  }
+
+  .border-\[\#1b2b52\] {
+    border-color: #1b2b52;
+  }
+
+  .border-\[\#1e3260\] {
+    border-color: #1e3260;
+  }
+
+  .border-\[\#182649\] {
+    border-color: #182649;
+  }
+
+  .border-emerald-400 {
+    border-color: var(--color-emerald-400);
+  }
+
+  .border-emerald-500 {
+    border-color: var(--color-emerald-500);
+  }
+
+  .border-emerald-500\/30 {
+    border-color: #00bb7f4d;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-emerald-500\/30 {
+      border-color: color-mix(in oklab, var(--color-emerald-500) 30%, transparent);
+    }
+  }
+
+  .border-rose-500 {
+    border-color: var(--color-rose-500);
+  }
+
+  .border-rose-500\/20 {
+    border-color: #ff235733;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-rose-500\/20 {
+      border-color: color-mix(in oklab, var(--color-rose-500) 20%, transparent);
+    }
+  }
+
+  .border-rose-500\/30 {
+    border-color: #ff23574d;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-rose-500\/30 {
+      border-color: color-mix(in oklab, var(--color-rose-500) 30%, transparent);
+    }
+  }
+
+  .border-sky-500 {
+    border-color: var(--color-sky-500);
+  }
+
+  .border-sky-500\/30 {
+    border-color: #00a5ef4d;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-sky-500\/30 {
+      border-color: color-mix(in oklab, var(--color-sky-500) 30%, transparent);
+    }
+  }
+
+  .border-transparent {
+    border-color: #0000;
+  }
+
+  .border-t-transparent {
+    border-top-color: #0000;
+  }
+
+  .bg-\[\#0b142c\] {
+    background-color: #0b142c;
+  }
+
+  .bg-\[\#0f1c3d\] {
+    background-color: #0f1c3d;
+  }
+
+  .bg-\[\#9f1239\] {
+    background-color: #9f1239;
+  }
+
+  .bg-\[\#38bdf8\] {
+    background-color: #38bdf8;
+  }
+
+  .bg-\[\#070d1e\] {
+    background-color: #070d1e;
+  }
+
+  .bg-\[\#080e22\] {
+    background-color: #080e22;
+  }
+
+  .bg-\[\#93c5fd\] {
+    background-color: #93c5fd;
+  }
+
+  .bg-\[\#2563eb\] {
+    background-color: #2563eb;
+  }
+
+  .bg-\[\#132247\] {
+    background-color: #132247;
+  }
+
+  .bg-\[\#132247\]\/40 {
+    background-color: oklab(26.1781% -.00605153 -.0718371 / .4);
+  }
+
+  .bg-\[\#132247\]\/60 {
+    background-color: oklab(26.1781% -.00605153 -.0718371 / .6);
+  }
+
+  .bg-\[\#e11d48\] {
+    background-color: #e11d48;
+  }
+
+  .bg-\[\#fb7185\] {
+    background-color: #fb7185;
+  }
+
+  .bg-black {
+    background-color: var(--color-black);
+  }
+
+  .bg-black\/75 {
+    background-color: #000000bf;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-black\/75 {
+      background-color: color-mix(in oklab, var(--color-black) 75%, transparent);
+    }
+  }
+
+  .bg-emerald-500 {
+    background-color: var(--color-emerald-500);
+  }
+
+  .bg-emerald-500\/10 {
+    background-color: #00bb7f1a;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-emerald-500\/10 {
+      background-color: color-mix(in oklab, var(--color-emerald-500) 10%, transparent);
+    }
+  }
+
+  .bg-rose-500 {
+    background-color: var(--color-rose-500);
+  }
+
+  .bg-rose-500\/15 {
+    background-color: #ff235726;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-rose-500\/15 {
+      background-color: color-mix(in oklab, var(--color-rose-500) 15%, transparent);
+    }
+  }
+
+  .bg-rose-950 {
+    background-color: var(--color-rose-950);
+  }
+
+  .bg-rose-950\/30 {
+    background-color: #4d02184d;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-rose-950\/30 {
+      background-color: color-mix(in oklab, var(--color-rose-950) 30%, transparent);
+    }
+  }
+
+  .bg-gradient-to-r {
+    --tw-gradient-position: to right in oklab;
+    background-image: linear-gradient(var(--tw-gradient-stops));
+  }
+
+  .from-\[\#070d1e\] {
+    --tw-gradient-from: #070d1e;
+    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+  }
+
+  .from-\[\#070d1e\]\/85 {
+    --tw-gradient-from: oklab(16.353% -.00200535 -.0372322 / .85);
+    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+  }
+
+  .via-\[\#0e1c3f\] {
+    --tw-gradient-via: #0e1c3f;
+    --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-via-stops);
+  }
+
+  .via-\[\#070d1e\]\/35 {
+    --tw-gradient-via: oklab(16.353% -.00200535 -.0372322 / .35);
+    --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-via-stops);
+  }
+
+  .to-\[\#070d1e\] {
+    --tw-gradient-to: #070d1e;
+    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+  }
+
+  .to-\[\#070d1e\]\/85 {
+    --tw-gradient-to: oklab(16.353% -.00200535 -.0372322 / .85);
+    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+  }
+
+  .object-cover {
+    object-fit: cover;
+  }
+
+  .object-center {
+    object-position: center;
+  }
+
+  .p-0 {
+    padding: 0;
+  }
+
+  .p-0\.5 {
+    padding: calc(var(--spacing) * .5);
+  }
+
+  .p-1 {
+    padding: var(--spacing);
+  }
+
+  .p-1\.5 {
+    padding: calc(var(--spacing) * 1.5);
+  }
+
+  .p-2 {
+    padding: calc(var(--spacing) * 2);
+  }
+
+  .p-2\.5 {
+    padding: calc(var(--spacing) * 2.5);
+  }
+
+  .p-3 {
+    padding: calc(var(--spacing) * 3);
+  }
+
+  .p-4 {
+    padding: calc(var(--spacing) * 4);
+  }
+
+  .p-5 {
+    padding: calc(var(--spacing) * 5);
+  }
+
+  .p-6 {
+    padding: calc(var(--spacing) * 6);
+  }
+
+  .px-1 {
+    padding-inline: var(--spacing);
+  }
+
+  .px-1\.5 {
+    padding-inline: calc(var(--spacing) * 1.5);
+  }
+
+  .px-2 {
+    padding-inline: calc(var(--spacing) * 2);
+  }
+
+  .px-2\.5 {
+    padding-inline: calc(var(--spacing) * 2.5);
+  }
+
+  .px-3 {
+    padding-inline: calc(var(--spacing) * 3);
+  }
+
+  .px-3\.5 {
+    padding-inline: calc(var(--spacing) * 3.5);
+  }
+
+  .px-4 {
+    padding-inline: calc(var(--spacing) * 4);
+  }
+
+  .px-5 {
+    padding-inline: calc(var(--spacing) * 5);
+  }
+
+  .px-6 {
+    padding-inline: calc(var(--spacing) * 6);
+  }
+
+  .py-1 {
+    padding-block: var(--spacing);
+  }
+
+  .py-1\.5 {
+    padding-block: calc(var(--spacing) * 1.5);
+  }
+
+  .py-2 {
+    padding-block: calc(var(--spacing) * 2);
+  }
+
+  .py-2\.5 {
+    padding-block: calc(var(--spacing) * 2.5);
+  }
+
+  .py-3 {
+    padding-block: calc(var(--spacing) * 3);
+  }
+
+  .py-3\.5 {
+    padding-block: calc(var(--spacing) * 3.5);
+  }
+
+  .py-4 {
+    padding-block: calc(var(--spacing) * 4);
+  }
+
+  .py-5 {
+    padding-block: calc(var(--spacing) * 5);
+  }
+
+  .py-6 {
+    padding-block: calc(var(--spacing) * 6);
+  }
+
+  .py-8 {
+    padding-block: calc(var(--spacing) * 8);
+  }
+
+  .py-10 {
+    padding-block: calc(var(--spacing) * 10);
+  }
+
+  .py-12 {
+    padding-block: calc(var(--spacing) * 12);
+  }
+
+  .pt-1 {
+    padding-top: var(--spacing);
+  }
+
+  .pt-3 {
+    padding-top: calc(var(--spacing) * 3);
+  }
+
+  .pt-4 {
+    padding-top: calc(var(--spacing) * 4);
+  }
+
+  .pt-6 {
+    padding-top: calc(var(--spacing) * 6);
+  }
+
+  .pr-3 {
+    padding-right: calc(var(--spacing) * 3);
+  }
+
+  .pb-3 {
+    padding-bottom: calc(var(--spacing) * 3);
+  }
+
+  .pb-4 {
+    padding-bottom: calc(var(--spacing) * 4);
+  }
+
+  .pb-6 {
+    padding-bottom: calc(var(--spacing) * 6);
+  }
+
+  .pl-4 {
+    padding-left: calc(var(--spacing) * 4);
+  }
+
+  .pl-4\.5 {
+    padding-left: calc(var(--spacing) * 4.5);
+  }
+
+  .pl-9 {
+    padding-left: calc(var(--spacing) * 9);
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .text-left {
+    text-align: left;
+  }
+
+  .text-right {
+    text-align: right;
+  }
+
+  .align-middle {
+    vertical-align: middle;
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  .font-sans {
+    font-family: var(--font-sans);
+  }
+
+  .text-3xl {
+    font-size: var(--text-3xl);
+    line-height: var(--tw-leading, var(--text-3xl--line-height));
+  }
+
+  .text-base {
+    font-size: var(--text-base);
+    line-height: var(--tw-leading, var(--text-base--line-height));
+  }
+
+  .text-lg {
+    font-size: var(--text-lg);
+    line-height: var(--tw-leading, var(--text-lg--line-height));
+  }
+
+  .text-sm {
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+  }
+
+  .text-xs {
+    font-size: var(--text-xs);
+    line-height: var(--tw-leading, var(--text-xs--line-height));
+  }
+
+  .text-\[11px\] {
+    font-size: 11px;
+  }
+
+  .font-bold {
+    --tw-font-weight: var(--font-weight-bold);
+    font-weight: var(--font-weight-bold);
+  }
+
+  .font-extrabold {
+    --tw-font-weight: var(--font-weight-extrabold);
+    font-weight: var(--font-weight-extrabold);
+  }
+
+  .font-medium {
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .font-semibold {
+    --tw-font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .tracking-tight {
+    --tw-tracking: var(--tracking-tight);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .whitespace-nowrap {
+    white-space: nowrap;
+  }
+
+  .text-amber-300 {
+    color: var(--color-amber-300);
+  }
+
+  .text-amber-400 {
+    color: var(--color-amber-400);
+  }
+
+  .text-emerald-300 {
+    color: var(--color-emerald-300);
+  }
+
+  .text-emerald-400 {
+    color: var(--color-emerald-400);
+  }
+
+  .text-rose-300 {
+    color: var(--color-rose-300);
+  }
+
+  .text-rose-400 {
+    color: var(--color-rose-400);
+  }
+
+  .text-sky-400 {
+    color: var(--color-sky-400);
+  }
+
+  .text-slate-50 {
+    color: var(--color-slate-50);
+  }
+
+  .text-slate-100 {
+    color: var(--color-slate-100);
+  }
+
+  .text-slate-200 {
+    color: var(--color-slate-200);
+  }
+
+  .text-slate-300 {
+    color: var(--color-slate-300);
+  }
+
+  .text-slate-400 {
+    color: var(--color-slate-400);
+  }
+
+  .text-slate-500 {
+    color: var(--color-slate-500);
+  }
+
+  .text-slate-600 {
+    color: var(--color-slate-600);
+  }
+
+  .text-slate-950 {
+    color: var(--color-slate-950);
+  }
+
+  .text-violet-300 {
+    color: var(--color-violet-300);
+  }
+
+  .text-white {
+    color: var(--color-white);
+  }
+
+  .uppercase {
+    text-transform: uppercase;
+  }
+
+  .italic {
+    font-style: italic;
+  }
+
+  .tabular-nums {
+    --tw-numeric-spacing: tabular-nums;
+    font-variant-numeric: var(--tw-ordinal, ) var(--tw-slashed-zero, ) var(--tw-numeric-figure, ) var(--tw-numeric-spacing, ) var(--tw-numeric-fraction, );
+  }
+
+  .underline {
+    text-decoration-line: underline;
+  }
+
+  .decoration-dotted {
+    text-decoration-style: dotted;
+  }
+
+  .underline-offset-4 {
+    text-underline-offset: 4px;
+  }
+
+  .antialiased {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .opacity-90 {
+    opacity: .9;
+  }
+
+  .shadow {
+    --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, #0000001a), 0 1px 2px -1px var(--tw-shadow-color, #0000001a);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+
+  .shadow-2xl {
+    --tw-shadow: 0 25px 50px -12px var(--tw-shadow-color, #00000040);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+
+  .ring-1 {
+    --tw-ring-shadow: var(--tw-ring-inset, ) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+
+  .ring-emerald-500 {
+    --tw-ring-color: var(--color-emerald-500);
+  }
+
+  .ring-emerald-500\/40 {
+    --tw-ring-color: #00bb7f66;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .ring-emerald-500\/40 {
+      --tw-ring-color: color-mix(in oklab, var(--color-emerald-500) 40%, transparent);
+    }
+  }
+
+  .\!outline {
+    outline-style: var(--tw-outline-style) !important;
+    outline-width: 1px !important;
+  }
+
+  .outline {
+    outline-style: var(--tw-outline-style);
+    outline-width: 1px;
+  }
+
+  .blur {
+    --tw-blur: blur(8px);
+    filter: var(--tw-blur, ) var(--tw-brightness, ) var(--tw-contrast, ) var(--tw-grayscale, ) var(--tw-hue-rotate, ) var(--tw-invert, ) var(--tw-saturate, ) var(--tw-sepia, ) var(--tw-drop-shadow, );
+  }
+
+  .filter {
+    filter: var(--tw-blur, ) var(--tw-brightness, ) var(--tw-contrast, ) var(--tw-grayscale, ) var(--tw-hue-rotate, ) var(--tw-invert, ) var(--tw-saturate, ) var(--tw-sepia, ) var(--tw-drop-shadow, );
+  }
+
+  .transition {
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+
+  .transition-colors {
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+
+  @media (hover: hover) {
+    :is(:where(.group):hover .group-hover\:text-sky-400) {
+      color: var(--color-sky-400);
+    }
+  }
+
+  .selection\:bg-emerald-500\/30 ::selection {
+    background-color: #00bb7f4d;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .selection\:bg-emerald-500\/30 ::selection {
+      background-color: color-mix(in oklab, var(--color-emerald-500) 30%, transparent);
+    }
+  }
+
+  .selection\:bg-emerald-500\/30::selection {
+    background-color: #00bb7f4d;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .selection\:bg-emerald-500\/30::selection {
+      background-color: color-mix(in oklab, var(--color-emerald-500) 30%, transparent);
+    }
+  }
+
+  .selection\:text-emerald-200 ::selection {
+    color: var(--color-emerald-200);
+  }
+
+  .selection\:text-emerald-200::selection {
+    color: var(--color-emerald-200);
+  }
+
+  .placeholder\:text-slate-500::placeholder {
+    color: var(--color-slate-500);
+  }
+
+  @media (hover: hover) {
+    .hover\:border-sky-400\/60:hover {
+      border-color: #00bcfe99;
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:border-sky-400\/60:hover {
+        border-color: color-mix(in oklab, var(--color-sky-400) 60%, transparent);
+      }
+    }
+
+    .hover\:bg-\[\#0b142c\]\/60:hover {
+      background-color: oklab(19.7938% -.00311203 -.0499457 / .6);
+    }
+
+    .hover\:bg-\[\#182b59\]:hover {
+      background-color: #182b59;
+    }
+
+    .hover\:bg-\[\#132247\]:hover {
+      background-color: #132247;
+    }
+
+    .hover\:bg-\[\#132247\]\/25:hover {
+      background-color: oklab(26.1781% -.00605153 -.0718371 / .25);
+    }
+
+    .hover\:bg-\[\#132247\]\/30:hover {
+      background-color: oklab(26.1781% -.00605153 -.0718371 / .3);
+    }
+
+    .hover\:bg-\[\#132247\]\/40:hover {
+      background-color: oklab(26.1781% -.00605153 -.0718371 / .4);
+    }
+
+    .hover\:bg-emerald-400:hover {
+      background-color: var(--color-emerald-400);
+    }
+
+    .hover\:bg-rose-400:hover {
+      background-color: var(--color-rose-400);
+    }
+
+    .hover\:bg-rose-500\/25:hover {
+      background-color: #ff235740;
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-rose-500\/25:hover {
+        background-color: color-mix(in oklab, var(--color-rose-500) 25%, transparent);
+      }
+    }
+
+    .hover\:text-emerald-300:hover {
+      color: var(--color-emerald-300);
+    }
+
+    .hover\:text-rose-300:hover {
+      color: var(--color-rose-300);
+    }
+
+    .hover\:text-sky-400:hover {
+      color: var(--color-sky-400);
+    }
+
+    .hover\:text-slate-100:hover {
+      color: var(--color-slate-100);
+    }
+
+    .hover\:text-white:hover {
+      color: var(--color-white);
+    }
+
+    .hover\:underline:hover {
+      text-decoration-line: underline;
+    }
+  }
+
+  .focus\:border-emerald-400:focus {
+    border-color: var(--color-emerald-400);
+  }
+
+  .focus\:border-sky-400:focus {
+    border-color: var(--color-sky-400);
+  }
+
+  .focus\:outline-none:focus {
+    --tw-outline-style: none;
+    outline-style: none;
+  }
+
+  .focus-visible\:ring-2:focus-visible {
+    --tw-ring-shadow: var(--tw-ring-inset, ) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+
+  .focus-visible\:ring-sky-400:focus-visible {
+    --tw-ring-color: var(--color-sky-400);
+  }
+
+  .focus-visible\:outline-none:focus-visible {
+    --tw-outline-style: none;
+    outline-style: none;
+  }
+
+  .disabled\:opacity-60:disabled {
+    opacity: .6;
+  }
+
+  @media (min-width: 40rem) {
+    .sm\:col-span-2 {
+      grid-column: span 2 / span 2;
+    }
+
+    .sm\:col-span-5 {
+      grid-column: span 5 / span 5;
+    }
+
+    .sm\:col-span-7 {
+      grid-column: span 7 / span 7;
+    }
+
+    .sm\:inline {
+      display: inline;
+    }
+
+    .sm\:h-24 {
+      height: calc(var(--spacing) * 24);
+    }
+
+    .sm\:h-80 {
+      height: calc(var(--spacing) * 80);
+    }
+
+    .sm\:max-w-md {
+      max-width: var(--container-md);
+    }
+
+    .sm\:max-w-sm {
+      max-width: var(--container-sm);
+    }
+
+    .sm\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sm\:grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .sm\:grid-cols-5 {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .sm\:grid-cols-12 {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .sm\:flex-row {
+      flex-direction: row;
+    }
+
+    .sm\:items-center {
+      align-items: center;
+    }
+
+    .sm\:items-end {
+      align-items: flex-end;
+    }
+
+    .sm\:px-5 {
+      padding-inline: calc(var(--spacing) * 5);
+    }
+
+    .sm\:px-6 {
+      padding-inline: calc(var(--spacing) * 6);
+    }
+
+    .sm\:py-3 {
+      padding-block: calc(var(--spacing) * 3);
+    }
+
+    .sm\:text-4xl {
+      font-size: var(--text-4xl);
+      line-height: var(--tw-leading, var(--text-4xl--line-height));
+    }
+
+    .sm\:text-base {
+      font-size: var(--text-base);
+      line-height: var(--tw-leading, var(--text-base--line-height));
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .md\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .md\:items-end {
+      align-items: flex-end;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .lg\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .lg\:grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .lg\:grid-cols-5 {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .lg\:grid-cols-9 {
+      grid-template-columns: repeat(9, minmax(0, 1fr));
+    }
+
+    .lg\:flex-row {
+      flex-direction: row;
+    }
+
+    .lg\:items-center {
+      align-items: center;
+    }
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@property --tw-translate-x {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --tw-translate-y {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --tw-translate-z {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --tw-rotate-x {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-rotate-y {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-rotate-z {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-skew-x {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-skew-y {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-space-y-reverse {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --tw-divide-y-reverse {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --tw-border-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
+
+@property --tw-gradient-position {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-gradient-from {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #0000;
+}
+
+@property --tw-gradient-via {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #0000;
+}
+
+@property --tw-gradient-to {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #0000;
+}
+
+@property --tw-gradient-stops {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-gradient-via-stops {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-gradient-from-position {
+  syntax: "<length-percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
+@property --tw-gradient-via-position {
+  syntax: "<length-percentage>";
+  inherits: false;
+  initial-value: 50%;
+}
+
+@property --tw-gradient-to-position {
+  syntax: "<length-percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+
+@property --tw-font-weight {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-tracking {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-ordinal {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-slashed-zero {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-numeric-figure {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-numeric-spacing {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-numeric-fraction {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+
+@property --tw-shadow-color {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-shadow-alpha {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+
+@property --tw-inset-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+
+@property --tw-inset-shadow-color {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-inset-shadow-alpha {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+
+@property --tw-ring-color {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-ring-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+
+@property --tw-inset-ring-color {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-inset-ring-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+
+@property --tw-ring-inset {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-ring-offset-width {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --tw-ring-offset-color {
+  syntax: "*";
+  inherits: false;
+  initial-value: #fff;
+}
+
+@property --tw-ring-offset-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}
+
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
+
+@property --tw-blur {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-brightness {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-contrast {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-grayscale {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-hue-rotate {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-invert {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-opacity {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-saturate {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-sepia {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-drop-shadow {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-drop-shadow-color {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-drop-shadow-alpha {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+
+@property --tw-drop-shadow-size {
+  syntax: "*";
+  inherits: false
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: .5;
+  }
+}
+
+</style>
+  <script src="/_aistudio-iframe.js?v=29045eb3"></script></head>
+  <body class="bg-[#070d1e] text-slate-100 antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
+    <div id="root"></div>
+  <script type="module">
+// \0rolldown/runtime.js
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -406,7 +2637,7 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	function ReactElement(type, key, props) {
 		var refProp = props.ref;
 		return {
-			$typeof: REACT_ELEMENT_TYPE,
+			$$typeof: REACT_ELEMENT_TYPE,
 			type,
 			key,
 			ref: void 0 !== refProp ? refProp : null,
@@ -417,7 +2648,7 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 		return ReactElement(oldElement.type, newKey, oldElement.props);
 	}
 	function isValidElement(object) {
-		return "object" === typeof object && null !== object && object.$typeof === REACT_ELEMENT_TYPE;
+		return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
 	}
 	function escape(key) {
 		var escaperLookup = {
@@ -458,7 +2689,7 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 			case "number":
 				invokeCallback = !0;
 				break;
-			case "object": switch (children.$typeof) {
+			case "object": switch (children.$$typeof) {
 				case REACT_ELEMENT_TYPE:
 				case REACT_PORTAL_TYPE:
 					invokeCallback = !0;
@@ -466,9 +2697,9 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 				case REACT_LAZY_TYPE: return invokeCallback = children._init, mapIntoArray(invokeCallback(children._payload), array, escapedPrefix, nameSoFar, callback);
 			}
 		}
-		if (invokeCallback) return callback = callback(children), invokeCallback = "" === nameSoFar ? "." + getElementKey(children, 0) : nameSoFar, isArrayImpl(callback) ? (escapedPrefix = "", null != invokeCallback && (escapedPrefix = invokeCallback.replace(userProvidedKeyEscapeRegex, "<script type="module" crossorigin src="./assets/index-BHJdHWBr.js"></script>/") + "/"), mapIntoArray(callback, array, escapedPrefix, "", function(c) {
+		if (invokeCallback) return callback = callback(children), invokeCallback = "" === nameSoFar ? "." + getElementKey(children, 0) : nameSoFar, isArrayImpl(callback) ? (escapedPrefix = "", null != invokeCallback && (escapedPrefix = invokeCallback.replace(userProvidedKeyEscapeRegex, "$&/") + "/"), mapIntoArray(callback, array, escapedPrefix, "", function(c) {
 			return c;
-		})) : null != callback && (isValidElement(callback) && (callback = cloneAndReplaceKey(callback, escapedPrefix + (null == callback.key || children && children.key === callback.key ? "" : ("" + callback.key).replace(userProvidedKeyEscapeRegex, "<script type="module" crossorigin src="./assets/index-BHJdHWBr.js"></script>/") + "/") + invokeCallback)), array.push(callback)), 1;
+		})) : null != callback && (isValidElement(callback) && (callback = cloneAndReplaceKey(callback, escapedPrefix + (null == callback.key || children && children.key === callback.key ? "" : ("" + callback.key).replace(userProvidedKeyEscapeRegex, "$&/") + "/") + invokeCallback)), array.push(callback)), 1;
 		invokeCallback = 0;
 		var nextNamePrefix = "" === nameSoFar ? "." : nameSoFar + ":";
 		if (isArrayImpl(children)) for (var i = 0; i < children.length; i++) nameSoFar = children[i], type = nextNamePrefix + getElementKey(nameSoFar, i), invokeCallback += mapIntoArray(nameSoFar, array, escapedPrefix, type, callback);
@@ -600,7 +2831,7 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	};
 	exports.createContext = function(defaultValue) {
 		defaultValue = {
-			$typeof: REACT_CONTEXT_TYPE,
+			$$typeof: REACT_CONTEXT_TYPE,
 			_currentValue: defaultValue,
 			_currentValue2: defaultValue,
 			_threadCount: 0,
@@ -609,7 +2840,7 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 		};
 		defaultValue.Provider = defaultValue;
 		defaultValue.Consumer = {
-			$typeof: REACT_CONSUMER_TYPE,
+			$$typeof: REACT_CONSUMER_TYPE,
 			_context: defaultValue
 		};
 		return defaultValue;
@@ -631,14 +2862,14 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	};
 	exports.forwardRef = function(render) {
 		return {
-			$typeof: REACT_FORWARD_REF_TYPE,
+			$$typeof: REACT_FORWARD_REF_TYPE,
 			render
 		};
 	};
 	exports.isValidElement = isValidElement;
 	exports.lazy = function(ctor) {
 		return {
-			$typeof: REACT_LAZY_TYPE,
+			$$typeof: REACT_LAZY_TYPE,
 			_payload: {
 				_status: -1,
 				_result: ctor
@@ -648,7 +2879,7 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	};
 	exports.memo = function(type, compare) {
 		return {
-			$typeof: REACT_MEMO_TYPE,
+			$$typeof: REACT_MEMO_TYPE,
 			type,
 			compare: void 0 === compare ? null : compare
 		};
@@ -762,7 +2993,7 @@ var require_react_dom_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	function createPortal$1(children, containerInfo, implementation) {
 		var key = 3 < arguments.length && void 0 !== arguments[3] ? arguments[3] : null;
 		return {
-			$typeof: REACT_PORTAL_TYPE,
+			$$typeof: REACT_PORTAL_TYPE,
 			key: null == key ? null : key === REACT_OPTIMISTIC_KEY ? REACT_OPTIMISTIC_KEY : "" + key,
 			children,
 			containerInfo,
@@ -777,7 +3008,7 @@ var require_react_dom_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = Internals;
 	exports.browser = function(reason) {
 		return {
-			$typeof: REACT_RECOVERABLE_TYPE,
+			$$typeof: REACT_RECOVERABLE_TYPE,
 			_reason: reason
 		};
 	};
@@ -1115,7 +3346,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 	var REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference");
 	function getComponentNameFromType(type) {
 		if (null == type) return null;
-		if ("function" === typeof type) return type.$typeof === REACT_CLIENT_REFERENCE ? null : type.displayName || type.name || null;
+		if ("function" === typeof type) return type.$$typeof === REACT_CLIENT_REFERENCE ? null : type.displayName || type.name || null;
 		if ("string" === typeof type) return type;
 		switch (type) {
 			case REACT_FRAGMENT_TYPE: return "Fragment";
@@ -1126,7 +3357,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 			case REACT_ACTIVITY_TYPE: return "Activity";
 			case REACT_VIEW_TRANSITION_TYPE: return "ViewTransition";
 		}
-		if ("object" === typeof type) switch (type.$typeof) {
+		if ("object" === typeof type) switch (type.$$typeof) {
 			case REACT_PORTAL_TYPE: return "Portal";
 			case REACT_CONTEXT_TYPE: return type.displayName || "Context";
 			case REACT_CONSUMER_TYPE: return (type._context.displayName || "Context") + ".Consumer";
@@ -2737,7 +4968,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 				ref: null
 			}, type;
 			default:
-				if ("object" === typeof owner && null !== owner) switch (owner.$typeof) {
+				if ("object" === typeof owner && null !== owner) switch (owner.$$typeof) {
 					case REACT_CONTEXT_TYPE:
 						fiberTag = 10;
 						break a;
@@ -3108,7 +5339,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 	var scheduleCallback$2 = Scheduler.unstable_scheduleCallback;
 	var NormalPriority = Scheduler.unstable_NormalPriority;
 	var CacheContext = {
-		$typeof: REACT_CONTEXT_TYPE,
+		$$typeof: REACT_CONTEXT_TYPE,
 		Consumer: null,
 		Provider: null,
 		_currentValue: null,
@@ -3308,7 +5539,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 		workInProgress.ref = void 0 !== element ? element : null;
 	}
 	function throwOnInvalidObjectTypeImpl(returnFiber, newChild) {
-		if (newChild.$typeof === REACT_LEGACY_ELEMENT_TYPE) throw Error(formatProdErrorMessage(525));
+		if (newChild.$$typeof === REACT_LEGACY_ELEMENT_TYPE) throw Error(formatProdErrorMessage(525));
 		returnFiber = Object.prototype.toString.call(newChild);
 		throw Error(formatProdErrorMessage(31, "[object Object]" === returnFiber ? "object with keys {" + Object.keys(newChild).join(", ") + "}" : returnFiber));
 	}
@@ -3355,7 +5586,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 		function updateElement(returnFiber, current, element, lanes) {
 			var elementType = element.type;
 			if (elementType === REACT_FRAGMENT_TYPE) return returnFiber = updateFragment(returnFiber, current, element.props.children, lanes, element.key), coerceRef(returnFiber, element), returnFiber;
-			if (null !== current && (current.elementType === elementType || "object" === typeof elementType && null !== elementType && elementType.$typeof === REACT_LAZY_TYPE && resolveLazy(elementType) === current.type)) return current = useFiber(current, element.props), coerceRef(current, element), current.return = returnFiber, current;
+			if (null !== current && (current.elementType === elementType || "object" === typeof elementType && null !== elementType && elementType.$$typeof === REACT_LAZY_TYPE && resolveLazy(elementType) === current.type)) return current = useFiber(current, element.props), coerceRef(current, element), current.return = returnFiber, current;
 			current = createFiberFromTypeAndProps(element.type, element.key, element.props, null, returnFiber.mode, lanes);
 			coerceRef(current, element);
 			current.return = returnFiber;
@@ -3376,14 +5607,14 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 		function createChild(returnFiber, newChild, lanes) {
 			if ("string" === typeof newChild && "" !== newChild || "number" === typeof newChild || "bigint" === typeof newChild) return newChild = createFiberFromText("" + newChild, returnFiber.mode, lanes), newChild.return = returnFiber, newChild;
 			if ("object" === typeof newChild && null !== newChild) {
-				switch (newChild.$typeof) {
+				switch (newChild.$$typeof) {
 					case REACT_ELEMENT_TYPE: return lanes = createFiberFromTypeAndProps(newChild.type, newChild.key, newChild.props, null, returnFiber.mode, lanes), coerceRef(lanes, newChild), lanes.return = returnFiber, lanes;
 					case REACT_PORTAL_TYPE: return newChild = createFiberFromPortal(newChild, returnFiber.mode, lanes), newChild.return = returnFiber, newChild;
 					case REACT_LAZY_TYPE: return newChild = resolveLazy(newChild), createChild(returnFiber, newChild, lanes);
 				}
 				if (isArrayImpl(newChild) || getIteratorFn(newChild)) return newChild = createFiberFromFragment(newChild, returnFiber.mode, lanes, null), newChild.return = returnFiber, newChild;
 				if ("function" === typeof newChild.then) return createChild(returnFiber, unwrapThenable(newChild), lanes);
-				if (newChild.$typeof === REACT_CONTEXT_TYPE) return createChild(returnFiber, readContextDuringReconciliation(returnFiber, newChild), lanes);
+				if (newChild.$$typeof === REACT_CONTEXT_TYPE) return createChild(returnFiber, readContextDuringReconciliation(returnFiber, newChild), lanes);
 				throwOnInvalidObjectTypeImpl(returnFiber, newChild);
 			}
 			return null;
@@ -3392,14 +5623,14 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 			var key = null !== oldFiber ? oldFiber.key : null;
 			if ("string" === typeof newChild && "" !== newChild || "number" === typeof newChild || "bigint" === typeof newChild) return null !== key ? null : updateTextNode(returnFiber, oldFiber, "" + newChild, lanes);
 			if ("object" === typeof newChild && null !== newChild) {
-				switch (newChild.$typeof) {
+				switch (newChild.$$typeof) {
 					case REACT_ELEMENT_TYPE: return newChild.key === key ? updateElement(returnFiber, oldFiber, newChild, lanes) : null;
 					case REACT_PORTAL_TYPE: return newChild.key === key ? updatePortal(returnFiber, oldFiber, newChild, lanes) : null;
 					case REACT_LAZY_TYPE: return newChild = resolveLazy(newChild), updateSlot(returnFiber, oldFiber, newChild, lanes);
 				}
 				if (isArrayImpl(newChild) || getIteratorFn(newChild)) return null !== key ? null : updateFragment(returnFiber, oldFiber, newChild, lanes, null);
 				if ("function" === typeof newChild.then) return updateSlot(returnFiber, oldFiber, unwrapThenable(newChild), lanes);
-				if (newChild.$typeof === REACT_CONTEXT_TYPE) return updateSlot(returnFiber, oldFiber, readContextDuringReconciliation(returnFiber, newChild), lanes);
+				if (newChild.$$typeof === REACT_CONTEXT_TYPE) return updateSlot(returnFiber, oldFiber, readContextDuringReconciliation(returnFiber, newChild), lanes);
 				throwOnInvalidObjectTypeImpl(returnFiber, newChild);
 			}
 			return null;
@@ -3407,14 +5638,14 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 		function updateFromMap(existingChildren, returnFiber, newIdx, newChild, lanes) {
 			if ("string" === typeof newChild && "" !== newChild || "number" === typeof newChild || "bigint" === typeof newChild) return existingChildren = existingChildren.get(newIdx) || null, updateTextNode(returnFiber, existingChildren, "" + newChild, lanes);
 			if ("object" === typeof newChild && null !== newChild) {
-				switch (newChild.$typeof) {
+				switch (newChild.$$typeof) {
 					case REACT_ELEMENT_TYPE: return existingChildren = existingChildren.get(null === newChild.key ? newIdx : newChild.key) || null, updateElement(returnFiber, existingChildren, newChild, lanes);
 					case REACT_PORTAL_TYPE: return existingChildren = existingChildren.get(null === newChild.key ? newIdx : newChild.key) || null, updatePortal(returnFiber, existingChildren, newChild, lanes);
 					case REACT_LAZY_TYPE: return newChild = resolveLazy(newChild), updateFromMap(existingChildren, returnFiber, newIdx, newChild, lanes);
 				}
 				if (isArrayImpl(newChild) || getIteratorFn(newChild)) return existingChildren = existingChildren.get(newIdx) || null, updateFragment(returnFiber, existingChildren, newChild, lanes, null);
 				if ("function" === typeof newChild.then) return updateFromMap(existingChildren, returnFiber, newIdx, unwrapThenable(newChild), lanes);
-				if (newChild.$typeof === REACT_CONTEXT_TYPE) return updateFromMap(existingChildren, returnFiber, newIdx, readContextDuringReconciliation(returnFiber, newChild), lanes);
+				if (newChild.$$typeof === REACT_CONTEXT_TYPE) return updateFromMap(existingChildren, returnFiber, newIdx, readContextDuringReconciliation(returnFiber, newChild), lanes);
 				throwOnInvalidObjectTypeImpl(returnFiber, newChild);
 			}
 			return null;
@@ -3477,7 +5708,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 		function reconcileChildFibersImpl(returnFiber, currentFirstChild, newChild, lanes) {
 			"object" === typeof newChild && null !== newChild && newChild.type === REACT_FRAGMENT_TYPE && null === newChild.key && void 0 === newChild.props.ref && (newChild = newChild.props.children);
 			if ("object" === typeof newChild && null !== newChild) {
-				switch (newChild.$typeof) {
+				switch (newChild.$$typeof) {
 					case REACT_ELEMENT_TYPE:
 						a: {
 							for (var key = newChild.key; null !== currentFirstChild;) {
@@ -3492,7 +5723,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 											returnFiber = lanes;
 											break a;
 										}
-									} else if (currentFirstChild.elementType === key || "object" === typeof key && null !== key && key.$typeof === REACT_LAZY_TYPE && resolveLazy(key) === currentFirstChild.type) {
+									} else if (currentFirstChild.elementType === key || "object" === typeof key && null !== key && key.$$typeof === REACT_LAZY_TYPE && resolveLazy(key) === currentFirstChild.type) {
 										deleteRemainingChildren(returnFiber, currentFirstChild.sibling);
 										lanes = useFiber(currentFirstChild, newChild.props);
 										coerceRef(lanes, newChild);
@@ -3539,7 +5770,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 					return reconcileChildrenIterator(returnFiber, currentFirstChild, newChild, lanes);
 				}
 				if ("function" === typeof newChild.then) return reconcileChildFibersImpl(returnFiber, currentFirstChild, unwrapThenable(newChild), lanes);
-				if (newChild.$typeof === REACT_CONTEXT_TYPE) return reconcileChildFibersImpl(returnFiber, currentFirstChild, readContextDuringReconciliation(returnFiber, newChild), lanes);
+				if (newChild.$$typeof === REACT_CONTEXT_TYPE) return reconcileChildFibersImpl(returnFiber, currentFirstChild, readContextDuringReconciliation(returnFiber, newChild), lanes);
 				throwOnInvalidObjectTypeImpl(returnFiber, newChild);
 			}
 			return "string" === typeof newChild && "" !== newChild || "number" === typeof newChild || "bigint" === typeof newChild ? (newChild = "" + newChild, null !== currentFirstChild && 6 === currentFirstChild.tag ? (deleteRemainingChildren(returnFiber, currentFirstChild.sibling), lanes = useFiber(currentFirstChild, newChild), lanes.return = returnFiber, returnFiber = lanes) : (deleteRemainingChildren(returnFiber, currentFirstChild), lanes = createFiberFromText(newChild, returnFiber.mode, lanes), lanes.return = returnFiber, returnFiber = lanes), placeSingleChild(returnFiber)) : deleteRemainingChildren(returnFiber, currentFirstChild);
@@ -3970,8 +6201,8 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 	function use(usable) {
 		if (null !== usable && "object" === typeof usable) {
 			if ("function" === typeof usable.then) return useThenable(usable);
-			if (usable.$typeof === REACT_RECOVERABLE_TYPE) return;
-			if (usable.$typeof === REACT_CONTEXT_TYPE) return readContext(usable);
+			if (usable.$$typeof === REACT_RECOVERABLE_TYPE) return;
+			if (usable.$$typeof === REACT_CONTEXT_TYPE) return readContext(usable);
 		}
 		throw Error(formatProdErrorMessage(438, String(usable)));
 	}
@@ -5674,16 +7905,16 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 					if ("function" === typeof current) shouldConstruct(current) ? (props = resolveClassComponentProps(current, props), workInProgress.tag = 1, workInProgress = updateClassComponent(null, workInProgress, current, props, renderLanes)) : (workInProgress.tag = 0, workInProgress = updateFunctionComponent(null, workInProgress, current, props, renderLanes));
 					else {
 						if (void 0 !== current && null !== current) {
-							var $typeof = current.$typeof;
-							if ($typeof === REACT_FORWARD_REF_TYPE) {
+							var $$typeof = current.$$typeof;
+							if ($$typeof === REACT_FORWARD_REF_TYPE) {
 								workInProgress.tag = 11;
 								workInProgress = updateForwardRef(null, workInProgress, current, props, renderLanes);
 								break a;
-							} else if ($typeof === REACT_MEMO_TYPE) {
+							} else if ($$typeof === REACT_MEMO_TYPE) {
 								workInProgress.tag = 14;
 								workInProgress = updateMemoComponent(null, workInProgress, current, props, renderLanes);
 								break a;
-							} else if ($typeof === REACT_CONTEXT_TYPE) {
+							} else if ($$typeof === REACT_CONTEXT_TYPE) {
 								workInProgress.tag = 10;
 								workInProgress.type = current;
 								workInProgress = updateContextProvider(null, workInProgress, renderLanes);
@@ -5696,14 +7927,14 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 				}
 				return workInProgress;
 			case 0: return updateFunctionComponent(current, workInProgress, workInProgress.type, workInProgress.pendingProps, renderLanes);
-			case 1: return props = workInProgress.type, $typeof = resolveClassComponentProps(props, workInProgress.pendingProps), updateClassComponent(current, workInProgress, props, $typeof, renderLanes);
+			case 1: return props = workInProgress.type, $$typeof = resolveClassComponentProps(props, workInProgress.pendingProps), updateClassComponent(current, workInProgress, props, $$typeof, renderLanes);
 			case 3:
 				a: {
 					pushHostContainer(workInProgress, workInProgress.stateNode.containerInfo);
 					if (null === current) throw Error(formatProdErrorMessage(387));
 					props = workInProgress.pendingProps;
 					var prevState = workInProgress.memoizedState;
-					$typeof = prevState.element;
+					$$typeof = prevState.element;
 					cloneUpdateQueue(current, workInProgress);
 					processUpdateQueue(workInProgress, props, null, renderLanes);
 					var nextState = workInProgress.memoizedState;
@@ -5719,9 +7950,9 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 					}, workInProgress.updateQueue.baseState = prevState, workInProgress.memoizedState = prevState, workInProgress.flags & 256) {
 						workInProgress = mountHostRootWithoutHydrating(current, workInProgress, props, renderLanes);
 						break a;
-					} else if (props !== $typeof) {
-						$typeof = createCapturedValueAtFiber(Error(formatProdErrorMessage(424)), workInProgress);
-						queueHydrationError($typeof);
+					} else if (props !== $$typeof) {
+						$$typeof = createCapturedValueAtFiber(Error(formatProdErrorMessage(424)), workInProgress);
+						queueHydrationError($$typeof);
 						workInProgress = mountHostRootWithoutHydrating(current, workInProgress, props, renderLanes);
 						break a;
 					} else {
@@ -5742,7 +7973,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 					}
 					else {
 						resetHydrationState();
-						if (props === $typeof) {
+						if (props === $$typeof) {
 							workInProgress = bailoutOnAlreadyFinishedWork(current, workInProgress, renderLanes);
 							break a;
 						}
@@ -5752,19 +7983,19 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 				}
 				return workInProgress;
 			case 26: return markRef(current, workInProgress), null === current ? (renderLanes = getResource(workInProgress.type, null, workInProgress.pendingProps, null)) ? workInProgress.memoizedState = renderLanes : isHydrating || (workInProgress.stateNode = createHoistableInstance(workInProgress.type, workInProgress.pendingProps, rootInstanceStackCursor.current, workInProgress)) : workInProgress.memoizedState = getResource(workInProgress.type, current.memoizedProps, workInProgress.pendingProps, current.memoizedState), null;
-			case 27: return pushHostContext(workInProgress), null === current && isHydrating && (props = workInProgress.stateNode = resolveSingletonInstance(workInProgress.type, workInProgress.pendingProps, rootInstanceStackCursor.current), hydrationParentFiber = workInProgress, rootOrSingletonContext = !0, $typeof = nextHydratableInstance, isSingletonScope(workInProgress.type) ? (previousHydratableOnEnteringScopedSingleton = $typeof, nextHydratableInstance = getNextHydratable(props.firstChild)) : nextHydratableInstance = $typeof), reconcileChildren(current, workInProgress, workInProgress.pendingProps.children, renderLanes), markRef(current, workInProgress), null === current && (workInProgress.flags |= 4194304), workInProgress.child;
+			case 27: return pushHostContext(workInProgress), null === current && isHydrating && (props = workInProgress.stateNode = resolveSingletonInstance(workInProgress.type, workInProgress.pendingProps, rootInstanceStackCursor.current), hydrationParentFiber = workInProgress, rootOrSingletonContext = !0, $$typeof = nextHydratableInstance, isSingletonScope(workInProgress.type) ? (previousHydratableOnEnteringScopedSingleton = $$typeof, nextHydratableInstance = getNextHydratable(props.firstChild)) : nextHydratableInstance = $$typeof), reconcileChildren(current, workInProgress, workInProgress.pendingProps.children, renderLanes), markRef(current, workInProgress), null === current && (workInProgress.flags |= 4194304), workInProgress.child;
 			case 5:
 				if (null === current && isHydrating) {
-					if ($typeof = props = nextHydratableInstance) props = canHydrateInstance(props, workInProgress.type, workInProgress.pendingProps, rootOrSingletonContext), null !== props ? (workInProgress.stateNode = props, hydrationParentFiber = workInProgress, nextHydratableInstance = getNextHydratable(props.firstChild), rootOrSingletonContext = !1, $typeof = !0) : $typeof = !1;
-					$typeof || throwOnHydrationMismatch(workInProgress);
+					if ($$typeof = props = nextHydratableInstance) props = canHydrateInstance(props, workInProgress.type, workInProgress.pendingProps, rootOrSingletonContext), null !== props ? (workInProgress.stateNode = props, hydrationParentFiber = workInProgress, nextHydratableInstance = getNextHydratable(props.firstChild), rootOrSingletonContext = !1, $$typeof = !0) : $$typeof = !1;
+					$$typeof || throwOnHydrationMismatch(workInProgress);
 				}
 				pushHostContext(workInProgress);
-				$typeof = workInProgress.type;
+				$$typeof = workInProgress.type;
 				prevState = workInProgress.pendingProps;
 				nextState = null !== current ? current.memoizedProps : null;
 				props = prevState.children;
-				shouldSetTextContent($typeof, prevState) ? props = null : null !== nextState && shouldSetTextContent($typeof, nextState) && (workInProgress.flags |= 32);
-				null !== workInProgress.memoizedState && ($typeof = renderWithHooks(current, workInProgress, TransitionAwareHostComponent, null, null, renderLanes), HostTransitionContext._currentValue = $typeof);
+				shouldSetTextContent($$typeof, prevState) ? props = null : null !== nextState && shouldSetTextContent($$typeof, nextState) && (workInProgress.flags |= 32);
+				null !== workInProgress.memoizedState && ($$typeof = renderWithHooks(current, workInProgress, TransitionAwareHostComponent, null, null, renderLanes), HostTransitionContext._currentValue = $$typeof);
 				markRef(current, workInProgress);
 				reconcileChildren(current, workInProgress, props, renderLanes);
 				return workInProgress.child;
@@ -5781,19 +8012,19 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 			case 8: return reconcileChildren(current, workInProgress, workInProgress.pendingProps.children, renderLanes), workInProgress.child;
 			case 12: return reconcileChildren(current, workInProgress, workInProgress.pendingProps.children, renderLanes), workInProgress.child;
 			case 10: return updateContextProvider(current, workInProgress, renderLanes);
-			case 9: return $typeof = workInProgress.type._context, props = workInProgress.pendingProps.children, prepareToReadContext(workInProgress), $typeof = readContext($typeof), props = props($typeof), workInProgress.flags |= 1, reconcileChildren(current, workInProgress, props, renderLanes), workInProgress.child;
+			case 9: return $$typeof = workInProgress.type._context, props = workInProgress.pendingProps.children, prepareToReadContext(workInProgress), $$typeof = readContext($$typeof), props = props($$typeof), workInProgress.flags |= 1, reconcileChildren(current, workInProgress, props, renderLanes), workInProgress.child;
 			case 14: return updateMemoComponent(current, workInProgress, workInProgress.type, workInProgress.pendingProps, renderLanes);
 			case 15: return updateSimpleMemoComponent(current, workInProgress, workInProgress.type, workInProgress.pendingProps, renderLanes);
 			case 19: return updateSuspenseListComponent(current, workInProgress, renderLanes);
 			case 31: return updateActivityComponent(current, workInProgress, renderLanes);
 			case 22: return updateOffscreenComponent(current, workInProgress, renderLanes, workInProgress.pendingProps);
-			case 24: return prepareToReadContext(workInProgress), props = readContext(CacheContext), null === current ? ($typeof = peekCacheFromPool(), null === $typeof && ($typeof = workInProgressRoot, prevState = createCache(), $typeof.pooledCache = prevState, prevState.refCount++, null !== prevState && ($typeof.pooledCacheLanes |= renderLanes), $typeof = prevState), workInProgress.memoizedState = {
+			case 24: return prepareToReadContext(workInProgress), props = readContext(CacheContext), null === current ? ($$typeof = peekCacheFromPool(), null === $$typeof && ($$typeof = workInProgressRoot, prevState = createCache(), $$typeof.pooledCache = prevState, prevState.refCount++, null !== prevState && ($$typeof.pooledCacheLanes |= renderLanes), $$typeof = prevState), workInProgress.memoizedState = {
 				parent: props,
-				cache: $typeof
-			}, initializeUpdateQueue(workInProgress), pushProvider(workInProgress, CacheContext, $typeof)) : (0 !== (current.lanes & renderLanes) && (cloneUpdateQueue(current, workInProgress), processUpdateQueue(workInProgress, null, null, renderLanes), suspendIfUpdateReadFromEntangledAsyncAction()), $typeof = current.memoizedState, prevState = workInProgress.memoizedState, $typeof.parent !== props ? ($typeof = {
+				cache: $$typeof
+			}, initializeUpdateQueue(workInProgress), pushProvider(workInProgress, CacheContext, $$typeof)) : (0 !== (current.lanes & renderLanes) && (cloneUpdateQueue(current, workInProgress), processUpdateQueue(workInProgress, null, null, renderLanes), suspendIfUpdateReadFromEntangledAsyncAction()), $$typeof = current.memoizedState, prevState = workInProgress.memoizedState, $$typeof.parent !== props ? ($$typeof = {
 				parent: props,
 				cache: props
-			}, workInProgress.memoizedState = $typeof, 0 === workInProgress.lanes && (workInProgress.memoizedState = workInProgress.updateQueue.baseState = $typeof), pushProvider(workInProgress, CacheContext, props)) : (props = prevState.cache, pushProvider(workInProgress, CacheContext, props), props !== $typeof.cache && propagateContextChanges(workInProgress, [CacheContext], renderLanes, !0))), reconcileChildren(current, workInProgress, workInProgress.pendingProps.children, renderLanes), workInProgress.child;
+			}, workInProgress.memoizedState = $$typeof, 0 === workInProgress.lanes && (workInProgress.memoizedState = workInProgress.updateQueue.baseState = $$typeof), pushProvider(workInProgress, CacheContext, props)) : (props = prevState.cache, pushProvider(workInProgress, CacheContext, props), props !== $$typeof.cache && propagateContextChanges(workInProgress, [CacheContext], renderLanes, !0))), reconcileChildren(current, workInProgress, workInProgress.pendingProps.children, renderLanes), workInProgress.child;
 			case 30: return null === workInProgress.stateNode && (workInProgress.stateNode = {
 				autoName: null,
 				paired: null,
@@ -10920,7 +13151,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 		}
 	}
 	var HostTransitionContext = {
-		$typeof: REACT_CONTEXT_TYPE,
+		$$typeof: REACT_CONTEXT_TYPE,
 		Provider: null,
 		Consumer: null,
 		_currentValue: sharedNotPendingObject,
@@ -11329,7 +13560,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 			queuedTarget.blockedOn === unblocked && (queuedTarget.blockedOn = null);
 		}
 		for (; 0 < queuedExplicitHydrationTargets.length && (i = queuedExplicitHydrationTargets[0], null === i.blockedOn);) attemptExplicitHydrationTarget(i), null === i.blockedOn && queuedExplicitHydrationTargets.shift();
-		i = (unblocked.ownerDocument || unblocked).$reactFormReplay;
+		i = (unblocked.ownerDocument || unblocked).$$reactFormReplay;
 		if (null != i) for (queuedTarget = 0; queuedTarget < i.length; queuedTarget += 3) {
 			var form = i[queuedTarget], submitterOrAction = i[queuedTarget + 1], formProps = form[internalPropsKey] || null;
 			if ("function" === typeof submitterOrAction) formProps || scheduleReplayQueueIfNeeded(i);
@@ -12387,7 +14618,7 @@ var import_papaparse_min = /* @__PURE__ */ __toESM((/* @__PURE__ */ __commonJSMi
 			};
 		}
 		function P(e) {
-			return e.replace(/[.*+?^${}()|[\]\\]/g, "\\<script type="module" crossorigin src="./assets/index-BHJdHWBr.js"></script>");
+			return e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 		}
 		function b(C) {
 			var S = (C = C || {}).delimiter, O = C.newline, x = C.comments, T = C.step, I = C.preview, A = C.fastMode, D = null, L = !1, F = null == C.quoteChar ? "\"" : C.quoteChar, z = F;
@@ -13407,7 +15638,7 @@ function write_num_exp(fmt, val) {
 			}
 			o = o.replace(/\+-/, "-");
 		}
-		o = o.replace(/^([+-]?)(\d*)\.(\d*)[Ee]/, function($, $1, $2, $3) {
+		o = o.replace(/^([+-]?)(\d*)\.(\d*)[Ee]/, function($$, $1, $2, $3) {
 			return $1 + $2 + $3.substr(0, (period + ee) % period) + "." + $3.substr(ee) + "E";
 		});
 	} else o = val.toExponential(idx);
@@ -13479,7 +15710,7 @@ function write_num_flt(type, fmt, val) {
 	if (r = fmt.match(frac1)) return write_num_f1(r, aval, sign);
 	if (fmt.match(/^#+0+$/)) return sign + pad0r(aval, fmt.length - fmt.indexOf("0"));
 	if (r = fmt.match(dec1)) {
-		o = rnd(val, r[1].length).replace(/^([^\.]+)$/, "$1." + hashq(r[1])).replace(/\.$/, "." + hashq(r[1])).replace(/\.(\d*)$/, function($, $1) {
+		o = rnd(val, r[1].length).replace(/^([^\.]+)$/, "$1." + hashq(r[1])).replace(/\.$/, "." + hashq(r[1])).replace(/\.(\d*)$/, function($$, $1) {
 			return "." + $1 + fill$1("0", hashq(r[1]).length - $1.length);
 		});
 		return fmt.indexOf("0.") !== -1 ? o : o.replace(/^0\./, ".");
@@ -13531,8 +15762,8 @@ function write_num_flt(type, fmt, val) {
 	}
 	if (r = fmt.match(/^00,000\.([#0]*0)$/)) {
 		ri = dec(val, r[1].length);
-		return val < 0 ? "-" + write_num_flt(type, fmt, -val) : commaify(flr(val)).replace(/^\d,\d{3}$/, "0<script type="module" crossorigin src="./assets/index-BHJdHWBr.js"></script>").replace(/^\d*$/, function($) {
-			return "00," + ($.length < 3 ? pad0(0, 3 - $.length) : "") + $;
+		return val < 0 ? "-" + write_num_flt(type, fmt, -val) : commaify(flr(val)).replace(/^\d,\d{3}$/, "0$&").replace(/^\d*$/, function($$) {
+			return "00," + ($$.length < 3 ? pad0(0, 3 - $$.length) : "") + $$;
 		}) + "." + pad0(ri, r[1].length);
 	}
 	switch (fmt) {
@@ -13573,7 +15804,7 @@ function write_num_exp2(fmt, val) {
 			else o += "E+" + (fakee - ee);
 			o = o.replace(/\+-/, "-");
 		}
-		o = o.replace(/^([+-]?)(\d*)\.(\d*)[Ee]/, function($, $1, $2, $3) {
+		o = o.replace(/^([+-]?)(\d*)\.(\d*)[Ee]/, function($$, $1, $2, $3) {
 			return $1 + $2 + $3.substr(0, (period + ee) % period) + "." + $3.substr(ee) + "E";
 		});
 	} else o = val.toExponential(idx);
@@ -13603,7 +15834,7 @@ function write_num_int(type, fmt, val) {
 	if (fmt.match(/^#+0+$/)) return sign + pad0(aval, fmt.length - fmt.indexOf("0"));
 	if (r = fmt.match(dec1)) {
 		o = ("" + val).replace(/^([^\.]+)$/, "$1." + hashq(r[1])).replace(/\.$/, "." + hashq(r[1]));
-		o = o.replace(/\.(\d*)$/, function($, $1) {
+		o = o.replace(/\.(\d*)$/, function($$, $1) {
 			return "." + $1 + fill$1("0", hashq(r[1]).length - $1.length);
 		});
 		return fmt.indexOf("0.") !== -1 ? o : o.replace(/^0\./, ".");
@@ -13653,8 +15884,8 @@ function write_num_int(type, fmt, val) {
 		var lres = fmt.indexOf(".") - ri, rres = fmt.length - o.length - lres;
 		return hashq(fmt.substr(0, lres) + o + fmt.substr(fmt.length - rres));
 	}
-	if (r = fmt.match(/^00,000\.([#0]*0)$/)) return val < 0 ? "-" + write_num_int(type, fmt, -val) : commaify("" + val).replace(/^\d,\d{3}$/, "0<script type="module" crossorigin src="./assets/index-BHJdHWBr.js"></script>").replace(/^\d*$/, function($) {
-		return "00," + ($.length < 3 ? pad0(0, 3 - $.length) : "") + $;
+	if (r = fmt.match(/^00,000\.([#0]*0)$/)) return val < 0 ? "-" + write_num_int(type, fmt, -val) : commaify("" + val).replace(/^\d,\d{3}$/, "0$&").replace(/^\d*$/, function($$) {
+		return "00," + ($$.length < 3 ? pad0(0, 3 - $$.length) : "") + $$;
 	}) + "." + pad0(0, r[1].length);
 	switch (fmt) {
 		case "###,###":
@@ -15920,8 +18151,8 @@ var CFB = /*#__PURE__*/ (function _CFB() {
 			while (di <= data.length && line.charAt(line.length - 1) == "=") line = line.slice(0, line.length - 1) + data[++di];
 			o.push(line);
 		}
-		for (var oi = 0; oi < o.length; ++oi) o[oi] = o[oi].replace(/[=][0-9A-Fa-f]{2}/g, function($) {
-			return String.fromCharCode(parseInt($.slice(1), 16));
+		for (var oi = 0; oi < o.length; ++oi) o[oi] = o[oi].replace(/[=][0-9A-Fa-f]{2}/g, function($$) {
+			return String.fromCharCode(parseInt($$.slice(1), 16));
 		});
 		return s2a(o.join("\r\n"));
 	}
@@ -16271,7 +18502,7 @@ function fuzzynum(s) {
 		return "";
 	});
 	if (!isNaN(v = Number(ss))) return v / wt;
-	ss = ss.replace(/[(](.*)[)]/, function($, $1) {
+	ss = ss.replace(/[(](.*)[)]/, function($$, $1) {
 		wt = -wt;
 		return $1;
 	});
@@ -16469,8 +18700,8 @@ var unescapexml = /*#__PURE__*/ (function() {
 	var encregex = /&(?:quot|apos|gt|lt|amp|#x?([\da-fA-F]+));/gi, coderegex = /_x([\da-fA-F]{4})_/gi;
 	return function unescapexml(text) {
 		var s = text + "", i = s.indexOf("<![CDATA[");
-		if (i == -1) return s.replace(encregex, function($, $1) {
-			return encodings[$] || String.fromCharCode(parseInt($1, $.indexOf("x") > -1 ? 16 : 10)) || $;
+		if (i == -1) return s.replace(encregex, function($$, $1) {
+			return encodings[$$] || String.fromCharCode(parseInt($1, $$.indexOf("x") > -1 ? 16 : 10)) || $$;
 		}).replace(coderegex, function(m, c) {
 			return String.fromCharCode(parseInt(c, 16));
 		});
@@ -16489,7 +18720,7 @@ function escapehtml(text) {
 }
 var xlml_fixstr = /*#__PURE__*/ (function() {
 	var entregex = /&#(\d+);/g;
-	function entrepl($, $1) {
+	function entrepl($$, $1) {
 		return String.fromCharCode(parseInt($1, 10));
 	}
 	return function xlml_fixstr(str) {
@@ -17171,7 +19402,7 @@ function encode_row(row) {
 	return "" + (row + 1);
 }
 function fix_row(cstr) {
-	return cstr.replace(/([A-Z]|^)(\d+)$/, "$1$$2");
+	return cstr.replace(/([A-Z]|^)(\d+)$/, "$1$$$2");
 }
 function unfix_row(cstr) {
 	return cstr.replace(/\$(\d+)$/, "$1");
@@ -17188,7 +19419,7 @@ function encode_col(col) {
 	return s;
 }
 function fix_col(cstr) {
-	return cstr.replace(/^([A-Z])/, "$$1");
+	return cstr.replace(/^([A-Z])/, "$$$1");
 }
 function unfix_col(cstr) {
 	return cstr.replace(/^\$([A-Z])/, "$1");
@@ -20257,9 +22488,9 @@ var SYLK = /*#__PURE__*/ (function() {
 		var o = sylk_escapes[$1];
 		return typeof o == "number" ? _getansi(o) : o;
 	};
-	var decode_sylk_char = function($, $1, $2) {
+	var decode_sylk_char = function($$, $1, $2) {
 		var newcc = $1.charCodeAt(0) - 32 << 4 | $2.charCodeAt(0) - 48;
-		return newcc == 59 ? $ : _getansi(newcc);
+		return newcc == 59 ? $$ : _getansi(newcc);
 	};
 	sylk_escapes["|"] = 254;
 	function sylk_to_aoa(d, opts) {
@@ -23318,7 +25549,7 @@ var parse_sty_xml = /*#__PURE__*/ (function make_pstyx() {
 	return function parse_sty_xml(data, themes, opts) {
 		var styles = {};
 		if (!data) return styles;
-		data = data.replace(/<!--([\s\S]*?)-->/gm, "").replace(/<!DOCTYPE[^\[]*\[[^\]]*\]>/gm, "");
+		data = data.replace(/<\!--([\s\S]*?)-->/gm, "").replace(/<!DOCTYPE[^\[]*\[[^\]]*\]>/gm, "");
 		var t;
 		if (t = data.match(numFmtRegex)) parse_numFmts(t, styles, opts);
 		if (t = data.match(fontsRegex)) parse_fonts(t, styles, themes, opts);
@@ -24255,7 +26486,7 @@ var rc_to_a1 = /*#__PURE__*/ (function() {
 		r: 0,
 		c: 0
 	};
-	function rcfunc($, $1, $2, $3) {
+	function rcfunc($$, $1, $2, $3) {
 		var cRel = false, rRel = false;
 		if ($2.length == 0) rRel = true;
 		else if ($2.charAt(0) == "[") {
@@ -26793,7 +29024,7 @@ function ods_to_csf_formula(f) {
 		if (f.charCodeAt(0) == 61) f = f.slice(1);
 	}
 	f = f.replace(/COM\.MICROSOFT\./g, "");
-	f = f.replace(/\[((?:\.[A-Z]+[0-9]+)(?::\.[A-Z]+[0-9]+)?)\]/g, function($, $1) {
+	f = f.replace(/\[((?:\.[A-Z]+[0-9]+)(?::\.[A-Z]+[0-9]+)?)\]/g, function($$, $1) {
 		return $1.replace(/\./g, "");
 	});
 	f = f.replace(/\[.(#[A-Z]*[?!])\]/g, "$1");
@@ -28777,7 +31008,7 @@ function parse_xlml_xml(d, _opts) {
 		WBProps: { date1904: false }
 	}, wsprops = {};
 	xlmlregex.lastIndex = 0;
-	str = str.replace(/<!--([\s\S]*?)-->/gm, "");
+	str = str.replace(/<\!--([\s\S]*?)-->/gm, "");
 	var raw_Rn3 = "";
 	while (Rn = xlmlregex.exec(str)) switch (Rn[3] = (raw_Rn3 = Rn[3]).toLowerCase()) {
 		case "data":
@@ -31716,7 +33947,7 @@ function html_to_sheet(str, _opts) {
 	var opts = _opts || {};
 	if (DENSE != null && opts.dense == null) opts.dense = DENSE;
 	var ws = opts.dense ? [] : {};
-	str = str.replace(/<!--.*?-->/g, "");
+	str = str.replace(/<\!--.*?-->/g, "");
 	var mtch = str.match(/<table/i);
 	if (!mtch) throw new Error("Invalid HTML: could not find <table>");
 	var mtch2 = str.match(/<\/table/i);
@@ -31865,7 +34096,7 @@ function make_html_row(ws, r, R, o) {
 	}
 	return "<tr>" + oo.join("") + "</tr>";
 }
-var HTML_BEGIN = "<html><head><meta charset=\"utf-8\"/><title>SheetJS Table Export</title><script src="/_aistudio-iframe.js?v=29045eb3"></script></head><body>";
+var HTML_BEGIN = "<html><head><meta charset=\"utf-8\"/><title>SheetJS Table Export</title></head><body>";
 var HTML_END = "</body></html>";
 function html_to_workbook(str, opts) {
 	var mtch = str.match(/<table[\s\S]*?>[\s\S]*?<\/table>/gi);
@@ -32035,7 +34266,7 @@ function get_get_computed_style_function(element) {
 	return null;
 }
 function parse_text_p(text) {
-	return [unescapexml(text.replace(/[\t\r\n]/g, " ").trim().replace(/ +/g, " ").replace(/<text:s\/>/g, " ").replace(/<text:s text:c="(\d+)"\/>/g, function($, $1) {
+	return [unescapexml(text.replace(/[\t\r\n]/g, " ").trim().replace(/ +/g, " ").replace(/<text:s\/>/g, " ").replace(/<text:s text:c="(\d+)"\/>/g, function($$, $1) {
 		return Array(parseInt($1, 10) + 1).join(" ");
 	}).replace(/<text:tab[^>]*\/>/g, "	").replace(/<text:line-break\/>/g, "\n").replace(/<[^>]*>/g, ""))];
 }
@@ -32089,7 +34320,7 @@ function parse_content_xml(d, _opts) {
 	var isstub = false, intable = false;
 	var i = 0;
 	xlmlregex.lastIndex = 0;
-	str = str.replace(/<!--([\s\S]*?)-->/gm, "").replace(/<!DOCTYPE[^\[]*\[[^\]]*\]>/gm, "");
+	str = str.replace(/<\!--([\s\S]*?)-->/gm, "").replace(/<!DOCTYPE[^\[]*\[[^\]]*\]>/gm, "");
 	while (Rn = xlmlregex.exec(str)) switch (Rn[3] = Rn[3].replace(/_.*$/, "")) {
 		case "table":
 		case "工作表":
@@ -35145,7 +37376,7 @@ var require_react_jsx_runtime_production = /* @__PURE__ */ __commonJSMin(((expor
 		} else maybeKey = config;
 		config = maybeKey.ref;
 		return {
-			$typeof: REACT_ELEMENT_TYPE,
+			$$typeof: REACT_ELEMENT_TYPE,
 			type,
 			key,
 			ref: void 0 !== config ? config : null,
@@ -50907,7 +53138,7 @@ function App() {
 	};
 	const handleDownloadGithubHtml = async () => {
 		try {
-			const res = await fetch("./github-pages-index.html");
+			const res = await fetch(`./github-pages-index.html?v=${Date.now()}`, { cache: "no-store" });
 			if (!res.ok) {
 				setToastMessage("GitHub-export is alleen beschikbaar vanuit de AI Studio-preview.");
 				return;
@@ -50927,7 +53158,7 @@ function App() {
 	};
 	const handleDownloadAppsScript = async () => {
 		try {
-			const res = await fetch("./Code.gs");
+			const res = await fetch(`./Code.gs?v=${Date.now()}`, { cache: "no-store" });
 			if (!res.ok) {
 				setToastMessage("Code.gs-export is alleen beschikbaar vanuit de AI Studio-preview.");
 				return;
@@ -51425,2233 +53656,7 @@ function App() {
 }
 // src/main.tsx
 (0, import_client.createRoot)(document.getElementById("root")).render(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(App, {}));
+
 </script>
-    <style>/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
-@layer properties {
-  @supports (((-webkit-hyphens: none)) and (not (margin-trim: block))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
-    *, :before, :after, ::backdrop {
-      --tw-translate-x: 0;
-      --tw-translate-y: 0;
-      --tw-translate-z: 0;
-      --tw-rotate-x: initial;
-      --tw-rotate-y: initial;
-      --tw-rotate-z: initial;
-      --tw-skew-x: initial;
-      --tw-skew-y: initial;
-      --tw-space-y-reverse: 0;
-      --tw-divide-y-reverse: 0;
-      --tw-border-style: solid;
-      --tw-gradient-position: initial;
-      --tw-gradient-from: #0000;
-      --tw-gradient-via: #0000;
-      --tw-gradient-to: #0000;
-      --tw-gradient-stops: initial;
-      --tw-gradient-via-stops: initial;
-      --tw-gradient-from-position: 0%;
-      --tw-gradient-via-position: 50%;
-      --tw-gradient-to-position: 100%;
-      --tw-font-weight: initial;
-      --tw-tracking: initial;
-      --tw-ordinal: initial;
-      --tw-slashed-zero: initial;
-      --tw-numeric-figure: initial;
-      --tw-numeric-spacing: initial;
-      --tw-numeric-fraction: initial;
-      --tw-shadow: 0 0 #0000;
-      --tw-shadow-color: initial;
-      --tw-shadow-alpha: 100%;
-      --tw-inset-shadow: 0 0 #0000;
-      --tw-inset-shadow-color: initial;
-      --tw-inset-shadow-alpha: 100%;
-      --tw-ring-color: initial;
-      --tw-ring-shadow: 0 0 #0000;
-      --tw-inset-ring-color: initial;
-      --tw-inset-ring-shadow: 0 0 #0000;
-      --tw-ring-inset: initial;
-      --tw-ring-offset-width: 0px;
-      --tw-ring-offset-color: #fff;
-      --tw-ring-offset-shadow: 0 0 #0000;
-      --tw-outline-style: solid;
-      --tw-blur: initial;
-      --tw-brightness: initial;
-      --tw-contrast: initial;
-      --tw-grayscale: initial;
-      --tw-hue-rotate: initial;
-      --tw-invert: initial;
-      --tw-opacity: initial;
-      --tw-saturate: initial;
-      --tw-sepia: initial;
-      --tw-drop-shadow: initial;
-      --tw-drop-shadow-color: initial;
-      --tw-drop-shadow-alpha: 100%;
-      --tw-drop-shadow-size: initial;
-    }
-  }
-}
-
-@layer theme {
-  :root, :host {
-    --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-    --color-amber-300: oklch(87.9% .169 91.605);
-    --color-amber-400: oklch(82.8% .189 84.429);
-    --color-emerald-200: oklch(90.5% .093 164.15);
-    --color-emerald-300: oklch(84.5% .143 164.978);
-    --color-emerald-400: oklch(76.5% .177 163.223);
-    --color-emerald-500: oklch(69.6% .17 162.48);
-    --color-sky-400: oklch(74.6% .16 232.661);
-    --color-sky-500: oklch(68.5% .169 237.323);
-    --color-violet-300: oklch(81.1% .111 293.571);
-    --color-rose-300: oklch(81% .117 11.638);
-    --color-rose-400: oklch(71.2% .194 13.428);
-    --color-rose-500: oklch(64.5% .246 16.439);
-    --color-rose-950: oklch(27.1% .105 12.094);
-    --color-slate-50: oklch(98.4% .003 247.858);
-    --color-slate-100: oklch(96.8% .007 247.896);
-    --color-slate-200: oklch(92.9% .013 255.508);
-    --color-slate-300: oklch(86.9% .022 252.894);
-    --color-slate-400: oklch(70.4% .04 256.788);
-    --color-slate-500: oklch(55.4% .046 257.417);
-    --color-slate-600: oklch(44.6% .043 257.281);
-    --color-slate-950: oklch(12.9% .042 264.695);
-    --color-black: #000;
-    --color-white: #fff;
-    --spacing: .25rem;
-    --container-sm: 24rem;
-    --container-md: 28rem;
-    --container-2xl: 42rem;
-    --container-3xl: 48rem;
-    --container-7xl: 80rem;
-    --text-xs: .75rem;
-    --text-xs--line-height: calc(1 / .75);
-    --text-sm: .875rem;
-    --text-sm--line-height: calc(1.25 / .875);
-    --text-base: 1rem;
-    --text-base--line-height: calc(1.5 / 1);
-    --text-lg: 1.125rem;
-    --text-lg--line-height: calc(1.75 / 1.125);
-    --text-3xl: 1.875rem;
-    --text-3xl--line-height: calc(2.25 / 1.875);
-    --text-4xl: 2.25rem;
-    --text-4xl--line-height: calc(2.5 / 2.25);
-    --font-weight-medium: 500;
-    --font-weight-semibold: 600;
-    --font-weight-bold: 700;
-    --font-weight-extrabold: 800;
-    --tracking-tight: -.025em;
-    --radius-sm: .25rem;
-    --radius-md: .375rem;
-    --radius-lg: .5rem;
-    --radius-xl: .75rem;
-    --animate-spin: spin 1s linear infinite;
-    --animate-pulse: pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;
-    --default-transition-duration: .15s;
-    --default-transition-timing-function: cubic-bezier(.4, 0, .2, 1);
-    --default-font-family: var(--font-sans);
-    --default-mono-font-family: var(--font-mono);
-  }
-}
-
-@layer base {
-  *, :after, :before, ::backdrop {
-    box-sizing: border-box;
-    border: 0 solid;
-    margin: 0;
-    padding: 0;
-  }
-
-  ::file-selector-button {
-    box-sizing: border-box;
-    border: 0 solid;
-    margin: 0;
-    padding: 0;
-  }
-
-  html, :host {
-    -webkit-text-size-adjust: 100%;
-    tab-size: 4;
-    line-height: 1.5;
-    font-family: var(--default-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
-    font-feature-settings: var(--default-font-feature-settings, normal);
-    font-variation-settings: var(--default-font-variation-settings, normal);
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  hr {
-    height: 0;
-    color: inherit;
-    border-top-width: 1px;
-  }
-
-  abbr:where([title]) {
-    -webkit-text-decoration: underline dotted;
-    text-decoration: underline dotted;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-size: inherit;
-    font-weight: inherit;
-  }
-
-  a {
-    color: inherit;
-    -webkit-text-decoration: inherit;
-    -webkit-text-decoration: inherit;
-    -webkit-text-decoration: inherit;
-    text-decoration: inherit;
-  }
-
-  b, strong {
-    font-weight: bolder;
-  }
-
-  code, kbd, samp, pre {
-    font-family: var(--default-mono-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
-    font-feature-settings: var(--default-mono-font-feature-settings, normal);
-    font-variation-settings: var(--default-mono-font-variation-settings, normal);
-    font-size: 1em;
-  }
-
-  small {
-    font-size: 80%;
-  }
-
-  sub, sup {
-    vertical-align: baseline;
-    font-size: 75%;
-    line-height: 0;
-    position: relative;
-  }
-
-  sub {
-    bottom: -.25em;
-  }
-
-  sup {
-    top: -.5em;
-  }
-
-  table {
-    text-indent: 0;
-    border-color: inherit;
-    border-collapse: collapse;
-  }
-
-  :-moz-focusring:where(:not(iframe)) {
-    outline: auto;
-  }
-
-  progress {
-    vertical-align: baseline;
-  }
-
-  summary {
-    display: list-item;
-  }
-
-  ol, ul, menu {
-    list-style: none;
-  }
-
-  img, svg, video, canvas, audio, iframe, embed, object {
-    vertical-align: middle;
-    display: block;
-  }
-
-  img, video {
-    max-width: 100%;
-    height: auto;
-  }
-
-  button, input, select, optgroup, textarea {
-    font: inherit;
-    font-feature-settings: inherit;
-    font-variation-settings: inherit;
-    letter-spacing: inherit;
-    color: inherit;
-    opacity: 1;
-    background-color: #0000;
-    border-radius: 0;
-  }
-
-  ::file-selector-button {
-    font: inherit;
-    font-feature-settings: inherit;
-    font-variation-settings: inherit;
-    letter-spacing: inherit;
-    color: inherit;
-    opacity: 1;
-    background-color: #0000;
-    border-radius: 0;
-  }
-
-  :where(select:is([multiple], [size])) optgroup {
-    font-weight: bolder;
-  }
-
-  :where(select:is([multiple], [size])) optgroup option {
-    padding-inline-start: 20px;
-  }
-
-  ::file-selector-button {
-    margin-inline-end: 4px;
-  }
-
-  ::placeholder {
-    opacity: 1;
-  }
-
-  @supports (not ((-webkit-appearance: -apple-pay-button))) or (contain-intrinsic-size: 1px) {
-    ::placeholder {
-      color: currentColor;
-    }
-
-    @supports (color: color-mix(in lab, red, red)) {
-      ::placeholder {
-        color: color-mix(in oklab, currentcolor 50%, transparent);
-      }
-    }
-  }
-
-  textarea {
-    resize: vertical;
-  }
-
-  ::-webkit-search-decoration {
-    -webkit-appearance: none;
-  }
-
-  ::-webkit-date-and-time-value {
-    min-height: 1lh;
-    text-align: inherit;
-  }
-
-  ::-webkit-datetime-edit {
-    display: inline-flex;
-  }
-
-  ::-webkit-datetime-edit-fields-wrapper {
-    padding: 0;
-  }
-
-  ::-webkit-datetime-edit {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-year-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-month-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-day-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-hour-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-minute-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-second-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-millisecond-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-datetime-edit-meridiem-field {
-    padding-block: 0;
-  }
-
-  ::-webkit-calendar-picker-indicator {
-    line-height: 1;
-  }
-
-  :-moz-ui-invalid {
-    box-shadow: none;
-  }
-
-  button, input:where([type="button"], [type="reset"], [type="submit"]) {
-    appearance: button;
-  }
-
-  ::file-selector-button {
-    appearance: button;
-  }
-
-  ::-webkit-inner-spin-button {
-    height: auto;
-  }
-
-  ::-webkit-outer-spin-button {
-    height: auto;
-  }
-
-  [hidden]:where(:not([hidden="until-found"])) {
-    display: none !important;
-  }
-
-  html, body {
-    color: #f1f5f9;
-    font-family: var(--font-sans);
-    background-color: #070d1e;
-  }
-}
-
-@layer components;
-
-@layer utilities {
-  .pointer-events-none {
-    pointer-events: none;
-  }
-
-  .visible {
-    visibility: visible;
-  }
-
-  .absolute {
-    position: absolute;
-  }
-
-  .fixed {
-    position: fixed;
-  }
-
-  .relative {
-    position: relative;
-  }
-
-  .static {
-    position: static;
-  }
-
-  .sticky {
-    position: sticky;
-  }
-
-  .inset-0 {
-    inset: 0;
-  }
-
-  .top-1 {
-    top: var(--spacing);
-  }
-
-  .top-1\/2 {
-    top: 50%;
-  }
-
-  .top-10 {
-    top: calc(var(--spacing) * 10);
-  }
-
-  .right-0 {
-    right: 0;
-  }
-
-  .left-0 {
-    left: 0;
-  }
-
-  .left-3 {
-    left: calc(var(--spacing) * 3);
-  }
-
-  .z-40 {
-    z-index: 40;
-  }
-
-  .z-50 {
-    z-index: 50;
-  }
-
-  .container {
-    width: 100%;
-  }
-
-  @media (min-width: 40rem) {
-    .container {
-      max-width: 40rem;
-    }
-  }
-
-  @media (min-width: 48rem) {
-    .container {
-      max-width: 48rem;
-    }
-  }
-
-  @media (min-width: 64rem) {
-    .container {
-      max-width: 64rem;
-    }
-  }
-
-  @media (min-width: 80rem) {
-    .container {
-      max-width: 80rem;
-    }
-  }
-
-  @media (min-width: 96rem) {
-    .container {
-      max-width: 96rem;
-    }
-  }
-
-  .-m-1 {
-    margin: calc(var(--spacing) * -1);
-  }
-
-  .mx-auto {
-    margin-inline: auto;
-  }
-
-  .my-1 {
-    margin-block: var(--spacing);
-  }
-
-  .mt-0 {
-    margin-top: 0;
-  }
-
-  .mt-0\.5 {
-    margin-top: calc(var(--spacing) * .5);
-  }
-
-  .mt-1 {
-    margin-top: var(--spacing);
-  }
-
-  .mt-1\.5 {
-    margin-top: calc(var(--spacing) * 1.5);
-  }
-
-  .mr-2 {
-    margin-right: calc(var(--spacing) * 2);
-  }
-
-  .mb-1 {
-    margin-bottom: var(--spacing);
-  }
-
-  .mb-3 {
-    margin-bottom: calc(var(--spacing) * 3);
-  }
-
-  .mb-5 {
-    margin-bottom: calc(var(--spacing) * 5);
-  }
-
-  .ml-1 {
-    margin-left: var(--spacing);
-  }
-
-  .ml-1\.5 {
-    margin-left: calc(var(--spacing) * 1.5);
-  }
-
-  .ml-2 {
-    margin-left: calc(var(--spacing) * 2);
-  }
-
-  .block {
-    display: block;
-  }
-
-  .contents {
-    display: contents;
-  }
-
-  .flex {
-    display: flex;
-  }
-
-  .grid {
-    display: grid;
-  }
-
-  .hidden {
-    display: none;
-  }
-
-  .inline {
-    display: inline;
-  }
-
-  .inline-block {
-    display: inline-block;
-  }
-
-  .inline-flex {
-    display: inline-flex;
-  }
-
-  .table {
-    display: table;
-  }
-
-  .table-cell {
-    display: table-cell;
-  }
-
-  .table-column {
-    display: table-column;
-  }
-
-  .table-column-group {
-    display: table-column-group;
-  }
-
-  .table-row {
-    display: table-row;
-  }
-
-  .table-row-group {
-    display: table-row-group;
-  }
-
-  .h-2 {
-    height: calc(var(--spacing) * 2);
-  }
-
-  .h-2\.5 {
-    height: calc(var(--spacing) * 2.5);
-  }
-
-  .h-3 {
-    height: calc(var(--spacing) * 3);
-  }
-
-  .h-3\.5 {
-    height: calc(var(--spacing) * 3.5);
-  }
-
-  .h-4 {
-    height: calc(var(--spacing) * 4);
-  }
-
-  .h-6 {
-    height: calc(var(--spacing) * 6);
-  }
-
-  .h-10 {
-    height: calc(var(--spacing) * 10);
-  }
-
-  .h-16 {
-    height: calc(var(--spacing) * 16);
-  }
-
-  .h-44 {
-    height: calc(var(--spacing) * 44);
-  }
-
-  .h-72 {
-    height: calc(var(--spacing) * 72);
-  }
-
-  .h-full {
-    height: 100%;
-  }
-
-  .max-h-40 {
-    max-height: calc(var(--spacing) * 40);
-  }
-
-  .max-h-\[90vh\] {
-    max-height: 90vh;
-  }
-
-  .min-h-screen {
-    min-height: 100vh;
-  }
-
-  .w-2 {
-    width: calc(var(--spacing) * 2);
-  }
-
-  .w-2\.5 {
-    width: calc(var(--spacing) * 2.5);
-  }
-
-  .w-3 {
-    width: calc(var(--spacing) * 3);
-  }
-
-  .w-3\.5 {
-    width: calc(var(--spacing) * 3.5);
-  }
-
-  .w-4 {
-    width: calc(var(--spacing) * 4);
-  }
-
-  .w-6 {
-    width: calc(var(--spacing) * 6);
-  }
-
-  .w-14 {
-    width: calc(var(--spacing) * 14);
-  }
-
-  .w-28 {
-    width: calc(var(--spacing) * 28);
-  }
-
-  .w-32 {
-    width: calc(var(--spacing) * 32);
-  }
-
-  .w-44 {
-    width: calc(var(--spacing) * 44);
-  }
-
-  .w-48 {
-    width: calc(var(--spacing) * 48);
-  }
-
-  .w-56 {
-    width: calc(var(--spacing) * 56);
-  }
-
-  .w-full {
-    width: 100%;
-  }
-
-  .max-w-2xl {
-    max-width: var(--container-2xl);
-  }
-
-  .max-w-3xl {
-    max-width: var(--container-3xl);
-  }
-
-  .max-w-7xl {
-    max-width: var(--container-7xl);
-  }
-
-  .max-w-\[220px\] {
-    max-width: 220px;
-  }
-
-  .max-w-\[240px\] {
-    max-width: 240px;
-  }
-
-  .max-w-\[260px\] {
-    max-width: 260px;
-  }
-
-  .max-w-md {
-    max-width: var(--container-md);
-  }
-
-  .min-w-0 {
-    min-width: 0;
-  }
-
-  .flex-1 {
-    flex: 1;
-  }
-
-  .flex-shrink {
-    flex-shrink: 1;
-  }
-
-  .shrink-0 {
-    flex-shrink: 0;
-  }
-
-  .border-collapse {
-    border-collapse: collapse;
-  }
-
-  .-translate-y-1 {
-    --tw-translate-y: calc(var(--spacing) * -1);
-    translate: var(--tw-translate-x) var(--tw-translate-y);
-  }
-
-  .-translate-y-1\/2 {
-    --tw-translate-y: calc(calc(1 / 2 * 100%) * -1);
-    translate: var(--tw-translate-x) var(--tw-translate-y);
-  }
-
-  .transform {
-    transform: var(--tw-rotate-x, ) var(--tw-rotate-y, ) var(--tw-rotate-z, ) var(--tw-skew-x, ) var(--tw-skew-y, );
-  }
-
-  .animate-pulse {
-    animation: var(--animate-pulse);
-  }
-
-  .animate-spin {
-    animation: var(--animate-spin);
-  }
-
-  .cursor-pointer {
-    cursor: pointer;
-  }
-
-  .resize {
-    resize: both;
-  }
-
-  .grid-cols-1 {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-
-  .grid-cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .flex-col {
-    flex-direction: column;
-  }
-
-  .flex-wrap {
-    flex-wrap: wrap;
-  }
-
-  .items-center {
-    align-items: center;
-  }
-
-  .items-end {
-    align-items: flex-end;
-  }
-
-  .items-start {
-    align-items: flex-start;
-  }
-
-  .items-stretch {
-    align-items: stretch;
-  }
-
-  .justify-between {
-    justify-content: space-between;
-  }
-
-  .justify-center {
-    justify-content: center;
-  }
-
-  .justify-end {
-    justify-content: flex-end;
-  }
-
-  .gap-1 {
-    gap: var(--spacing);
-  }
-
-  .gap-1\.5 {
-    gap: calc(var(--spacing) * 1.5);
-  }
-
-  .gap-2 {
-    gap: calc(var(--spacing) * 2);
-  }
-
-  .gap-2\.5 {
-    gap: calc(var(--spacing) * 2.5);
-  }
-
-  .gap-3 {
-    gap: calc(var(--spacing) * 3);
-  }
-
-  .gap-4 {
-    gap: calc(var(--spacing) * 4);
-  }
-
-  .gap-5 {
-    gap: calc(var(--spacing) * 5);
-  }
-
-  .gap-6 {
-    gap: calc(var(--spacing) * 6);
-  }
-
-  :where(.space-y-1 > :not(:last-child)) {
-    --tw-space-y-reverse: 0;
-    margin-block-start: calc(var(--spacing) * var(--tw-space-y-reverse));
-    margin-block-end: calc(var(--spacing) * calc(1 - var(--tw-space-y-reverse)));
-  }
-
-  :where(.space-y-1\.5 > :not(:last-child)) {
-    --tw-space-y-reverse: 0;
-    margin-block-start: calc(calc(var(--spacing) * 1.5) * var(--tw-space-y-reverse));
-    margin-block-end: calc(calc(var(--spacing) * 1.5) * calc(1 - var(--tw-space-y-reverse)));
-  }
-
-  :where(.space-y-2 > :not(:last-child)) {
-    --tw-space-y-reverse: 0;
-    margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
-    margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
-  }
-
-  :where(.space-y-3 > :not(:last-child)) {
-    --tw-space-y-reverse: 0;
-    margin-block-start: calc(calc(var(--spacing) * 3) * var(--tw-space-y-reverse));
-    margin-block-end: calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-y-reverse)));
-  }
-
-  :where(.space-y-4 > :not(:last-child)) {
-    --tw-space-y-reverse: 0;
-    margin-block-start: calc(calc(var(--spacing) * 4) * var(--tw-space-y-reverse));
-    margin-block-end: calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-y-reverse)));
-  }
-
-  :where(.space-y-5 > :not(:last-child)) {
-    --tw-space-y-reverse: 0;
-    margin-block-start: calc(calc(var(--spacing) * 5) * var(--tw-space-y-reverse));
-    margin-block-end: calc(calc(var(--spacing) * 5) * calc(1 - var(--tw-space-y-reverse)));
-  }
-
-  :where(.space-y-6 > :not(:last-child)) {
-    --tw-space-y-reverse: 0;
-    margin-block-start: calc(calc(var(--spacing) * 6) * var(--tw-space-y-reverse));
-    margin-block-end: calc(calc(var(--spacing) * 6) * calc(1 - var(--tw-space-y-reverse)));
-  }
-
-  .gap-x-1 {
-    column-gap: var(--spacing);
-  }
-
-  .gap-x-1\.5 {
-    column-gap: calc(var(--spacing) * 1.5);
-  }
-
-  :where(.divide-y > :not(:last-child)) {
-    --tw-divide-y-reverse: 0;
-    border-bottom-style: var(--tw-border-style);
-    border-top-style: var(--tw-border-style);
-    border-top-width: calc(1px * var(--tw-divide-y-reverse));
-    border-bottom-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
-  }
-
-  :where(.divide-\[\#182649\] > :not(:last-child)) {
-    border-color: #182649;
-  }
-
-  .truncate {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-
-  .overflow-hidden {
-    overflow: hidden;
-  }
-
-  .overflow-x-auto {
-    overflow-x: auto;
-  }
-
-  .overflow-y-auto {
-    overflow-y: auto;
-  }
-
-  .rounded {
-    border-radius: .25rem;
-  }
-
-  .rounded-full {
-    border-radius: 2147483647px;
-  }
-
-  .rounded-lg {
-    border-radius: var(--radius-lg);
-  }
-
-  .rounded-md {
-    border-radius: var(--radius-md);
-  }
-
-  .rounded-sm {
-    border-radius: var(--radius-sm);
-  }
-
-  .rounded-xl {
-    border-radius: var(--radius-xl);
-  }
-
-  .rounded-t-xl {
-    border-top-left-radius: var(--radius-xl);
-    border-top-right-radius: var(--radius-xl);
-  }
-
-  .border {
-    border-style: var(--tw-border-style);
-    border-width: 1px;
-  }
-
-  .border-2 {
-    border-style: var(--tw-border-style);
-    border-width: 2px;
-  }
-
-  .border-t {
-    border-top-style: var(--tw-border-style);
-    border-top-width: 1px;
-  }
-
-  .border-b {
-    border-bottom-style: var(--tw-border-style);
-    border-bottom-width: 1px;
-  }
-
-  .border-b-2 {
-    border-bottom-style: var(--tw-border-style);
-    border-bottom-width: 2px;
-  }
-
-  .border-\[\#1b2b52\] {
-    border-color: #1b2b52;
-  }
-
-  .border-\[\#1e3260\] {
-    border-color: #1e3260;
-  }
-
-  .border-\[\#182649\] {
-    border-color: #182649;
-  }
-
-  .border-emerald-400 {
-    border-color: var(--color-emerald-400);
-  }
-
-  .border-emerald-500 {
-    border-color: var(--color-emerald-500);
-  }
-
-  .border-emerald-500\/30 {
-    border-color: #00bb7f4d;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .border-emerald-500\/30 {
-      border-color: color-mix(in oklab, var(--color-emerald-500) 30%, transparent);
-    }
-  }
-
-  .border-rose-500 {
-    border-color: var(--color-rose-500);
-  }
-
-  .border-rose-500\/20 {
-    border-color: #ff235733;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .border-rose-500\/20 {
-      border-color: color-mix(in oklab, var(--color-rose-500) 20%, transparent);
-    }
-  }
-
-  .border-rose-500\/30 {
-    border-color: #ff23574d;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .border-rose-500\/30 {
-      border-color: color-mix(in oklab, var(--color-rose-500) 30%, transparent);
-    }
-  }
-
-  .border-sky-500 {
-    border-color: var(--color-sky-500);
-  }
-
-  .border-sky-500\/30 {
-    border-color: #00a5ef4d;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .border-sky-500\/30 {
-      border-color: color-mix(in oklab, var(--color-sky-500) 30%, transparent);
-    }
-  }
-
-  .border-transparent {
-    border-color: #0000;
-  }
-
-  .border-t-transparent {
-    border-top-color: #0000;
-  }
-
-  .bg-\[\#0b142c\] {
-    background-color: #0b142c;
-  }
-
-  .bg-\[\#0f1c3d\] {
-    background-color: #0f1c3d;
-  }
-
-  .bg-\[\#9f1239\] {
-    background-color: #9f1239;
-  }
-
-  .bg-\[\#38bdf8\] {
-    background-color: #38bdf8;
-  }
-
-  .bg-\[\#070d1e\] {
-    background-color: #070d1e;
-  }
-
-  .bg-\[\#080e22\] {
-    background-color: #080e22;
-  }
-
-  .bg-\[\#93c5fd\] {
-    background-color: #93c5fd;
-  }
-
-  .bg-\[\#2563eb\] {
-    background-color: #2563eb;
-  }
-
-  .bg-\[\#132247\] {
-    background-color: #132247;
-  }
-
-  .bg-\[\#132247\]\/40 {
-    background-color: oklab(26.1781% -.00605153 -.0718371 / .4);
-  }
-
-  .bg-\[\#132247\]\/60 {
-    background-color: oklab(26.1781% -.00605153 -.0718371 / .6);
-  }
-
-  .bg-\[\#e11d48\] {
-    background-color: #e11d48;
-  }
-
-  .bg-\[\#fb7185\] {
-    background-color: #fb7185;
-  }
-
-  .bg-black {
-    background-color: var(--color-black);
-  }
-
-  .bg-black\/75 {
-    background-color: #000000bf;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .bg-black\/75 {
-      background-color: color-mix(in oklab, var(--color-black) 75%, transparent);
-    }
-  }
-
-  .bg-emerald-500 {
-    background-color: var(--color-emerald-500);
-  }
-
-  .bg-emerald-500\/10 {
-    background-color: #00bb7f1a;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .bg-emerald-500\/10 {
-      background-color: color-mix(in oklab, var(--color-emerald-500) 10%, transparent);
-    }
-  }
-
-  .bg-rose-500 {
-    background-color: var(--color-rose-500);
-  }
-
-  .bg-rose-500\/15 {
-    background-color: #ff235726;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .bg-rose-500\/15 {
-      background-color: color-mix(in oklab, var(--color-rose-500) 15%, transparent);
-    }
-  }
-
-  .bg-rose-950 {
-    background-color: var(--color-rose-950);
-  }
-
-  .bg-rose-950\/30 {
-    background-color: #4d02184d;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .bg-rose-950\/30 {
-      background-color: color-mix(in oklab, var(--color-rose-950) 30%, transparent);
-    }
-  }
-
-  .bg-gradient-to-r {
-    --tw-gradient-position: to right in oklab;
-    background-image: linear-gradient(var(--tw-gradient-stops));
-  }
-
-  .from-\[\#070d1e\] {
-    --tw-gradient-from: #070d1e;
-    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-  }
-
-  .from-\[\#070d1e\]\/85 {
-    --tw-gradient-from: oklab(16.353% -.00200535 -.0372322 / .85);
-    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-  }
-
-  .via-\[\#0e1c3f\] {
-    --tw-gradient-via: #0e1c3f;
-    --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);
-    --tw-gradient-stops: var(--tw-gradient-via-stops);
-  }
-
-  .via-\[\#070d1e\]\/35 {
-    --tw-gradient-via: oklab(16.353% -.00200535 -.0372322 / .35);
-    --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);
-    --tw-gradient-stops: var(--tw-gradient-via-stops);
-  }
-
-  .to-\[\#070d1e\] {
-    --tw-gradient-to: #070d1e;
-    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-  }
-
-  .to-\[\#070d1e\]\/85 {
-    --tw-gradient-to: oklab(16.353% -.00200535 -.0372322 / .85);
-    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-  }
-
-  .object-cover {
-    object-fit: cover;
-  }
-
-  .object-center {
-    object-position: center;
-  }
-
-  .p-0 {
-    padding: 0;
-  }
-
-  .p-0\.5 {
-    padding: calc(var(--spacing) * .5);
-  }
-
-  .p-1 {
-    padding: var(--spacing);
-  }
-
-  .p-1\.5 {
-    padding: calc(var(--spacing) * 1.5);
-  }
-
-  .p-2 {
-    padding: calc(var(--spacing) * 2);
-  }
-
-  .p-2\.5 {
-    padding: calc(var(--spacing) * 2.5);
-  }
-
-  .p-3 {
-    padding: calc(var(--spacing) * 3);
-  }
-
-  .p-4 {
-    padding: calc(var(--spacing) * 4);
-  }
-
-  .p-5 {
-    padding: calc(var(--spacing) * 5);
-  }
-
-  .p-6 {
-    padding: calc(var(--spacing) * 6);
-  }
-
-  .px-1 {
-    padding-inline: var(--spacing);
-  }
-
-  .px-1\.5 {
-    padding-inline: calc(var(--spacing) * 1.5);
-  }
-
-  .px-2 {
-    padding-inline: calc(var(--spacing) * 2);
-  }
-
-  .px-2\.5 {
-    padding-inline: calc(var(--spacing) * 2.5);
-  }
-
-  .px-3 {
-    padding-inline: calc(var(--spacing) * 3);
-  }
-
-  .px-3\.5 {
-    padding-inline: calc(var(--spacing) * 3.5);
-  }
-
-  .px-4 {
-    padding-inline: calc(var(--spacing) * 4);
-  }
-
-  .px-5 {
-    padding-inline: calc(var(--spacing) * 5);
-  }
-
-  .px-6 {
-    padding-inline: calc(var(--spacing) * 6);
-  }
-
-  .py-1 {
-    padding-block: var(--spacing);
-  }
-
-  .py-1\.5 {
-    padding-block: calc(var(--spacing) * 1.5);
-  }
-
-  .py-2 {
-    padding-block: calc(var(--spacing) * 2);
-  }
-
-  .py-2\.5 {
-    padding-block: calc(var(--spacing) * 2.5);
-  }
-
-  .py-3 {
-    padding-block: calc(var(--spacing) * 3);
-  }
-
-  .py-3\.5 {
-    padding-block: calc(var(--spacing) * 3.5);
-  }
-
-  .py-4 {
-    padding-block: calc(var(--spacing) * 4);
-  }
-
-  .py-5 {
-    padding-block: calc(var(--spacing) * 5);
-  }
-
-  .py-6 {
-    padding-block: calc(var(--spacing) * 6);
-  }
-
-  .py-8 {
-    padding-block: calc(var(--spacing) * 8);
-  }
-
-  .py-10 {
-    padding-block: calc(var(--spacing) * 10);
-  }
-
-  .py-12 {
-    padding-block: calc(var(--spacing) * 12);
-  }
-
-  .pt-1 {
-    padding-top: var(--spacing);
-  }
-
-  .pt-3 {
-    padding-top: calc(var(--spacing) * 3);
-  }
-
-  .pt-4 {
-    padding-top: calc(var(--spacing) * 4);
-  }
-
-  .pt-6 {
-    padding-top: calc(var(--spacing) * 6);
-  }
-
-  .pr-3 {
-    padding-right: calc(var(--spacing) * 3);
-  }
-
-  .pb-3 {
-    padding-bottom: calc(var(--spacing) * 3);
-  }
-
-  .pb-4 {
-    padding-bottom: calc(var(--spacing) * 4);
-  }
-
-  .pb-6 {
-    padding-bottom: calc(var(--spacing) * 6);
-  }
-
-  .pl-4 {
-    padding-left: calc(var(--spacing) * 4);
-  }
-
-  .pl-4\.5 {
-    padding-left: calc(var(--spacing) * 4.5);
-  }
-
-  .pl-9 {
-    padding-left: calc(var(--spacing) * 9);
-  }
-
-  .text-center {
-    text-align: center;
-  }
-
-  .text-left {
-    text-align: left;
-  }
-
-  .text-right {
-    text-align: right;
-  }
-
-  .align-middle {
-    vertical-align: middle;
-  }
-
-  .font-mono {
-    font-family: var(--font-mono);
-  }
-
-  .font-sans {
-    font-family: var(--font-sans);
-  }
-
-  .text-3xl {
-    font-size: var(--text-3xl);
-    line-height: var(--tw-leading, var(--text-3xl--line-height));
-  }
-
-  .text-base {
-    font-size: var(--text-base);
-    line-height: var(--tw-leading, var(--text-base--line-height));
-  }
-
-  .text-lg {
-    font-size: var(--text-lg);
-    line-height: var(--tw-leading, var(--text-lg--line-height));
-  }
-
-  .text-sm {
-    font-size: var(--text-sm);
-    line-height: var(--tw-leading, var(--text-sm--line-height));
-  }
-
-  .text-xs {
-    font-size: var(--text-xs);
-    line-height: var(--tw-leading, var(--text-xs--line-height));
-  }
-
-  .text-\[11px\] {
-    font-size: 11px;
-  }
-
-  .font-bold {
-    --tw-font-weight: var(--font-weight-bold);
-    font-weight: var(--font-weight-bold);
-  }
-
-  .font-extrabold {
-    --tw-font-weight: var(--font-weight-extrabold);
-    font-weight: var(--font-weight-extrabold);
-  }
-
-  .font-medium {
-    --tw-font-weight: var(--font-weight-medium);
-    font-weight: var(--font-weight-medium);
-  }
-
-  .font-semibold {
-    --tw-font-weight: var(--font-weight-semibold);
-    font-weight: var(--font-weight-semibold);
-  }
-
-  .tracking-tight {
-    --tw-tracking: var(--tracking-tight);
-    letter-spacing: var(--tracking-tight);
-  }
-
-  .whitespace-nowrap {
-    white-space: nowrap;
-  }
-
-  .text-amber-300 {
-    color: var(--color-amber-300);
-  }
-
-  .text-amber-400 {
-    color: var(--color-amber-400);
-  }
-
-  .text-emerald-300 {
-    color: var(--color-emerald-300);
-  }
-
-  .text-emerald-400 {
-    color: var(--color-emerald-400);
-  }
-
-  .text-rose-300 {
-    color: var(--color-rose-300);
-  }
-
-  .text-rose-400 {
-    color: var(--color-rose-400);
-  }
-
-  .text-sky-400 {
-    color: var(--color-sky-400);
-  }
-
-  .text-slate-50 {
-    color: var(--color-slate-50);
-  }
-
-  .text-slate-100 {
-    color: var(--color-slate-100);
-  }
-
-  .text-slate-200 {
-    color: var(--color-slate-200);
-  }
-
-  .text-slate-300 {
-    color: var(--color-slate-300);
-  }
-
-  .text-slate-400 {
-    color: var(--color-slate-400);
-  }
-
-  .text-slate-500 {
-    color: var(--color-slate-500);
-  }
-
-  .text-slate-600 {
-    color: var(--color-slate-600);
-  }
-
-  .text-slate-950 {
-    color: var(--color-slate-950);
-  }
-
-  .text-violet-300 {
-    color: var(--color-violet-300);
-  }
-
-  .text-white {
-    color: var(--color-white);
-  }
-
-  .uppercase {
-    text-transform: uppercase;
-  }
-
-  .italic {
-    font-style: italic;
-  }
-
-  .tabular-nums {
-    --tw-numeric-spacing: tabular-nums;
-    font-variant-numeric: var(--tw-ordinal, ) var(--tw-slashed-zero, ) var(--tw-numeric-figure, ) var(--tw-numeric-spacing, ) var(--tw-numeric-fraction, );
-  }
-
-  .underline {
-    text-decoration-line: underline;
-  }
-
-  .decoration-dotted {
-    text-decoration-style: dotted;
-  }
-
-  .underline-offset-4 {
-    text-underline-offset: 4px;
-  }
-
-  .antialiased {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  .opacity-90 {
-    opacity: .9;
-  }
-
-  .shadow {
-    --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, #0000001a), 0 1px 2px -1px var(--tw-shadow-color, #0000001a);
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
-
-  .shadow-2xl {
-    --tw-shadow: 0 25px 50px -12px var(--tw-shadow-color, #00000040);
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
-
-  .ring-1 {
-    --tw-ring-shadow: var(--tw-ring-inset, ) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
-
-  .ring-emerald-500 {
-    --tw-ring-color: var(--color-emerald-500);
-  }
-
-  .ring-emerald-500\/40 {
-    --tw-ring-color: #00bb7f66;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .ring-emerald-500\/40 {
-      --tw-ring-color: color-mix(in oklab, var(--color-emerald-500) 40%, transparent);
-    }
-  }
-
-  .\!outline {
-    outline-style: var(--tw-outline-style) !important;
-    outline-width: 1px !important;
-  }
-
-  .outline {
-    outline-style: var(--tw-outline-style);
-    outline-width: 1px;
-  }
-
-  .blur {
-    --tw-blur: blur(8px);
-    filter: var(--tw-blur, ) var(--tw-brightness, ) var(--tw-contrast, ) var(--tw-grayscale, ) var(--tw-hue-rotate, ) var(--tw-invert, ) var(--tw-saturate, ) var(--tw-sepia, ) var(--tw-drop-shadow, );
-  }
-
-  .filter {
-    filter: var(--tw-blur, ) var(--tw-brightness, ) var(--tw-contrast, ) var(--tw-grayscale, ) var(--tw-hue-rotate, ) var(--tw-invert, ) var(--tw-saturate, ) var(--tw-sepia, ) var(--tw-drop-shadow, );
-  }
-
-  .transition {
-    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
-    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-    transition-duration: var(--tw-duration, var(--default-transition-duration));
-  }
-
-  .transition-colors {
-    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
-    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-    transition-duration: var(--tw-duration, var(--default-transition-duration));
-  }
-
-  @media (hover: hover) {
-    :is(:where(.group):hover .group-hover\:text-sky-400) {
-      color: var(--color-sky-400);
-    }
-  }
-
-  .selection\:bg-emerald-500\/30 ::selection {
-    background-color: #00bb7f4d;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .selection\:bg-emerald-500\/30 ::selection {
-      background-color: color-mix(in oklab, var(--color-emerald-500) 30%, transparent);
-    }
-  }
-
-  .selection\:bg-emerald-500\/30::selection {
-    background-color: #00bb7f4d;
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .selection\:bg-emerald-500\/30::selection {
-      background-color: color-mix(in oklab, var(--color-emerald-500) 30%, transparent);
-    }
-  }
-
-  .selection\:text-emerald-200 ::selection {
-    color: var(--color-emerald-200);
-  }
-
-  .selection\:text-emerald-200::selection {
-    color: var(--color-emerald-200);
-  }
-
-  .placeholder\:text-slate-500::placeholder {
-    color: var(--color-slate-500);
-  }
-
-  @media (hover: hover) {
-    .hover\:border-sky-400\/60:hover {
-      border-color: #00bcfe99;
-    }
-
-    @supports (color: color-mix(in lab, red, red)) {
-      .hover\:border-sky-400\/60:hover {
-        border-color: color-mix(in oklab, var(--color-sky-400) 60%, transparent);
-      }
-    }
-
-    .hover\:bg-\[\#0b142c\]\/60:hover {
-      background-color: oklab(19.7938% -.00311203 -.0499457 / .6);
-    }
-
-    .hover\:bg-\[\#182b59\]:hover {
-      background-color: #182b59;
-    }
-
-    .hover\:bg-\[\#132247\]:hover {
-      background-color: #132247;
-    }
-
-    .hover\:bg-\[\#132247\]\/25:hover {
-      background-color: oklab(26.1781% -.00605153 -.0718371 / .25);
-    }
-
-    .hover\:bg-\[\#132247\]\/30:hover {
-      background-color: oklab(26.1781% -.00605153 -.0718371 / .3);
-    }
-
-    .hover\:bg-\[\#132247\]\/40:hover {
-      background-color: oklab(26.1781% -.00605153 -.0718371 / .4);
-    }
-
-    .hover\:bg-emerald-400:hover {
-      background-color: var(--color-emerald-400);
-    }
-
-    .hover\:bg-rose-400:hover {
-      background-color: var(--color-rose-400);
-    }
-
-    .hover\:bg-rose-500\/25:hover {
-      background-color: #ff235740;
-    }
-
-    @supports (color: color-mix(in lab, red, red)) {
-      .hover\:bg-rose-500\/25:hover {
-        background-color: color-mix(in oklab, var(--color-rose-500) 25%, transparent);
-      }
-    }
-
-    .hover\:text-emerald-300:hover {
-      color: var(--color-emerald-300);
-    }
-
-    .hover\:text-rose-300:hover {
-      color: var(--color-rose-300);
-    }
-
-    .hover\:text-sky-400:hover {
-      color: var(--color-sky-400);
-    }
-
-    .hover\:text-slate-100:hover {
-      color: var(--color-slate-100);
-    }
-
-    .hover\:text-white:hover {
-      color: var(--color-white);
-    }
-
-    .hover\:underline:hover {
-      text-decoration-line: underline;
-    }
-  }
-
-  .focus\:border-emerald-400:focus {
-    border-color: var(--color-emerald-400);
-  }
-
-  .focus\:border-sky-400:focus {
-    border-color: var(--color-sky-400);
-  }
-
-  .focus\:outline-none:focus {
-    --tw-outline-style: none;
-    outline-style: none;
-  }
-
-  .focus-visible\:ring-2:focus-visible {
-    --tw-ring-shadow: var(--tw-ring-inset, ) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
-
-  .focus-visible\:ring-sky-400:focus-visible {
-    --tw-ring-color: var(--color-sky-400);
-  }
-
-  .focus-visible\:outline-none:focus-visible {
-    --tw-outline-style: none;
-    outline-style: none;
-  }
-
-  .disabled\:opacity-60:disabled {
-    opacity: .6;
-  }
-
-  @media (min-width: 40rem) {
-    .sm\:col-span-2 {
-      grid-column: span 2 / span 2;
-    }
-
-    .sm\:col-span-5 {
-      grid-column: span 5 / span 5;
-    }
-
-    .sm\:col-span-7 {
-      grid-column: span 7 / span 7;
-    }
-
-    .sm\:inline {
-      display: inline;
-    }
-
-    .sm\:h-24 {
-      height: calc(var(--spacing) * 24);
-    }
-
-    .sm\:h-80 {
-      height: calc(var(--spacing) * 80);
-    }
-
-    .sm\:max-w-md {
-      max-width: var(--container-md);
-    }
-
-    .sm\:max-w-sm {
-      max-width: var(--container-sm);
-    }
-
-    .sm\:grid-cols-2 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .sm\:grid-cols-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .sm\:grid-cols-5 {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
-
-    .sm\:grid-cols-12 {
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-    }
-
-    .sm\:flex-row {
-      flex-direction: row;
-    }
-
-    .sm\:items-center {
-      align-items: center;
-    }
-
-    .sm\:items-end {
-      align-items: flex-end;
-    }
-
-    .sm\:px-5 {
-      padding-inline: calc(var(--spacing) * 5);
-    }
-
-    .sm\:px-6 {
-      padding-inline: calc(var(--spacing) * 6);
-    }
-
-    .sm\:py-3 {
-      padding-block: calc(var(--spacing) * 3);
-    }
-
-    .sm\:text-4xl {
-      font-size: var(--text-4xl);
-      line-height: var(--tw-leading, var(--text-4xl--line-height));
-    }
-
-    .sm\:text-base {
-      font-size: var(--text-base);
-      line-height: var(--tw-leading, var(--text-base--line-height));
-    }
-  }
-
-  @media (min-width: 48rem) {
-    .md\:grid-cols-2 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .md\:items-end {
-      align-items: flex-end;
-    }
-  }
-
-  @media (min-width: 64rem) {
-    .lg\:grid-cols-2 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .lg\:grid-cols-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .lg\:grid-cols-5 {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
-
-    .lg\:grid-cols-9 {
-      grid-template-columns: repeat(9, minmax(0, 1fr));
-    }
-
-    .lg\:flex-row {
-      flex-direction: row;
-    }
-
-    .lg\:items-center {
-      align-items: center;
-    }
-  }
-}
-
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-@property --tw-translate-x {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0;
-}
-
-@property --tw-translate-y {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0;
-}
-
-@property --tw-translate-z {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0;
-}
-
-@property --tw-rotate-x {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-rotate-y {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-rotate-z {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-skew-x {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-skew-y {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-space-y-reverse {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0;
-}
-
-@property --tw-divide-y-reverse {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0;
-}
-
-@property --tw-border-style {
-  syntax: "*";
-  inherits: false;
-  initial-value: solid;
-}
-
-@property --tw-gradient-position {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-gradient-from {
-  syntax: "<color>";
-  inherits: false;
-  initial-value: #0000;
-}
-
-@property --tw-gradient-via {
-  syntax: "<color>";
-  inherits: false;
-  initial-value: #0000;
-}
-
-@property --tw-gradient-to {
-  syntax: "<color>";
-  inherits: false;
-  initial-value: #0000;
-}
-
-@property --tw-gradient-stops {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-gradient-via-stops {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-gradient-from-position {
-  syntax: "<length-percentage>";
-  inherits: false;
-  initial-value: 0%;
-}
-
-@property --tw-gradient-via-position {
-  syntax: "<length-percentage>";
-  inherits: false;
-  initial-value: 50%;
-}
-
-@property --tw-gradient-to-position {
-  syntax: "<length-percentage>";
-  inherits: false;
-  initial-value: 100%;
-}
-
-@property --tw-font-weight {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-tracking {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-ordinal {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-slashed-zero {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-numeric-figure {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-numeric-spacing {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-numeric-fraction {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-shadow {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0 0 #0000;
-}
-
-@property --tw-shadow-color {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-shadow-alpha {
-  syntax: "<percentage>";
-  inherits: false;
-  initial-value: 100%;
-}
-
-@property --tw-inset-shadow {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0 0 #0000;
-}
-
-@property --tw-inset-shadow-color {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-inset-shadow-alpha {
-  syntax: "<percentage>";
-  inherits: false;
-  initial-value: 100%;
-}
-
-@property --tw-ring-color {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-ring-shadow {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0 0 #0000;
-}
-
-@property --tw-inset-ring-color {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-inset-ring-shadow {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0 0 #0000;
-}
-
-@property --tw-ring-inset {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-ring-offset-width {
-  syntax: "<length>";
-  inherits: false;
-  initial-value: 0;
-}
-
-@property --tw-ring-offset-color {
-  syntax: "*";
-  inherits: false;
-  initial-value: #fff;
-}
-
-@property --tw-ring-offset-shadow {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0 0 #0000;
-}
-
-@property --tw-outline-style {
-  syntax: "*";
-  inherits: false;
-  initial-value: solid;
-}
-
-@property --tw-blur {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-brightness {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-contrast {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-grayscale {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-hue-rotate {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-invert {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-opacity {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-saturate {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-sepia {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-drop-shadow {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-drop-shadow-color {
-  syntax: "*";
-  inherits: false
-}
-
-@property --tw-drop-shadow-alpha {
-  syntax: "<percentage>";
-  inherits: false;
-  initial-value: 100%;
-}
-
-@property --tw-drop-shadow-size {
-  syntax: "*";
-  inherits: false
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes pulse {
-  50% {
-    opacity: .5;
-  }
-}
-</style>
-  </head>
-  <body class="bg-[#070d1e] text-slate-100 antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
-    <div id="root"></div>
   </body>
 </html>
