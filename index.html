@@ -406,7 +406,7 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	function ReactElement(type, key, props) {
 		var refProp = props.ref;
 		return {
-			$$typeof: REACT_ELEMENT_TYPE,
+			$typeof: REACT_ELEMENT_TYPE,
 			type,
 			key,
 			ref: void 0 !== refProp ? refProp : null,
@@ -417,7 +417,7 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 		return ReactElement(oldElement.type, newKey, oldElement.props);
 	}
 	function isValidElement(object) {
-		return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
+		return "object" === typeof object && null !== object && object.$typeof === REACT_ELEMENT_TYPE;
 	}
 	function escape(key) {
 		var escaperLookup = {
@@ -458,7 +458,7 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 			case "number":
 				invokeCallback = !0;
 				break;
-			case "object": switch (children.$$typeof) {
+			case "object": switch (children.$typeof) {
 				case REACT_ELEMENT_TYPE:
 				case REACT_PORTAL_TYPE:
 					invokeCallback = !0;
@@ -466,9 +466,9 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 				case REACT_LAZY_TYPE: return invokeCallback = children._init, mapIntoArray(invokeCallback(children._payload), array, escapedPrefix, nameSoFar, callback);
 			}
 		}
-		if (invokeCallback) return callback = callback(children), invokeCallback = "" === nameSoFar ? "." + getElementKey(children, 0) : nameSoFar, isArrayImpl(callback) ? (escapedPrefix = "", null != invokeCallback && (escapedPrefix = invokeCallback.replace(userProvidedKeyEscapeRegex, "$&/") + "/"), mapIntoArray(callback, array, escapedPrefix, "", function(c) {
+		if (invokeCallback) return callback = callback(children), invokeCallback = "" === nameSoFar ? "." + getElementKey(children, 0) : nameSoFar, isArrayImpl(callback) ? (escapedPrefix = "", null != invokeCallback && (escapedPrefix = invokeCallback.replace(userProvidedKeyEscapeRegex, "<script type="module" crossorigin src="./assets/index-BHJdHWBr.js"></script>/") + "/"), mapIntoArray(callback, array, escapedPrefix, "", function(c) {
 			return c;
-		})) : null != callback && (isValidElement(callback) && (callback = cloneAndReplaceKey(callback, escapedPrefix + (null == callback.key || children && children.key === callback.key ? "" : ("" + callback.key).replace(userProvidedKeyEscapeRegex, "$&/") + "/") + invokeCallback)), array.push(callback)), 1;
+		})) : null != callback && (isValidElement(callback) && (callback = cloneAndReplaceKey(callback, escapedPrefix + (null == callback.key || children && children.key === callback.key ? "" : ("" + callback.key).replace(userProvidedKeyEscapeRegex, "<script type="module" crossorigin src="./assets/index-BHJdHWBr.js"></script>/") + "/") + invokeCallback)), array.push(callback)), 1;
 		invokeCallback = 0;
 		var nextNamePrefix = "" === nameSoFar ? "." : nameSoFar + ":";
 		if (isArrayImpl(children)) for (var i = 0; i < children.length; i++) nameSoFar = children[i], type = nextNamePrefix + getElementKey(nameSoFar, i), invokeCallback += mapIntoArray(nameSoFar, array, escapedPrefix, type, callback);
@@ -600,7 +600,7 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	};
 	exports.createContext = function(defaultValue) {
 		defaultValue = {
-			$$typeof: REACT_CONTEXT_TYPE,
+			$typeof: REACT_CONTEXT_TYPE,
 			_currentValue: defaultValue,
 			_currentValue2: defaultValue,
 			_threadCount: 0,
@@ -609,7 +609,7 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 		};
 		defaultValue.Provider = defaultValue;
 		defaultValue.Consumer = {
-			$$typeof: REACT_CONSUMER_TYPE,
+			$typeof: REACT_CONSUMER_TYPE,
 			_context: defaultValue
 		};
 		return defaultValue;
@@ -631,14 +631,14 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	};
 	exports.forwardRef = function(render) {
 		return {
-			$$typeof: REACT_FORWARD_REF_TYPE,
+			$typeof: REACT_FORWARD_REF_TYPE,
 			render
 		};
 	};
 	exports.isValidElement = isValidElement;
 	exports.lazy = function(ctor) {
 		return {
-			$$typeof: REACT_LAZY_TYPE,
+			$typeof: REACT_LAZY_TYPE,
 			_payload: {
 				_status: -1,
 				_result: ctor
@@ -648,7 +648,7 @@ var require_react_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	};
 	exports.memo = function(type, compare) {
 		return {
-			$$typeof: REACT_MEMO_TYPE,
+			$typeof: REACT_MEMO_TYPE,
 			type,
 			compare: void 0 === compare ? null : compare
 		};
@@ -762,7 +762,7 @@ var require_react_dom_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	function createPortal$1(children, containerInfo, implementation) {
 		var key = 3 < arguments.length && void 0 !== arguments[3] ? arguments[3] : null;
 		return {
-			$$typeof: REACT_PORTAL_TYPE,
+			$typeof: REACT_PORTAL_TYPE,
 			key: null == key ? null : key === REACT_OPTIMISTIC_KEY ? REACT_OPTIMISTIC_KEY : "" + key,
 			children,
 			containerInfo,
@@ -777,7 +777,7 @@ var require_react_dom_production = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = Internals;
 	exports.browser = function(reason) {
 		return {
-			$$typeof: REACT_RECOVERABLE_TYPE,
+			$typeof: REACT_RECOVERABLE_TYPE,
 			_reason: reason
 		};
 	};
@@ -1115,7 +1115,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 	var REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference");
 	function getComponentNameFromType(type) {
 		if (null == type) return null;
-		if ("function" === typeof type) return type.$$typeof === REACT_CLIENT_REFERENCE ? null : type.displayName || type.name || null;
+		if ("function" === typeof type) return type.$typeof === REACT_CLIENT_REFERENCE ? null : type.displayName || type.name || null;
 		if ("string" === typeof type) return type;
 		switch (type) {
 			case REACT_FRAGMENT_TYPE: return "Fragment";
@@ -1126,7 +1126,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 			case REACT_ACTIVITY_TYPE: return "Activity";
 			case REACT_VIEW_TRANSITION_TYPE: return "ViewTransition";
 		}
-		if ("object" === typeof type) switch (type.$$typeof) {
+		if ("object" === typeof type) switch (type.$typeof) {
 			case REACT_PORTAL_TYPE: return "Portal";
 			case REACT_CONTEXT_TYPE: return type.displayName || "Context";
 			case REACT_CONSUMER_TYPE: return (type._context.displayName || "Context") + ".Consumer";
@@ -2737,7 +2737,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 				ref: null
 			}, type;
 			default:
-				if ("object" === typeof owner && null !== owner) switch (owner.$$typeof) {
+				if ("object" === typeof owner && null !== owner) switch (owner.$typeof) {
 					case REACT_CONTEXT_TYPE:
 						fiberTag = 10;
 						break a;
@@ -3108,7 +3108,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 	var scheduleCallback$2 = Scheduler.unstable_scheduleCallback;
 	var NormalPriority = Scheduler.unstable_NormalPriority;
 	var CacheContext = {
-		$$typeof: REACT_CONTEXT_TYPE,
+		$typeof: REACT_CONTEXT_TYPE,
 		Consumer: null,
 		Provider: null,
 		_currentValue: null,
@@ -3308,7 +3308,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 		workInProgress.ref = void 0 !== element ? element : null;
 	}
 	function throwOnInvalidObjectTypeImpl(returnFiber, newChild) {
-		if (newChild.$$typeof === REACT_LEGACY_ELEMENT_TYPE) throw Error(formatProdErrorMessage(525));
+		if (newChild.$typeof === REACT_LEGACY_ELEMENT_TYPE) throw Error(formatProdErrorMessage(525));
 		returnFiber = Object.prototype.toString.call(newChild);
 		throw Error(formatProdErrorMessage(31, "[object Object]" === returnFiber ? "object with keys {" + Object.keys(newChild).join(", ") + "}" : returnFiber));
 	}
@@ -3355,7 +3355,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 		function updateElement(returnFiber, current, element, lanes) {
 			var elementType = element.type;
 			if (elementType === REACT_FRAGMENT_TYPE) return returnFiber = updateFragment(returnFiber, current, element.props.children, lanes, element.key), coerceRef(returnFiber, element), returnFiber;
-			if (null !== current && (current.elementType === elementType || "object" === typeof elementType && null !== elementType && elementType.$$typeof === REACT_LAZY_TYPE && resolveLazy(elementType) === current.type)) return current = useFiber(current, element.props), coerceRef(current, element), current.return = returnFiber, current;
+			if (null !== current && (current.elementType === elementType || "object" === typeof elementType && null !== elementType && elementType.$typeof === REACT_LAZY_TYPE && resolveLazy(elementType) === current.type)) return current = useFiber(current, element.props), coerceRef(current, element), current.return = returnFiber, current;
 			current = createFiberFromTypeAndProps(element.type, element.key, element.props, null, returnFiber.mode, lanes);
 			coerceRef(current, element);
 			current.return = returnFiber;
@@ -3376,14 +3376,14 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 		function createChild(returnFiber, newChild, lanes) {
 			if ("string" === typeof newChild && "" !== newChild || "number" === typeof newChild || "bigint" === typeof newChild) return newChild = createFiberFromText("" + newChild, returnFiber.mode, lanes), newChild.return = returnFiber, newChild;
 			if ("object" === typeof newChild && null !== newChild) {
-				switch (newChild.$$typeof) {
+				switch (newChild.$typeof) {
 					case REACT_ELEMENT_TYPE: return lanes = createFiberFromTypeAndProps(newChild.type, newChild.key, newChild.props, null, returnFiber.mode, lanes), coerceRef(lanes, newChild), lanes.return = returnFiber, lanes;
 					case REACT_PORTAL_TYPE: return newChild = createFiberFromPortal(newChild, returnFiber.mode, lanes), newChild.return = returnFiber, newChild;
 					case REACT_LAZY_TYPE: return newChild = resolveLazy(newChild), createChild(returnFiber, newChild, lanes);
 				}
 				if (isArrayImpl(newChild) || getIteratorFn(newChild)) return newChild = createFiberFromFragment(newChild, returnFiber.mode, lanes, null), newChild.return = returnFiber, newChild;
 				if ("function" === typeof newChild.then) return createChild(returnFiber, unwrapThenable(newChild), lanes);
-				if (newChild.$$typeof === REACT_CONTEXT_TYPE) return createChild(returnFiber, readContextDuringReconciliation(returnFiber, newChild), lanes);
+				if (newChild.$typeof === REACT_CONTEXT_TYPE) return createChild(returnFiber, readContextDuringReconciliation(returnFiber, newChild), lanes);
 				throwOnInvalidObjectTypeImpl(returnFiber, newChild);
 			}
 			return null;
@@ -3392,14 +3392,14 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 			var key = null !== oldFiber ? oldFiber.key : null;
 			if ("string" === typeof newChild && "" !== newChild || "number" === typeof newChild || "bigint" === typeof newChild) return null !== key ? null : updateTextNode(returnFiber, oldFiber, "" + newChild, lanes);
 			if ("object" === typeof newChild && null !== newChild) {
-				switch (newChild.$$typeof) {
+				switch (newChild.$typeof) {
 					case REACT_ELEMENT_TYPE: return newChild.key === key ? updateElement(returnFiber, oldFiber, newChild, lanes) : null;
 					case REACT_PORTAL_TYPE: return newChild.key === key ? updatePortal(returnFiber, oldFiber, newChild, lanes) : null;
 					case REACT_LAZY_TYPE: return newChild = resolveLazy(newChild), updateSlot(returnFiber, oldFiber, newChild, lanes);
 				}
 				if (isArrayImpl(newChild) || getIteratorFn(newChild)) return null !== key ? null : updateFragment(returnFiber, oldFiber, newChild, lanes, null);
 				if ("function" === typeof newChild.then) return updateSlot(returnFiber, oldFiber, unwrapThenable(newChild), lanes);
-				if (newChild.$$typeof === REACT_CONTEXT_TYPE) return updateSlot(returnFiber, oldFiber, readContextDuringReconciliation(returnFiber, newChild), lanes);
+				if (newChild.$typeof === REACT_CONTEXT_TYPE) return updateSlot(returnFiber, oldFiber, readContextDuringReconciliation(returnFiber, newChild), lanes);
 				throwOnInvalidObjectTypeImpl(returnFiber, newChild);
 			}
 			return null;
@@ -3407,14 +3407,14 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 		function updateFromMap(existingChildren, returnFiber, newIdx, newChild, lanes) {
 			if ("string" === typeof newChild && "" !== newChild || "number" === typeof newChild || "bigint" === typeof newChild) return existingChildren = existingChildren.get(newIdx) || null, updateTextNode(returnFiber, existingChildren, "" + newChild, lanes);
 			if ("object" === typeof newChild && null !== newChild) {
-				switch (newChild.$$typeof) {
+				switch (newChild.$typeof) {
 					case REACT_ELEMENT_TYPE: return existingChildren = existingChildren.get(null === newChild.key ? newIdx : newChild.key) || null, updateElement(returnFiber, existingChildren, newChild, lanes);
 					case REACT_PORTAL_TYPE: return existingChildren = existingChildren.get(null === newChild.key ? newIdx : newChild.key) || null, updatePortal(returnFiber, existingChildren, newChild, lanes);
 					case REACT_LAZY_TYPE: return newChild = resolveLazy(newChild), updateFromMap(existingChildren, returnFiber, newIdx, newChild, lanes);
 				}
 				if (isArrayImpl(newChild) || getIteratorFn(newChild)) return existingChildren = existingChildren.get(newIdx) || null, updateFragment(returnFiber, existingChildren, newChild, lanes, null);
 				if ("function" === typeof newChild.then) return updateFromMap(existingChildren, returnFiber, newIdx, unwrapThenable(newChild), lanes);
-				if (newChild.$$typeof === REACT_CONTEXT_TYPE) return updateFromMap(existingChildren, returnFiber, newIdx, readContextDuringReconciliation(returnFiber, newChild), lanes);
+				if (newChild.$typeof === REACT_CONTEXT_TYPE) return updateFromMap(existingChildren, returnFiber, newIdx, readContextDuringReconciliation(returnFiber, newChild), lanes);
 				throwOnInvalidObjectTypeImpl(returnFiber, newChild);
 			}
 			return null;
@@ -3477,7 +3477,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 		function reconcileChildFibersImpl(returnFiber, currentFirstChild, newChild, lanes) {
 			"object" === typeof newChild && null !== newChild && newChild.type === REACT_FRAGMENT_TYPE && null === newChild.key && void 0 === newChild.props.ref && (newChild = newChild.props.children);
 			if ("object" === typeof newChild && null !== newChild) {
-				switch (newChild.$$typeof) {
+				switch (newChild.$typeof) {
 					case REACT_ELEMENT_TYPE:
 						a: {
 							for (var key = newChild.key; null !== currentFirstChild;) {
@@ -3492,7 +3492,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 											returnFiber = lanes;
 											break a;
 										}
-									} else if (currentFirstChild.elementType === key || "object" === typeof key && null !== key && key.$$typeof === REACT_LAZY_TYPE && resolveLazy(key) === currentFirstChild.type) {
+									} else if (currentFirstChild.elementType === key || "object" === typeof key && null !== key && key.$typeof === REACT_LAZY_TYPE && resolveLazy(key) === currentFirstChild.type) {
 										deleteRemainingChildren(returnFiber, currentFirstChild.sibling);
 										lanes = useFiber(currentFirstChild, newChild.props);
 										coerceRef(lanes, newChild);
@@ -3539,7 +3539,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 					return reconcileChildrenIterator(returnFiber, currentFirstChild, newChild, lanes);
 				}
 				if ("function" === typeof newChild.then) return reconcileChildFibersImpl(returnFiber, currentFirstChild, unwrapThenable(newChild), lanes);
-				if (newChild.$$typeof === REACT_CONTEXT_TYPE) return reconcileChildFibersImpl(returnFiber, currentFirstChild, readContextDuringReconciliation(returnFiber, newChild), lanes);
+				if (newChild.$typeof === REACT_CONTEXT_TYPE) return reconcileChildFibersImpl(returnFiber, currentFirstChild, readContextDuringReconciliation(returnFiber, newChild), lanes);
 				throwOnInvalidObjectTypeImpl(returnFiber, newChild);
 			}
 			return "string" === typeof newChild && "" !== newChild || "number" === typeof newChild || "bigint" === typeof newChild ? (newChild = "" + newChild, null !== currentFirstChild && 6 === currentFirstChild.tag ? (deleteRemainingChildren(returnFiber, currentFirstChild.sibling), lanes = useFiber(currentFirstChild, newChild), lanes.return = returnFiber, returnFiber = lanes) : (deleteRemainingChildren(returnFiber, currentFirstChild), lanes = createFiberFromText(newChild, returnFiber.mode, lanes), lanes.return = returnFiber, returnFiber = lanes), placeSingleChild(returnFiber)) : deleteRemainingChildren(returnFiber, currentFirstChild);
@@ -3970,8 +3970,8 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 	function use(usable) {
 		if (null !== usable && "object" === typeof usable) {
 			if ("function" === typeof usable.then) return useThenable(usable);
-			if (usable.$$typeof === REACT_RECOVERABLE_TYPE) return;
-			if (usable.$$typeof === REACT_CONTEXT_TYPE) return readContext(usable);
+			if (usable.$typeof === REACT_RECOVERABLE_TYPE) return;
+			if (usable.$typeof === REACT_CONTEXT_TYPE) return readContext(usable);
 		}
 		throw Error(formatProdErrorMessage(438, String(usable)));
 	}
@@ -5674,16 +5674,16 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 					if ("function" === typeof current) shouldConstruct(current) ? (props = resolveClassComponentProps(current, props), workInProgress.tag = 1, workInProgress = updateClassComponent(null, workInProgress, current, props, renderLanes)) : (workInProgress.tag = 0, workInProgress = updateFunctionComponent(null, workInProgress, current, props, renderLanes));
 					else {
 						if (void 0 !== current && null !== current) {
-							var $$typeof = current.$$typeof;
-							if ($$typeof === REACT_FORWARD_REF_TYPE) {
+							var $typeof = current.$typeof;
+							if ($typeof === REACT_FORWARD_REF_TYPE) {
 								workInProgress.tag = 11;
 								workInProgress = updateForwardRef(null, workInProgress, current, props, renderLanes);
 								break a;
-							} else if ($$typeof === REACT_MEMO_TYPE) {
+							} else if ($typeof === REACT_MEMO_TYPE) {
 								workInProgress.tag = 14;
 								workInProgress = updateMemoComponent(null, workInProgress, current, props, renderLanes);
 								break a;
-							} else if ($$typeof === REACT_CONTEXT_TYPE) {
+							} else if ($typeof === REACT_CONTEXT_TYPE) {
 								workInProgress.tag = 10;
 								workInProgress.type = current;
 								workInProgress = updateContextProvider(null, workInProgress, renderLanes);
@@ -5696,14 +5696,14 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 				}
 				return workInProgress;
 			case 0: return updateFunctionComponent(current, workInProgress, workInProgress.type, workInProgress.pendingProps, renderLanes);
-			case 1: return props = workInProgress.type, $$typeof = resolveClassComponentProps(props, workInProgress.pendingProps), updateClassComponent(current, workInProgress, props, $$typeof, renderLanes);
+			case 1: return props = workInProgress.type, $typeof = resolveClassComponentProps(props, workInProgress.pendingProps), updateClassComponent(current, workInProgress, props, $typeof, renderLanes);
 			case 3:
 				a: {
 					pushHostContainer(workInProgress, workInProgress.stateNode.containerInfo);
 					if (null === current) throw Error(formatProdErrorMessage(387));
 					props = workInProgress.pendingProps;
 					var prevState = workInProgress.memoizedState;
-					$$typeof = prevState.element;
+					$typeof = prevState.element;
 					cloneUpdateQueue(current, workInProgress);
 					processUpdateQueue(workInProgress, props, null, renderLanes);
 					var nextState = workInProgress.memoizedState;
@@ -5719,9 +5719,9 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 					}, workInProgress.updateQueue.baseState = prevState, workInProgress.memoizedState = prevState, workInProgress.flags & 256) {
 						workInProgress = mountHostRootWithoutHydrating(current, workInProgress, props, renderLanes);
 						break a;
-					} else if (props !== $$typeof) {
-						$$typeof = createCapturedValueAtFiber(Error(formatProdErrorMessage(424)), workInProgress);
-						queueHydrationError($$typeof);
+					} else if (props !== $typeof) {
+						$typeof = createCapturedValueAtFiber(Error(formatProdErrorMessage(424)), workInProgress);
+						queueHydrationError($typeof);
 						workInProgress = mountHostRootWithoutHydrating(current, workInProgress, props, renderLanes);
 						break a;
 					} else {
@@ -5742,7 +5742,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 					}
 					else {
 						resetHydrationState();
-						if (props === $$typeof) {
+						if (props === $typeof) {
 							workInProgress = bailoutOnAlreadyFinishedWork(current, workInProgress, renderLanes);
 							break a;
 						}
@@ -5752,19 +5752,19 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 				}
 				return workInProgress;
 			case 26: return markRef(current, workInProgress), null === current ? (renderLanes = getResource(workInProgress.type, null, workInProgress.pendingProps, null)) ? workInProgress.memoizedState = renderLanes : isHydrating || (workInProgress.stateNode = createHoistableInstance(workInProgress.type, workInProgress.pendingProps, rootInstanceStackCursor.current, workInProgress)) : workInProgress.memoizedState = getResource(workInProgress.type, current.memoizedProps, workInProgress.pendingProps, current.memoizedState), null;
-			case 27: return pushHostContext(workInProgress), null === current && isHydrating && (props = workInProgress.stateNode = resolveSingletonInstance(workInProgress.type, workInProgress.pendingProps, rootInstanceStackCursor.current), hydrationParentFiber = workInProgress, rootOrSingletonContext = !0, $$typeof = nextHydratableInstance, isSingletonScope(workInProgress.type) ? (previousHydratableOnEnteringScopedSingleton = $$typeof, nextHydratableInstance = getNextHydratable(props.firstChild)) : nextHydratableInstance = $$typeof), reconcileChildren(current, workInProgress, workInProgress.pendingProps.children, renderLanes), markRef(current, workInProgress), null === current && (workInProgress.flags |= 4194304), workInProgress.child;
+			case 27: return pushHostContext(workInProgress), null === current && isHydrating && (props = workInProgress.stateNode = resolveSingletonInstance(workInProgress.type, workInProgress.pendingProps, rootInstanceStackCursor.current), hydrationParentFiber = workInProgress, rootOrSingletonContext = !0, $typeof = nextHydratableInstance, isSingletonScope(workInProgress.type) ? (previousHydratableOnEnteringScopedSingleton = $typeof, nextHydratableInstance = getNextHydratable(props.firstChild)) : nextHydratableInstance = $typeof), reconcileChildren(current, workInProgress, workInProgress.pendingProps.children, renderLanes), markRef(current, workInProgress), null === current && (workInProgress.flags |= 4194304), workInProgress.child;
 			case 5:
 				if (null === current && isHydrating) {
-					if ($$typeof = props = nextHydratableInstance) props = canHydrateInstance(props, workInProgress.type, workInProgress.pendingProps, rootOrSingletonContext), null !== props ? (workInProgress.stateNode = props, hydrationParentFiber = workInProgress, nextHydratableInstance = getNextHydratable(props.firstChild), rootOrSingletonContext = !1, $$typeof = !0) : $$typeof = !1;
-					$$typeof || throwOnHydrationMismatch(workInProgress);
+					if ($typeof = props = nextHydratableInstance) props = canHydrateInstance(props, workInProgress.type, workInProgress.pendingProps, rootOrSingletonContext), null !== props ? (workInProgress.stateNode = props, hydrationParentFiber = workInProgress, nextHydratableInstance = getNextHydratable(props.firstChild), rootOrSingletonContext = !1, $typeof = !0) : $typeof = !1;
+					$typeof || throwOnHydrationMismatch(workInProgress);
 				}
 				pushHostContext(workInProgress);
-				$$typeof = workInProgress.type;
+				$typeof = workInProgress.type;
 				prevState = workInProgress.pendingProps;
 				nextState = null !== current ? current.memoizedProps : null;
 				props = prevState.children;
-				shouldSetTextContent($$typeof, prevState) ? props = null : null !== nextState && shouldSetTextContent($$typeof, nextState) && (workInProgress.flags |= 32);
-				null !== workInProgress.memoizedState && ($$typeof = renderWithHooks(current, workInProgress, TransitionAwareHostComponent, null, null, renderLanes), HostTransitionContext._currentValue = $$typeof);
+				shouldSetTextContent($typeof, prevState) ? props = null : null !== nextState && shouldSetTextContent($typeof, nextState) && (workInProgress.flags |= 32);
+				null !== workInProgress.memoizedState && ($typeof = renderWithHooks(current, workInProgress, TransitionAwareHostComponent, null, null, renderLanes), HostTransitionContext._currentValue = $typeof);
 				markRef(current, workInProgress);
 				reconcileChildren(current, workInProgress, props, renderLanes);
 				return workInProgress.child;
@@ -5781,19 +5781,19 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 			case 8: return reconcileChildren(current, workInProgress, workInProgress.pendingProps.children, renderLanes), workInProgress.child;
 			case 12: return reconcileChildren(current, workInProgress, workInProgress.pendingProps.children, renderLanes), workInProgress.child;
 			case 10: return updateContextProvider(current, workInProgress, renderLanes);
-			case 9: return $$typeof = workInProgress.type._context, props = workInProgress.pendingProps.children, prepareToReadContext(workInProgress), $$typeof = readContext($$typeof), props = props($$typeof), workInProgress.flags |= 1, reconcileChildren(current, workInProgress, props, renderLanes), workInProgress.child;
+			case 9: return $typeof = workInProgress.type._context, props = workInProgress.pendingProps.children, prepareToReadContext(workInProgress), $typeof = readContext($typeof), props = props($typeof), workInProgress.flags |= 1, reconcileChildren(current, workInProgress, props, renderLanes), workInProgress.child;
 			case 14: return updateMemoComponent(current, workInProgress, workInProgress.type, workInProgress.pendingProps, renderLanes);
 			case 15: return updateSimpleMemoComponent(current, workInProgress, workInProgress.type, workInProgress.pendingProps, renderLanes);
 			case 19: return updateSuspenseListComponent(current, workInProgress, renderLanes);
 			case 31: return updateActivityComponent(current, workInProgress, renderLanes);
 			case 22: return updateOffscreenComponent(current, workInProgress, renderLanes, workInProgress.pendingProps);
-			case 24: return prepareToReadContext(workInProgress), props = readContext(CacheContext), null === current ? ($$typeof = peekCacheFromPool(), null === $$typeof && ($$typeof = workInProgressRoot, prevState = createCache(), $$typeof.pooledCache = prevState, prevState.refCount++, null !== prevState && ($$typeof.pooledCacheLanes |= renderLanes), $$typeof = prevState), workInProgress.memoizedState = {
+			case 24: return prepareToReadContext(workInProgress), props = readContext(CacheContext), null === current ? ($typeof = peekCacheFromPool(), null === $typeof && ($typeof = workInProgressRoot, prevState = createCache(), $typeof.pooledCache = prevState, prevState.refCount++, null !== prevState && ($typeof.pooledCacheLanes |= renderLanes), $typeof = prevState), workInProgress.memoizedState = {
 				parent: props,
-				cache: $$typeof
-			}, initializeUpdateQueue(workInProgress), pushProvider(workInProgress, CacheContext, $$typeof)) : (0 !== (current.lanes & renderLanes) && (cloneUpdateQueue(current, workInProgress), processUpdateQueue(workInProgress, null, null, renderLanes), suspendIfUpdateReadFromEntangledAsyncAction()), $$typeof = current.memoizedState, prevState = workInProgress.memoizedState, $$typeof.parent !== props ? ($$typeof = {
+				cache: $typeof
+			}, initializeUpdateQueue(workInProgress), pushProvider(workInProgress, CacheContext, $typeof)) : (0 !== (current.lanes & renderLanes) && (cloneUpdateQueue(current, workInProgress), processUpdateQueue(workInProgress, null, null, renderLanes), suspendIfUpdateReadFromEntangledAsyncAction()), $typeof = current.memoizedState, prevState = workInProgress.memoizedState, $typeof.parent !== props ? ($typeof = {
 				parent: props,
 				cache: props
-			}, workInProgress.memoizedState = $$typeof, 0 === workInProgress.lanes && (workInProgress.memoizedState = workInProgress.updateQueue.baseState = $$typeof), pushProvider(workInProgress, CacheContext, props)) : (props = prevState.cache, pushProvider(workInProgress, CacheContext, props), props !== $$typeof.cache && propagateContextChanges(workInProgress, [CacheContext], renderLanes, !0))), reconcileChildren(current, workInProgress, workInProgress.pendingProps.children, renderLanes), workInProgress.child;
+			}, workInProgress.memoizedState = $typeof, 0 === workInProgress.lanes && (workInProgress.memoizedState = workInProgress.updateQueue.baseState = $typeof), pushProvider(workInProgress, CacheContext, props)) : (props = prevState.cache, pushProvider(workInProgress, CacheContext, props), props !== $typeof.cache && propagateContextChanges(workInProgress, [CacheContext], renderLanes, !0))), reconcileChildren(current, workInProgress, workInProgress.pendingProps.children, renderLanes), workInProgress.child;
 			case 30: return null === workInProgress.stateNode && (workInProgress.stateNode = {
 				autoName: null,
 				paired: null,
@@ -10920,7 +10920,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 		}
 	}
 	var HostTransitionContext = {
-		$$typeof: REACT_CONTEXT_TYPE,
+		$typeof: REACT_CONTEXT_TYPE,
 		Provider: null,
 		Consumer: null,
 		_currentValue: sharedNotPendingObject,
@@ -11329,7 +11329,7 @@ var require_react_dom_client_production = /* @__PURE__ */ __commonJSMin(((export
 			queuedTarget.blockedOn === unblocked && (queuedTarget.blockedOn = null);
 		}
 		for (; 0 < queuedExplicitHydrationTargets.length && (i = queuedExplicitHydrationTargets[0], null === i.blockedOn);) attemptExplicitHydrationTarget(i), null === i.blockedOn && queuedExplicitHydrationTargets.shift();
-		i = (unblocked.ownerDocument || unblocked).$$reactFormReplay;
+		i = (unblocked.ownerDocument || unblocked).$reactFormReplay;
 		if (null != i) for (queuedTarget = 0; queuedTarget < i.length; queuedTarget += 3) {
 			var form = i[queuedTarget], submitterOrAction = i[queuedTarget + 1], formProps = form[internalPropsKey] || null;
 			if ("function" === typeof submitterOrAction) formProps || scheduleReplayQueueIfNeeded(i);
@@ -12058,7 +12058,8 @@ function setGoogleScriptUrl(url) {
 }
 async function fetchSheetMode(mode) {
 	const url = getGoogleScriptUrl();
-	const res = await fetch(`${url}?mode=${mode}`);
+	const query = mode === "full" ? "mode=full&lite=1" : `mode=${mode}`;
+	const res = await fetch(`${url}?${query}`);
 	if (!res.ok) throw new Error(`HTTP ${res.status}`);
 	return await res.json();
 }
@@ -12386,7 +12387,7 @@ var import_papaparse_min = /* @__PURE__ */ __toESM((/* @__PURE__ */ __commonJSMi
 			};
 		}
 		function P(e) {
-			return e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+			return e.replace(/[.*+?^${}()|[\]\\]/g, "\\<script type="module" crossorigin src="./assets/index-BHJdHWBr.js"></script>");
 		}
 		function b(C) {
 			var S = (C = C || {}).delimiter, O = C.newline, x = C.comments, T = C.step, I = C.preview, A = C.fastMode, D = null, L = !1, F = null == C.quoteChar ? "\"" : C.quoteChar, z = F;
@@ -13406,7 +13407,7 @@ function write_num_exp(fmt, val) {
 			}
 			o = o.replace(/\+-/, "-");
 		}
-		o = o.replace(/^([+-]?)(\d*)\.(\d*)[Ee]/, function($$, $1, $2, $3) {
+		o = o.replace(/^([+-]?)(\d*)\.(\d*)[Ee]/, function($, $1, $2, $3) {
 			return $1 + $2 + $3.substr(0, (period + ee) % period) + "." + $3.substr(ee) + "E";
 		});
 	} else o = val.toExponential(idx);
@@ -13478,7 +13479,7 @@ function write_num_flt(type, fmt, val) {
 	if (r = fmt.match(frac1)) return write_num_f1(r, aval, sign);
 	if (fmt.match(/^#+0+$/)) return sign + pad0r(aval, fmt.length - fmt.indexOf("0"));
 	if (r = fmt.match(dec1)) {
-		o = rnd(val, r[1].length).replace(/^([^\.]+)$/, "$1." + hashq(r[1])).replace(/\.$/, "." + hashq(r[1])).replace(/\.(\d*)$/, function($$, $1) {
+		o = rnd(val, r[1].length).replace(/^([^\.]+)$/, "$1." + hashq(r[1])).replace(/\.$/, "." + hashq(r[1])).replace(/\.(\d*)$/, function($, $1) {
 			return "." + $1 + fill$1("0", hashq(r[1]).length - $1.length);
 		});
 		return fmt.indexOf("0.") !== -1 ? o : o.replace(/^0\./, ".");
@@ -13530,8 +13531,8 @@ function write_num_flt(type, fmt, val) {
 	}
 	if (r = fmt.match(/^00,000\.([#0]*0)$/)) {
 		ri = dec(val, r[1].length);
-		return val < 0 ? "-" + write_num_flt(type, fmt, -val) : commaify(flr(val)).replace(/^\d,\d{3}$/, "0$&").replace(/^\d*$/, function($$) {
-			return "00," + ($$.length < 3 ? pad0(0, 3 - $$.length) : "") + $$;
+		return val < 0 ? "-" + write_num_flt(type, fmt, -val) : commaify(flr(val)).replace(/^\d,\d{3}$/, "0<script type="module" crossorigin src="./assets/index-BHJdHWBr.js"></script>").replace(/^\d*$/, function($) {
+			return "00," + ($.length < 3 ? pad0(0, 3 - $.length) : "") + $;
 		}) + "." + pad0(ri, r[1].length);
 	}
 	switch (fmt) {
@@ -13572,7 +13573,7 @@ function write_num_exp2(fmt, val) {
 			else o += "E+" + (fakee - ee);
 			o = o.replace(/\+-/, "-");
 		}
-		o = o.replace(/^([+-]?)(\d*)\.(\d*)[Ee]/, function($$, $1, $2, $3) {
+		o = o.replace(/^([+-]?)(\d*)\.(\d*)[Ee]/, function($, $1, $2, $3) {
 			return $1 + $2 + $3.substr(0, (period + ee) % period) + "." + $3.substr(ee) + "E";
 		});
 	} else o = val.toExponential(idx);
@@ -13602,7 +13603,7 @@ function write_num_int(type, fmt, val) {
 	if (fmt.match(/^#+0+$/)) return sign + pad0(aval, fmt.length - fmt.indexOf("0"));
 	if (r = fmt.match(dec1)) {
 		o = ("" + val).replace(/^([^\.]+)$/, "$1." + hashq(r[1])).replace(/\.$/, "." + hashq(r[1]));
-		o = o.replace(/\.(\d*)$/, function($$, $1) {
+		o = o.replace(/\.(\d*)$/, function($, $1) {
 			return "." + $1 + fill$1("0", hashq(r[1]).length - $1.length);
 		});
 		return fmt.indexOf("0.") !== -1 ? o : o.replace(/^0\./, ".");
@@ -13652,8 +13653,8 @@ function write_num_int(type, fmt, val) {
 		var lres = fmt.indexOf(".") - ri, rres = fmt.length - o.length - lres;
 		return hashq(fmt.substr(0, lres) + o + fmt.substr(fmt.length - rres));
 	}
-	if (r = fmt.match(/^00,000\.([#0]*0)$/)) return val < 0 ? "-" + write_num_int(type, fmt, -val) : commaify("" + val).replace(/^\d,\d{3}$/, "0$&").replace(/^\d*$/, function($$) {
-		return "00," + ($$.length < 3 ? pad0(0, 3 - $$.length) : "") + $$;
+	if (r = fmt.match(/^00,000\.([#0]*0)$/)) return val < 0 ? "-" + write_num_int(type, fmt, -val) : commaify("" + val).replace(/^\d,\d{3}$/, "0<script type="module" crossorigin src="./assets/index-BHJdHWBr.js"></script>").replace(/^\d*$/, function($) {
+		return "00," + ($.length < 3 ? pad0(0, 3 - $.length) : "") + $;
 	}) + "." + pad0(0, r[1].length);
 	switch (fmt) {
 		case "###,###":
@@ -15919,8 +15920,8 @@ var CFB = /*#__PURE__*/ (function _CFB() {
 			while (di <= data.length && line.charAt(line.length - 1) == "=") line = line.slice(0, line.length - 1) + data[++di];
 			o.push(line);
 		}
-		for (var oi = 0; oi < o.length; ++oi) o[oi] = o[oi].replace(/[=][0-9A-Fa-f]{2}/g, function($$) {
-			return String.fromCharCode(parseInt($$.slice(1), 16));
+		for (var oi = 0; oi < o.length; ++oi) o[oi] = o[oi].replace(/[=][0-9A-Fa-f]{2}/g, function($) {
+			return String.fromCharCode(parseInt($.slice(1), 16));
 		});
 		return s2a(o.join("\r\n"));
 	}
@@ -16270,7 +16271,7 @@ function fuzzynum(s) {
 		return "";
 	});
 	if (!isNaN(v = Number(ss))) return v / wt;
-	ss = ss.replace(/[(](.*)[)]/, function($$, $1) {
+	ss = ss.replace(/[(](.*)[)]/, function($, $1) {
 		wt = -wt;
 		return $1;
 	});
@@ -16468,8 +16469,8 @@ var unescapexml = /*#__PURE__*/ (function() {
 	var encregex = /&(?:quot|apos|gt|lt|amp|#x?([\da-fA-F]+));/gi, coderegex = /_x([\da-fA-F]{4})_/gi;
 	return function unescapexml(text) {
 		var s = text + "", i = s.indexOf("<![CDATA[");
-		if (i == -1) return s.replace(encregex, function($$, $1) {
-			return encodings[$$] || String.fromCharCode(parseInt($1, $$.indexOf("x") > -1 ? 16 : 10)) || $$;
+		if (i == -1) return s.replace(encregex, function($, $1) {
+			return encodings[$] || String.fromCharCode(parseInt($1, $.indexOf("x") > -1 ? 16 : 10)) || $;
 		}).replace(coderegex, function(m, c) {
 			return String.fromCharCode(parseInt(c, 16));
 		});
@@ -16488,7 +16489,7 @@ function escapehtml(text) {
 }
 var xlml_fixstr = /*#__PURE__*/ (function() {
 	var entregex = /&#(\d+);/g;
-	function entrepl($$, $1) {
+	function entrepl($, $1) {
 		return String.fromCharCode(parseInt($1, 10));
 	}
 	return function xlml_fixstr(str) {
@@ -17170,7 +17171,7 @@ function encode_row(row) {
 	return "" + (row + 1);
 }
 function fix_row(cstr) {
-	return cstr.replace(/([A-Z]|^)(\d+)$/, "$1$$$2");
+	return cstr.replace(/([A-Z]|^)(\d+)$/, "$1$$2");
 }
 function unfix_row(cstr) {
 	return cstr.replace(/\$(\d+)$/, "$1");
@@ -17187,7 +17188,7 @@ function encode_col(col) {
 	return s;
 }
 function fix_col(cstr) {
-	return cstr.replace(/^([A-Z])/, "$$$1");
+	return cstr.replace(/^([A-Z])/, "$$1");
 }
 function unfix_col(cstr) {
 	return cstr.replace(/^\$([A-Z])/, "$1");
@@ -20256,9 +20257,9 @@ var SYLK = /*#__PURE__*/ (function() {
 		var o = sylk_escapes[$1];
 		return typeof o == "number" ? _getansi(o) : o;
 	};
-	var decode_sylk_char = function($$, $1, $2) {
+	var decode_sylk_char = function($, $1, $2) {
 		var newcc = $1.charCodeAt(0) - 32 << 4 | $2.charCodeAt(0) - 48;
-		return newcc == 59 ? $$ : _getansi(newcc);
+		return newcc == 59 ? $ : _getansi(newcc);
 	};
 	sylk_escapes["|"] = 254;
 	function sylk_to_aoa(d, opts) {
@@ -24254,7 +24255,7 @@ var rc_to_a1 = /*#__PURE__*/ (function() {
 		r: 0,
 		c: 0
 	};
-	function rcfunc($$, $1, $2, $3) {
+	function rcfunc($, $1, $2, $3) {
 		var cRel = false, rRel = false;
 		if ($2.length == 0) rRel = true;
 		else if ($2.charAt(0) == "[") {
@@ -26792,7 +26793,7 @@ function ods_to_csf_formula(f) {
 		if (f.charCodeAt(0) == 61) f = f.slice(1);
 	}
 	f = f.replace(/COM\.MICROSOFT\./g, "");
-	f = f.replace(/\[((?:\.[A-Z]+[0-9]+)(?::\.[A-Z]+[0-9]+)?)\]/g, function($$, $1) {
+	f = f.replace(/\[((?:\.[A-Z]+[0-9]+)(?::\.[A-Z]+[0-9]+)?)\]/g, function($, $1) {
 		return $1.replace(/\./g, "");
 	});
 	f = f.replace(/\[.(#[A-Z]*[?!])\]/g, "$1");
@@ -32034,7 +32035,7 @@ function get_get_computed_style_function(element) {
 	return null;
 }
 function parse_text_p(text) {
-	return [unescapexml(text.replace(/[\t\r\n]/g, " ").trim().replace(/ +/g, " ").replace(/<text:s\/>/g, " ").replace(/<text:s text:c="(\d+)"\/>/g, function($$, $1) {
+	return [unescapexml(text.replace(/[\t\r\n]/g, " ").trim().replace(/ +/g, " ").replace(/<text:s\/>/g, " ").replace(/<text:s text:c="(\d+)"\/>/g, function($, $1) {
 		return Array(parseInt($1, 10) + 1).join(" ");
 	}).replace(/<text:tab[^>]*\/>/g, "	").replace(/<text:line-break\/>/g, "\n").replace(/<[^>]*>/g, ""))];
 }
@@ -35144,7 +35145,7 @@ var require_react_jsx_runtime_production = /* @__PURE__ */ __commonJSMin(((expor
 		} else maybeKey = config;
 		config = maybeKey.ref;
 		return {
-			$$typeof: REACT_ELEMENT_TYPE,
+			$typeof: REACT_ELEMENT_TYPE,
 			type,
 			key,
 			ref: void 0 !== config ? config : null,
@@ -50924,6 +50925,26 @@ function App() {
 			setToastMessage("Downloaden van index.html mislukt.");
 		}
 	};
+	const handleDownloadAppsScript = async () => {
+		try {
+			const res = await fetch("./Code.gs");
+			if (!res.ok) {
+				setToastMessage("Code.gs-export is alleen beschikbaar vanuit de AI Studio-preview.");
+				return;
+			}
+			const scriptText = await res.text();
+			const blob = new Blob([scriptText], { type: "text/plain;charset=utf-8" });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = "Code.gs";
+			a.click();
+			URL.revokeObjectURL(url);
+			setToastMessage("Code.gs gedownload! Plak dit in Apps Script en publiceer een nieuwe versie.");
+		} catch {
+			setToastMessage("Downloaden van Code.gs mislukt.");
+		}
+	};
 	const handleConfirmReset = () => {
 		localStorage.clear();
 		idbClearAll().catch(() => {});
@@ -51138,6 +51159,15 @@ function App() {
 												},
 												className: "w-full text-left px-3.5 py-2 hover:bg-[#132247] text-emerald-400 flex items-center gap-2",
 												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(FileCode2, { className: "w-3.5 h-3.5" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Download index.html (GitHub)" })]
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+												type: "button",
+												onClick: () => {
+													handleDownloadAppsScript();
+													setOpenToolsMenu(false);
+												},
+												className: "w-full text-left px-3.5 py-2 hover:bg-[#132247] text-sky-400 flex items-center gap-2",
+												children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(FileCode2, { className: "w-3.5 h-3.5" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Download Code.gs (Apps Script)" })]
 											}),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "border-t border-[#182649] my-1" }),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
@@ -51403,6 +51433,11 @@ function App() {
       --tw-translate-x: 0;
       --tw-translate-y: 0;
       --tw-translate-z: 0;
+      --tw-rotate-x: initial;
+      --tw-rotate-y: initial;
+      --tw-rotate-z: initial;
+      --tw-skew-x: initial;
+      --tw-skew-y: initial;
       --tw-space-y-reverse: 0;
       --tw-divide-y-reverse: 0;
       --tw-border-style: solid;
@@ -51436,6 +51471,7 @@ function App() {
       --tw-ring-offset-width: 0px;
       --tw-ring-offset-color: #fff;
       --tw-ring-offset-shadow: 0 0 #0000;
+      --tw-outline-style: solid;
       --tw-blur: initial;
       --tw-brightness: initial;
       --tw-contrast: initial;
@@ -51792,12 +51828,20 @@ function App() {
     position: relative;
   }
 
+  .static {
+    position: static;
+  }
+
   .sticky {
     position: sticky;
   }
 
   .inset-0 {
     inset: 0;
+  }
+
+  .top-1 {
+    top: var(--spacing);
   }
 
   .top-1\/2 {
@@ -51828,6 +51872,40 @@ function App() {
     z-index: 50;
   }
 
+  .container {
+    width: 100%;
+  }
+
+  @media (min-width: 40rem) {
+    .container {
+      max-width: 40rem;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .container {
+      max-width: 48rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .container {
+      max-width: 64rem;
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .container {
+      max-width: 80rem;
+    }
+  }
+
+  @media (min-width: 96rem) {
+    .container {
+      max-width: 96rem;
+    }
+  }
+
   .-m-1 {
     margin: calc(var(--spacing) * -1);
   }
@@ -51838,6 +51916,10 @@ function App() {
 
   .my-1 {
     margin-block: var(--spacing);
+  }
+
+  .mt-0 {
+    margin-top: 0;
   }
 
   .mt-0\.5 {
@@ -51868,6 +51950,10 @@ function App() {
     margin-bottom: calc(var(--spacing) * 5);
   }
 
+  .ml-1 {
+    margin-left: var(--spacing);
+  }
+
   .ml-1\.5 {
     margin-left: calc(var(--spacing) * 1.5);
   }
@@ -51896,12 +51982,44 @@ function App() {
     display: none;
   }
 
+  .inline {
+    display: inline;
+  }
+
   .inline-block {
     display: inline-block;
   }
 
   .inline-flex {
     display: inline-flex;
+  }
+
+  .table {
+    display: table;
+  }
+
+  .table-cell {
+    display: table-cell;
+  }
+
+  .table-column {
+    display: table-column;
+  }
+
+  .table-column-group {
+    display: table-column-group;
+  }
+
+  .table-row {
+    display: table-row;
+  }
+
+  .table-row-group {
+    display: table-row-group;
+  }
+
+  .h-2 {
+    height: calc(var(--spacing) * 2);
   }
 
   .h-2\.5 {
@@ -51954,6 +52072,10 @@ function App() {
 
   .min-h-screen {
     min-height: 100vh;
+  }
+
+  .w-2 {
+    width: calc(var(--spacing) * 2);
   }
 
   .w-2\.5 {
@@ -52040,6 +52162,10 @@ function App() {
     flex: 1;
   }
 
+  .flex-shrink {
+    flex-shrink: 1;
+  }
+
   .shrink-0 {
     flex-shrink: 0;
   }
@@ -52048,9 +52174,18 @@ function App() {
     border-collapse: collapse;
   }
 
+  .-translate-y-1 {
+    --tw-translate-y: calc(var(--spacing) * -1);
+    translate: var(--tw-translate-x) var(--tw-translate-y);
+  }
+
   .-translate-y-1\/2 {
     --tw-translate-y: calc(calc(1 / 2 * 100%) * -1);
     translate: var(--tw-translate-x) var(--tw-translate-y);
+  }
+
+  .transform {
+    transform: var(--tw-rotate-x, ) var(--tw-rotate-y, ) var(--tw-rotate-z, ) var(--tw-skew-x, ) var(--tw-skew-y, );
   }
 
   .animate-pulse {
@@ -52063,6 +52198,10 @@ function App() {
 
   .cursor-pointer {
     cursor: pointer;
+  }
+
+  .resize {
+    resize: both;
   }
 
   .grid-cols-1 {
@@ -52145,6 +52284,12 @@ function App() {
     gap: calc(var(--spacing) * 6);
   }
 
+  :where(.space-y-1 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(var(--spacing) * var(--tw-space-y-reverse));
+    margin-block-end: calc(var(--spacing) * calc(1 - var(--tw-space-y-reverse)));
+  }
+
   :where(.space-y-1\.5 > :not(:last-child)) {
     --tw-space-y-reverse: 0;
     margin-block-start: calc(calc(var(--spacing) * 1.5) * var(--tw-space-y-reverse));
@@ -52179,6 +52324,10 @@ function App() {
     --tw-space-y-reverse: 0;
     margin-block-start: calc(calc(var(--spacing) * 6) * var(--tw-space-y-reverse));
     margin-block-end: calc(calc(var(--spacing) * 6) * calc(1 - var(--tw-space-y-reverse)));
+  }
+
+  .gap-x-1 {
+    column-gap: var(--spacing);
   }
 
   .gap-x-1\.5 {
@@ -52299,6 +52448,10 @@ function App() {
     }
   }
 
+  .border-rose-500 {
+    border-color: var(--color-rose-500);
+  }
+
   .border-rose-500\/20 {
     border-color: #ff235733;
   }
@@ -52317,6 +52470,10 @@ function App() {
     .border-rose-500\/30 {
       border-color: color-mix(in oklab, var(--color-rose-500) 30%, transparent);
     }
+  }
+
+  .border-sky-500 {
+    border-color: var(--color-sky-500);
   }
 
   .border-sky-500\/30 {
@@ -52389,6 +52546,10 @@ function App() {
     background-color: #fb7185;
   }
 
+  .bg-black {
+    background-color: var(--color-black);
+  }
+
   .bg-black\/75 {
     background-color: #000000bf;
   }
@@ -52425,6 +52586,10 @@ function App() {
     .bg-rose-500\/15 {
       background-color: color-mix(in oklab, var(--color-rose-500) 15%, transparent);
     }
+  }
+
+  .bg-rose-950 {
+    background-color: var(--color-rose-950);
   }
 
   .bg-rose-950\/30 {
@@ -52482,6 +52647,10 @@ function App() {
     object-position: center;
   }
 
+  .p-0 {
+    padding: 0;
+  }
+
   .p-0\.5 {
     padding: calc(var(--spacing) * .5);
   }
@@ -52492,6 +52661,10 @@ function App() {
 
   .p-1\.5 {
     padding: calc(var(--spacing) * 1.5);
+  }
+
+  .p-2 {
+    padding: calc(var(--spacing) * 2);
   }
 
   .p-2\.5 {
@@ -52512,6 +52685,10 @@ function App() {
 
   .p-6 {
     padding: calc(var(--spacing) * 6);
+  }
+
+  .px-1 {
+    padding-inline: var(--spacing);
   }
 
   .px-1\.5 {
@@ -52624,6 +52801,10 @@ function App() {
 
   .pb-6 {
     padding-bottom: calc(var(--spacing) * 6);
+  }
+
+  .pl-4 {
+    padding-left: calc(var(--spacing) * 4);
   }
 
   .pl-4\.5 {
@@ -52788,6 +52969,10 @@ function App() {
     text-transform: uppercase;
   }
 
+  .italic {
+    font-style: italic;
+  }
+
   .tabular-nums {
     --tw-numeric-spacing: tabular-nums;
     font-variant-numeric: var(--tw-ordinal, ) var(--tw-slashed-zero, ) var(--tw-numeric-figure, ) var(--tw-numeric-spacing, ) var(--tw-numeric-fraction, );
@@ -52814,6 +52999,11 @@ function App() {
     opacity: .9;
   }
 
+  .shadow {
+    --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, #0000001a), 0 1px 2px -1px var(--tw-shadow-color, #0000001a);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+
   .shadow-2xl {
     --tw-shadow: 0 25px 50px -12px var(--tw-shadow-color, #00000040);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -52822,6 +53012,10 @@ function App() {
   .ring-1 {
     --tw-ring-shadow: var(--tw-ring-inset, ) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+
+  .ring-emerald-500 {
+    --tw-ring-color: var(--color-emerald-500);
   }
 
   .ring-emerald-500\/40 {
@@ -52834,8 +53028,29 @@ function App() {
     }
   }
 
+  .\!outline {
+    outline-style: var(--tw-outline-style) !important;
+    outline-width: 1px !important;
+  }
+
+  .outline {
+    outline-style: var(--tw-outline-style);
+    outline-width: 1px;
+  }
+
+  .blur {
+    --tw-blur: blur(8px);
+    filter: var(--tw-blur, ) var(--tw-brightness, ) var(--tw-contrast, ) var(--tw-grayscale, ) var(--tw-hue-rotate, ) var(--tw-invert, ) var(--tw-saturate, ) var(--tw-sepia, ) var(--tw-drop-shadow, );
+  }
+
   .filter {
     filter: var(--tw-blur, ) var(--tw-brightness, ) var(--tw-contrast, ) var(--tw-grayscale, ) var(--tw-hue-rotate, ) var(--tw-invert, ) var(--tw-saturate, ) var(--tw-sepia, ) var(--tw-drop-shadow, );
+  }
+
+  .transition {
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
 
   .transition-colors {
@@ -53143,6 +53358,31 @@ function App() {
   initial-value: 0;
 }
 
+@property --tw-rotate-x {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-rotate-y {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-rotate-z {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-skew-x {
+  syntax: "*";
+  inherits: false
+}
+
+@property --tw-skew-y {
+  syntax: "*";
+  inherits: false
+}
+
 @property --tw-space-y-reverse {
   syntax: "*";
   inherits: false;
@@ -53324,6 +53564,12 @@ function App() {
   syntax: "*";
   inherits: false;
   initial-value: 0 0 #0000;
+}
+
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
 }
 
 @property --tw-blur {
